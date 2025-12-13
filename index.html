@@ -1,223 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Earn App</title>
+  <meta charset="UTF-8">
+  <title>Earn Coins</title>
 
-    <!-- TELEGRAM SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Telegram -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- FIREBASE SDK (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-    <!-- MONETAG SDK -->
-    <script src="//libtl.com/sdk.js" data-zone="10318378" data-sdk="show_10318378"></script>
-
-    <!-- FONTS -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --accent: #3b82f6;
-        }
-        body { margin: 0; padding: 20px; font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        .orb-container { position: relative; width: 200px; height: 200px; margin: 20px 0; display: flex; justify-content: center; align-items: center; }
-        .progress-circle { transform: rotate(-90deg); transition: stroke-dashoffset 0.5s ease; }
-        .orb-text { position: absolute; text-align: center; }
-        .orb-coins { font-size: 32px; font-weight: 800; display: block; }
-        .orb-usd { font-size: 14px; color: var(--text-secondary); }
-
-        .stats-box { background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 20px; margin-bottom: 30px; font-size: 14px; color: var(--text-secondary); }
-
-        .btn { width: 100%; max-width: 320px; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 15px; color: white; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background: linear-gradient(135deg, #ec4899, #f97316); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4); }
-        .btn-secondary { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #334155; background: var(--bg-color); color: white; }
-
-        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 10px 20px; border-radius: 20px; opacity: 0; transition: 0.3s; pointer-events: none; }
-    </style>
+  <!-- Monetag -->
+  <script src="//libtl.com/sdk.js"
+          data-zone="10318378"
+          data-sdk="show_10318378"></script>
 </head>
+
 <body>
+  <h2>💰 Watch Ad & Earn</h2>
+  <button id="adBtn">Watch Ad</button>
+  <p id="msg"></p>
 
-    <!-- ORB -->
-    <div class="orb-container">
-        <svg width="200" height="200">
-            <circle stroke="#1e293b" stroke-width="15" fill="none" r="85" cx="100" cy="100"/>
-            <circle class="progress-circle" id="orbFill" stroke="#3b82f6" stroke-width="15" fill="none" r="85" cx="100" cy="100" stroke-linecap="round"/>
-        </svg>
-        <div class="orb-text">
-            <span class="orb-coins" id="uiCoins">0</span>
-            <span class="orb-usd" id="uiUsd">$0.000</span>
-        </div>
-    </div>
+<script type="module">
+  import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
-    <div class="stats-box">Ads Watched: <strong id="uiAds">0</strong></div>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAyHbj89lXQjftn81XFTRnhrCQenmusu8k",
+    authDomain: "moneteg-ads-afb9f.firebaseapp.com",
+    projectId: "moneteg-ads-afb9f",
+    storageBucket: "moneteg-ads-afb9f.firebasestorage.app",
+    messagingSenderId: "622725908968",
+    appId: "1:622725908968:web:f7c317c2bd1cdd73da7c5d"
+  };
 
-    <button class="btn btn-primary" id="btnWatch" onclick="handleWatchAd()">Watch Ad (+2 Coins)</button>
-    <button class="btn btn-secondary" id="btnWithdraw" onclick="openModal()">Withdraw Funds</button>
+  initializeApp(firebaseConfig);
+</script>
 
-    <div class="modal" id="withdrawModal">
-        <div class="modal-content">
-            <h3>Withdraw</h3>
-            <p style="font-size:12px; color:#94a3b8">Min: 1000 Coins ($1.00)</p>
-            <input type="text" id="wAmount" readonly value="$0.00">
-            <select id="wMethod">
-                <option value="PayPal">PayPal</option>
-                <option value="Crypto_USDT">USDT (TRC20)</option>
-                <option value="Bank">Bank Transfer</option>
-            </select>
-            <input type="text" id="wDetail" placeholder="Wallet / Email / Phone">
-            <button class="btn btn-primary" onclick="submitWithdraw()">Confirm Request</button>
-            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        </div>
-    </div>
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.ready();
 
-    <div class="toast" id="toast">Message</div>
+  const userId = tg.initDataUnsafe.user.id;
+  const BACKEND = "https://monetagads-1.onrender.com"; // তোমার Render লিংক
 
-    <script>
-        // CONFIGURATION
-        const BACKEND_URL = "https://monetagads-1.onrender.com"; // তোমার backend Render URL
-        const MONETAG_FUNC = "show_10318378"; // Monetag SDK function
+  document.getElementById("adBtn").onclick = () => {
+    document.getElementById("msg").innerText = "Ad running...";
 
-        // Firebase Config (New Project)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAyHbj89lXQjftn81XFTRnhrCQenmusu8k",
-            authDomain: "moneteg-ads-afb9f.firebaseapp.com",
-            databaseURL: "https://moneteg-ads-afb9f-default-rtdb.firebaseio.com",
-            projectId: "moneteg-ads-afb9f",
-            storageBucket: "moneteg-ads-afb9f.firebasestorage.app",
-            messagingSenderId: "622725908968",
-            appId: "1:622725908968:web:f7c317c2bd1cdd73da7c5d"
-        };
+    // Monetag Ad
+    show_10318378();
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+    // ⏱️ 15 সেকেন্ড পরে reward
+    setTimeout(async () => {
+      const r = await fetch(BACKEND + "/reward", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+      });
 
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        let currentUser = { coins: 0, ads: 0 };
-        const ORB_MAX = 1000;
-
-        function init() {
-            if (!tg.initDataUnsafe?.user) console.warn("No Telegram User detected.");
-
-            fetch(`${BACKEND_URL}/api/sync`, {
-                method: 'POST',
-                headers: { 'x-telegram-init-data': tg.initData }
-            }).catch(e => console.error("Sync failed:", e));
-
-            const userId = String(tg.initDataUnsafe?.user?.id || 'test_user');
-            db.collection('users').doc(userId).onSnapshot(doc => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    currentUser.coins = data.coins || 0;
-                    currentUser.ads = data.totalAdsWatched || 0;
-                    updateUI();
-                }
-            });
-        }
-
-        function updateUI() {
-            document.getElementById('uiCoins').innerText = currentUser.coins;
-            document.getElementById('uiAds').innerText = currentUser.ads;
-            const usd = (currentUser.coins * 0.001).toFixed(3);
-            document.getElementById('uiUsd').innerText = `$${usd}`;
-            document.getElementById('wAmount').value = `$${usd}`;
-
-            const circle = document.getElementById('orbFill');
-            const radius = circle.r.baseVal.value;
-            const circumference = radius * 2 * Math.PI;
-            circle.style.strokeDasharray = `${circumference} ${circumference}`;
-            const percent = Math.min(currentUser.coins / ORB_MAX, 1);
-            circle.style.strokeDashoffset = circumference - percent * circumference;
-        }
-
-        function handleWatchAd() {
-            const btn = document.getElementById('btnWatch');
-            btn.disabled = true;
-            btn.innerText = "Loading Ad...";
-
-            if (typeof window[MONETAG_FUNC] === 'function') {
-                window[MONETAG_FUNC]().then(() => {
-                    claimReward();
-                }).catch(err => {
-                    showToast("Ad not completed", true);
-                    btn.disabled = false;
-                    btn.innerText = "Watch Ad (+2 Coins)";
-                });
-            } else {
-                showToast("Ad System Loading...", true);
-                setTimeout(() => { btn.disabled = false; btn.innerText = "Watch Ad (+2 Coins)"; }, 2000);
-            }
-        }
-
-        async function claimReward() {
-            const btn = document.getElementById('btnWatch');
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/claim-reward`, {
-                    method: 'POST',
-                    headers: { 'x-telegram-init-data': tg.initData }
-                });
-                const data = await res.json();
-                if (res.ok) showToast(`+${data.reward} Coins Earned!`);
-                else showToast(data.error || "Error claiming reward", true);
-            } catch (e) {
-                showToast("Network Error", true);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Watch Ad (+2 Coins)";
-            }
-        }
-
-        function openModal() { document.getElementById('withdrawModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('withdrawModal').style.display = 'none'; }
-
-        async function submitWithdraw() {
-            const method = document.getElementById('wMethod').value;
-            const detail = document.getElementById('wDetail').value;
-
-            if (currentUser.coins < 1000) return showToast("Min 1000 Coins required", true);
-            if (!detail) return showToast("Enter payment details", true);
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/withdraw`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-telegram-init-data': tg.initData },
-                    body: JSON.stringify({ method, phone: detail })
-                });
-                if (res.ok) {
-                    showToast("Withdrawal Request Sent!");
-                    closeModal();
-                } else showToast("Failed to request", true);
-            } catch (e) {
-                showToast("Error", true);
-            }
-        }
-
-        function showToast(msg, isError) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.style.background = isError ? '#ef4444' : '#10b981';
-            t.style.opacity = '1';
-            t.style.bottom = '100px';
-            setTimeout(() => { t.style.opacity = '0'; t.style.bottom = '80px'; }, 3000);
-        }
-
-        init();
-    </script>
+      const d = await r.json();
+      document.getElementById("msg").innerText =
+        d.status === "OK"
+        ? "✅ Coin Added"
+        : "⏳ Wait 30 sec";
+    }, 15000);
+  };
+</script>
 </body>
 </html>
