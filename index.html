@@ -1,67 +1,480 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Earn Coins</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Orb Earner</title>
+    
+    <!-- SDKs -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Confetti Effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Monetag SDK -->
+    <script src="//libtl.com/sdk.js" data-zone="YOUR_MONETAG_ZONE_ID" data-sdk="show_ads_func"></script>
 
-  <!-- Telegram -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
 
-  <!-- Monetag -->
-  <script src="//libtl.com/sdk.js"
-          data-zone="10318378"
-          data-sdk="show_10318378"></script>
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --glass: rgba(255, 255, 255, 0.05);
+            --neon-blue: #00f0ff;
+            --neon-purple: #bc13fe;
+            --neon-orange: #ff8b00;
+            --text-main: #ffffff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 20px;
+            background: radial-gradient(circle at center, #1a1f2e 0%, var(--bg) 100%);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- 3D ORB --- */
+        .orb-stage {
+            position: relative;
+            width: 220px; height: 220px;
+            margin: 30px 0;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .orb {
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 50%),
+                        linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.3), inset 0 0 20px rgba(255,255,255,0.2);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative;
+            z-index: 2;
+            animation: float 4s ease-in-out infinite;
+            transition: transform 0.2s;
+        }
+
+        .orb:active { transform: scale(0.95); }
+        .orb.pulse { animation: pulseHit 0.3s ease-out; }
+
+        .orb-ring {
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 2px dashed rgba(255,255,255,0.2);
+            animation: spin 10s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulseHit { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.5); } 100% { transform: scale(1); filter: brightness(1); } }
+
+        .points-val { font-family: 'Orbitron', sans-serif; font-size: 42px; font-weight: 900; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .points-label { font-size: 14px; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase; }
+
+        /* --- STATS BOX --- */
+        .stats-panel {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex; gap: 15px; align-items: center;
+        }
+        .stat-icon { color: var(--neon-orange); font-size: 20px; }
+
+        /* --- 3D BUTTONS --- */
+        .grid-menu {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            width: 100%; max-width: 400px;
+        }
+
+        .btn-3d {
+            position: relative;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border: none;
+            border-radius: 12px;
+            padding: 0;
+            cursor: pointer;
+            outline-offset: 4px;
+            transition: filter 250ms;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-shadow {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transform: translateY(2px);
+            transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+        }
+
+        .btn-edge {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 12px;
+            background: linear-gradient(to left, #0e0e0e 0%, #333 8%, #333 92%, #0e0e0e 100%);
+        }
+
+        .btn-face {
+            display: block; position: relative;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px; font-weight: 700; color: white;
+            background: #222;
+            transform: translateY(-4px);
+            transition: transform 150ms;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            overflow: hidden;
+        }
+
+        /* Button Colors */
+        .btn-primary .btn-face { background: linear-gradient(135deg, var(--neon-blue), #2a5ee8); box-shadow: 0 0 15px rgba(0,240,255,0.3); }
+        .btn-secondary .btn-face { background: linear-gradient(135deg, var(--neon-purple), #8a2be2); box-shadow: 0 0 15px rgba(188,19,254,0.3); }
+        .btn-danger .btn-face { background: linear-gradient(135deg, #ff4d4d, #c0392b); }
+
+        .btn-3d:active .btn-shadow { transform: translateY(0); }
+        .btn-3d:active .btn-face { transform: translateY(0); }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: #151922;
+            border: 1px solid var(--neon-blue);
+            padding: 25px;
+            border-radius: 20px;
+            width: 90%; max-width: 350px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0,240,255,0.1);
+            position: relative;
+        }
+        .modal h2 { margin-top: 0; color: var(--neon-blue); font-family: 'Orbitron'; }
+        
+        input, select {
+            width: 100%; padding: 12px; margin: 10px 0;
+            background: rgba(255,255,255,0.05); border: 1px solid #333;
+            color: white; border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px;
+        }
+        
+        .list-item {
+            display: flex; justify-content: space-between;
+            padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* --- TOAST --- */
+        .toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--neon-blue); color: #000;
+            padding: 10px 20px; border-radius: 30px;
+            font-weight: bold; opacity: 0; transition: all 0.3s;
+            pointer-events: none; z-index: 2000;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    </style>
 </head>
-
 <body>
-  <h2>💰 Watch Ad & Earn</h2>
-  <button id="adBtn">Watch Ad</button>
-  <p id="msg"></p>
 
-<script type="module">
-  import { initializeApp } from
-  "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    <!-- UI -->
+    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: bold;">HELLO, <span id="username" style="color:var(--neon-blue)">USER</span></div>
+        <div id="connectionStatus" style="font-size:10px; color:#555;">●</div>
+    </div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAyHbj89lXQjftn81XFTRnhrCQenmusu8k",
-    authDomain: "moneteg-ads-afb9f.firebaseapp.com",
-    projectId: "moneteg-ads-afb9f",
-    storageBucket: "moneteg-ads-afb9f.firebasestorage.app",
-    messagingSenderId: "622725908968",
-    appId: "1:622725908968:web:f7c317c2bd1cdd73da7c5d"
-  };
+    <div class="orb-stage">
+        <div class="orb-ring"></div>
+        <div class="orb" id="orbBtn">
+            <span class="points-val" id="pointsDisplay">0</span>
+            <span class="points-label">POINTS</span>
+        </div>
+    </div>
 
-  initializeApp(firebaseConfig);
-</script>
+    <div class="stats-panel">
+        <span class="stat-icon">▶</span>
+        <div>Ads Watched: <strong id="adsDisplay" style="color: white;">0</strong></div>
+    </div>
 
-<script>
-  const tg = window.Telegram.WebApp;
-  tg.ready();
+    <div class="grid-menu">
+        <button class="btn-3d btn-primary" id="watchAdBtn" onclick="watchAd()">
+            <span class="btn-shadow"></span>
+            <span class="btn-edge"></span>
+            <span class="btn-face">WATCH AD</span>
+        </button>
+        
+        <button class="btn-3d btn-secondary" onclick="openModal('withdrawModal')">
+            <span class="btn-shadow"></span>
+            <span class="btn-edge"></span>
+            <span class="btn-face">WITHDRAW</span>
+        </button>
 
-  const userId = tg.initDataUnsafe.user.id;
-  const BACKEND = "https://monetagads-1.onrender.com"; // তোমার Render লিংক
+        <button class="btn-3d" onclick="loadLeaderboard()">
+            <span class="btn-shadow"></span>
+            <span class="btn-edge"></span>
+            <span class="btn-face">TOP USERS</span>
+        </button>
+        
+        <button class="btn-3d btn-danger" onclick="Telegram.WebApp.close()">
+            <span class="btn-shadow"></span>
+            <span class="btn-edge"></span>
+            <span class="btn-face">EXIT</span>
+        </button>
+    </div>
 
-  document.getElementById("adBtn").onclick = () => {
-    document.getElementById("msg").innerText = "Ad running...";
+    <!-- WITHDRAW MODAL -->
+    <div class="modal-overlay" id="withdrawModal">
+        <div class="modal">
+            <h2>CASH OUT</h2>
+            <p style="font-size: 12px; color: #aaa;">Rate: 1000 Points = $1.00</p>
+            <input type="text" id="wAmount" value="0 Points ($0.00)" readonly style="text-align:center; font-weight:bold;">
+            <select id="wMethod">
+                <option value="Bkash">Bkash</option>
+                <option value="Nagad">Nagad</option>
+                <option value="Rocket">Rocket</option>
+            </select>
+            <input type="number" id="wNumber" placeholder="Wallet Number">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+                <button class="btn-3d btn-primary" onclick="submitWithdraw()">
+                    <span class="btn-edge"></span><span class="btn-face">SUBMIT</span>
+                </button>
+                <button class="btn-3d btn-danger" onclick="closeModal('withdrawModal')">
+                    <span class="btn-edge"></span><span class="btn-face">CANCEL</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
-    // Monetag Ad
-    show_10318378();
+    <!-- LEADERBOARD MODAL -->
+    <div class="modal-overlay" id="leaderboardModal">
+        <div class="modal">
+            <h2>LEADERS</h2>
+            <div id="leaderboardList" style="text-align:left; max-height: 200px; overflow-y:auto; font-size:14px;">
+                <!-- Items injected here -->
+            </div>
+            <button class="btn-3d btn-secondary" onclick="closeModal('leaderboardModal')" style="margin-top:15px; width:100%">
+                <span class="btn-edge"></span><span class="btn-face">CLOSE</span>
+            </button>
+        </div>
+    </div>
 
-    // ⏱️ 15 সেকেন্ড পরে reward
-    setTimeout(async () => {
-      const r = await fetch(BACKEND + "/reward", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId })
-      });
+    <div class="toast" id="toast">Notification</div>
 
-      const d = await r.json();
-      document.getElementById("msg").innerText =
-        d.status === "OK"
-        ? "✅ Coin Added"
-        : "⏳ Wait 30 sec";
-    }, 15000);
-  };
-</script>
+    <script>
+        // --- CONFIG ---
+        const BACKEND_URL = "https://YOUR-RENDER-APP-NAME.onrender.com"; // UPDATE THIS
+        const MONETAG_FUNC = "show_ads_func"; // Must match data-sdk in script tag
+        
+        // Firebase Public Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAyHbj89lXQjftn81XFTRnhrCQenmusu8k",
+  authDomain: "moneteg-ads-afb9f.firebaseapp.com",
+  projectId: "moneteg-ads-afb9f",
+  storageBucket: "moneteg-ads-afb9f.firebasestorage.app",
+  messagingSenderId: "622725908968",
+  appId: "1:622725908968:web:f7c317c2bd1cdd73da7c5d"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();"
+        };
+
+        // --- INIT ---
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.enableClosingConfirmation();
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let state = { coins: 0, ads: 0, userId: null };
+        const coinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3'); // Generic coin sound
+
+        // --- APP LOGIC ---
+
+        function initApp() {
+            const user = tg.initDataUnsafe?.user;
+            if(!user) {
+                console.warn("No Telegram User detected (Local Mode)");
+                state.userId = "test_user_1";
+                document.getElementById('username').innerText = "TESTER";
+            } else {
+                state.userId = String(user.id);
+                document.getElementById('username').innerText = (user.first_name || "User").toUpperCase();
+            }
+
+            // 1. Sync User Creation
+            fetch(`${BACKEND_URL}/api/sync`, {
+                method: 'POST',
+                headers: { 'x-telegram-init-data': tg.initData }
+            }).catch(e => console.error("Sync fail", e));
+
+            // 2. Realtime Listener
+            db.collection('users').doc(state.userId).onSnapshot(doc => {
+                if(doc.exists) {
+                    const data = doc.data();
+                    
+                    // Detect increase for effect
+                    if(data.coins > state.coins) {
+                        pulseOrb();
+                        triggerConfetti();
+                        coinSound.play().catch(()=>{});
+                    }
+
+                    state.coins = data.coins || 0;
+                    state.ads = data.totalAdsWatched || 0;
+                    updateUI();
+                }
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('pointsDisplay').innerText = state.coins;
+            document.getElementById('adsDisplay').innerText = state.ads;
+            
+            const dollars = (state.coins / 1000).toFixed(2);
+            document.getElementById('wAmount').value = `${state.coins} Points ($${dollars})`;
+            
+            // Connection indicator
+            document.getElementById('connectionStatus').style.color = '#00ff00';
+        }
+
+        // --- ADS ---
+        function watchAd() {
+            const btn = document.getElementById('watchAdBtn');
+            btn.style.filter = "grayscale(1)";
+            
+            if (typeof window[MONETAG_FUNC] === 'function') {
+                window[MONETAG_FUNC]().then(() => {
+                    claimReward();
+                }).catch(e => {
+                    showToast("Ad Closed/Error");
+                    btn.style.filter = "none";
+                });
+            } else {
+                // For development testing without script
+                console.log("Monetag SDK missing - Simulating Ad");
+                setTimeout(() => claimReward(), 2000);
+            }
+        }
+
+        async function claimReward() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/claim-reward`, {
+                    method: 'POST',
+                    headers: { 'x-telegram-init-data': tg.initData }
+                });
+                
+                if(res.ok) {
+                    showToast("+1 POINT EARNED!");
+                } else {
+                    showToast("Reward Failed");
+                }
+            } catch(e) {
+                showToast("Network Error");
+            } finally {
+                document.getElementById('watchAdBtn').style.filter = "none";
+            }
+        }
+
+        // --- WITHDRAW ---
+        async function submitWithdraw() {
+            const method = document.getElementById('wMethod').value;
+            const number = document.getElementById('wNumber').value;
+
+            if(state.coins < 1000) return showToast("Need 1000 Points");
+            if(!number) return showToast("Enter Number");
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/withdraw`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-telegram-init-data': tg.initData 
+                    },
+                    body: JSON.stringify({ method, number })
+                });
+
+                if(res.ok) {
+                    showToast("Request Sent!");
+                    closeModal('withdrawModal');
+                } else {
+                    showToast("Failed to submit");
+                }
+            } catch(e) {
+                showToast("Error");
+            }
+        }
+
+        // --- EXTRAS ---
+        async function loadLeaderboard() {
+            openModal('leaderboardModal');
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = "Loading...";
+
+            try {
+                const snap = await db.collection('users').orderBy('coins', 'desc').limit(10).get();
+                let html = "";
+                snap.forEach((doc, index) => {
+                    const d = doc.data();
+                    html += `
+                        <div class="list-item">
+                            <span>#${index+1} ${d.firstName || 'User'}</span>
+                            <span style="color:var(--neon-blue)">${d.coins}</span>
+                        </div>`;
+                });
+                list.innerHTML = html;
+            } catch(e) {
+                list.innerHTML = "Error loading data";
+            }
+        }
+
+        // --- UTILS & ANIMATIONS ---
+        function pulseOrb() {
+            const orb = document.getElementById('orbBtn');
+            orb.classList.remove('pulse');
+            void orb.offsetWidth; // Trigger reflow
+            orb.classList.add('pulse');
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#00f0ff', '#bc13fe', '#ffffff']
+            });
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Boot
+        initApp();
+
+    </script>
 </body>
-</html>
+      </html>
