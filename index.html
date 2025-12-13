@@ -16,8 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
     <!-- 4. MONETAG SDK -->
-    <!-- REPLACE: data-zone="YOUR_ZONE_ID" and ensure data-sdk matches your function name -->
-    <script src="//libtl.com/sdk.js" data-zone="1234567" data-sdk="show_ads_func"></script>
+    <script src='//libtl.com/sdk.js' data-zone='10318378' data-sdk='show_10318378'></script>
 
     <style>
         :root {
@@ -97,16 +96,238 @@
     <script>
         // --- CONFIGURATION ---
         const BACKEND_URL = "https://YOUR-RENDER-APP-NAME.onrender.com"; // UPDATE THIS AFTER DEPLOYING BACKEND
+        const MONETAG_FUNC = "show_10318378"; // MUST MATCH DATA-SDK in script tag
+
+        // FIREBASE CLIENT CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzqE5shOJtwd-iYYIEhzx_WbxuS6gdiwY",
+            authDomain: "telegram-web-app-f8f42.firebaseapp.com",
+            databaseURL: "https://telegram-web-app-f8f42-default-rtdb.firebaseio.com",
+            projectId: "telegram-web-app-f8f42",
+            storageBucket: "telegram-web-app-f8f42.firebasestorage.app",
+            messagingSenderId: "832378414446",
+            appId: "1:832378414446:web:eb811e28bda89536518d7f"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // --- TELEGRAM INIT ---
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let currentUser = { coins: 0, ads: 0 };
+        const ORB_MAX = 1000;
+
+        // --- APP LOGIC ---
+        function init() {
+            if (!tg.initDataUnsafe?.user) {
+                console.warn("No Telegram User detected. Running in test mode.");
+            }
+
+            // 1. Sync User with Backend
+            fetch(`${BACKEND_URL}/api/sync`, {
+                method: 'POST',
+                headers: { 'x-telegram-init-data': tg.initData }
+            }).catch(e => console.error("Sync failed:", e));
+
+            // 2. Real-time Database Listener
+            const userId = String(tg.initDataUnsafe?.user?.id || 'test_user');
+            db.collection('users').doc(userId).onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    currentUser.coins = data.coins || 0;
+                    currentUser.ads = data.totalAdsWatched || 0;
+                    updateUI();
+                }
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('uiCoins').innerText = currentUser.coins;
+            document.getElementById('uiAds').innerText = currentUser.ads;
+            
+            const usd = (currentUser.coins * 0.001).toFixed(3);
+            document.getElementById('uiUsd').innerText = `$${usd}`;
+            document.getElementById('wAmount').value = `$${usd}`;
+
+            const circle = document.getElementById('orbFill');
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            const percent = Math.min(currentUser.coins / ORB_MAX, 1);
+            const offset = circumference - percent * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        // --- AD LOGIC ---
+        function handleWatchAd() {
+            const btn = document.getElementById('btnWatch');
+            btn.disabled = true;
+            btn.innerText = "Loading Ad...";
+
+            if (typeof window[MONETAG_FUNC] === 'function') {
+                window[MONETAG_FUNC]().then(() => {
+                    claimReward();
+                }).catch(err => {
+                    console.error("Ad closed or failed", err);
+                    showToast("Ad not completed", true);
+                    btn.disabled = false;
+                    btn.innerText = "Watch Ad (+2 Coins)";
+                });
+            } else {
+                showToast("Ad System Loading...", true);
+                setTimeout(() => { btn.disabled = false; btn.innerText = "Watch Ad (+2 Coins)"; }, 2000);
+            }
+        }
+
+        async function claimReward() {
+            const btn = document.getElementById('btnWatch');
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/claim-reward`, {
+                    method: 'POST',
+                    headers: { 'x-telegram-init-data': tg.initData }
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showToast(`+${data.reward} Coins Earned!`);
+                } else {
+                    showToast(data.error || "Error claiming reward", true);
+                }
+            } catch (e) {
+                showToast("Network Error", true);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Watch Ad (+2 Coins)";
+            }
+        }
+
+        // --- WITHDRAW LOGIC ---
+        function openModal() { document.getElementById('withdrawModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('withdrawModal').style.display = 'none'; }
+
+        async function submitWithdraw() {
+            const method = document.getElementById('wMethod').value;
+            const detail = document.getElementById('wDetail').value;
+
+            if (currentUser.coins < 1000) return showToast("Min 1000 Coins required", true);
+            if (!detail) return showToast("Enter payment details", true);
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/withdraw`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-telegram-init-data': tg.initData 
+                    },
+                    body: JSON.stringify({ method, phone: detail })
+                });
+
+                if (res.ok) {
+                    showToast("Withdrawal Request Sent!");
+                    closeModal();
+                } else {
+                    showToast("Failed to request", true);
+                }
+            } catch (e) {
+                showToast("Error", true);
+            }
+        }
+
+        // --- TOAST ---
+        function showToast(msg, isError) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.background = isError ? '#ef4444' : '#10b981';
+            t.style.opacity = '1';
+            t.style.bottom = '100px';
+            setTimeout(() => { t.style.opacity = '0'; t.style.bottom = '80px'; }, 3000);
+        }
+
+        // START APP
+        init();
+    </script>
+</body>
+            </html>
+    <!-- ORB -->
+    <div class="orb-container">
+        <svg width="200" height="200">
+            <circle stroke="#1e293b" stroke-width="15" fill="none" r="85" cx="100" cy="100"/>
+            <circle class="progress-circle" id="orbFill" stroke="#3b82f6" stroke-width="15" fill="none" r="85" cx="100" cy="100" stroke-linecap="round"/>
+        </svg>
+        <div class="orb-text">
+            <span class="orb-coins" id="uiCoins">0</span>
+            <span class="orb-usd" id="uiUsd">$0.000</span>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-box">Ads Watched: <strong id="uiAds">0</strong></div>
+
+    <!-- ACTIONS -->
+    <button class="btn btn-primary" id="btnWatch" onclick="handleWatchAd()">Watch Ad (+2 Coins)</button>
+    <button class="btn btn-secondary" id="btnWithdraw" onclick="openModal()">Withdraw Funds</button>
+
+    <!-- WITHDRAW MODAL -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <h3>Withdraw</h3>
+            <p style="font-size:12px; color:#94a3b8">Min: 1000 Coins ($1.00)</p>
+            <input type="text" id="wAmount" readonly value="$0.00">
+            <select id="wMethod">
+                <option value="PayPal">PayPal</option>
+                <option value="Crypto_USDT">USDT (TRC20)</option>
+                <option value="Bank">Bank Transfer</option>
+            </select>
+            <input type="text" id="wDetail" placeholder="Wallet / Email / Phone">
+            <button class="btn btn-primary" onclick="submitWithdraw()">Confirm Request</button>
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Message</div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const BACKEND_URL = "https://YOUR-RENDER-APP-NAME.onrender.com"; // UPDATE THIS AFTER DEPLOYING BACKEND
         const MONETAG_FUNC = "show_ads_func"; // MUST MATCH DATA-SDK in script tag
 
         // FIREBASE CLIENT CONFIG (Get this from Firebase Console > Project Settings > General > Web App)
-        const firebaseConfig = {
-            apiKey: "AIzaSy...", 
-            authDomain: "your-project.firebaseapp.com",
-            projectId: "your-project",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123...",
-            appId: "1:123..."
+        const firebaseConfig = const firebaseConfig = {
+
+
+  apiKey: "AIzaSyDzqE5shOJtwd-iYYIEhzx_WbxuS6gdiwY",
+
+
+  authDomain: "telegram-web-app-f8f42.firebaseapp.com",
+
+
+  databaseURL: "https://telegram-web-app-f8f42-default-rtdb.firebaseio.com",
+
+
+  projectId: "telegram-web-app-f8f42",
+
+
+  storageBucket: "telegram-web-app-f8f42.firebasestorage.app",
+
+
+  messagingSenderId: "832378414446",
+
+
+  appId: "1:832378414446:web:eb811e28bda89536518d7f"
+
+
+};
+
+
+
+// Initialize Firebase
+
+
+const app = initializeApp(firebaseConfig);
         };
 
         // --- INITIALIZATION ---
