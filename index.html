@@ -311,11 +311,11 @@
 
     <script>
         // --- CONFIGURATION ---
-        const BACKEND_URL = "https://monetagads-1.onrender.com"; // CONFIGURED
-        const MONETAG_FUNC = "show_10318378"; // CONFIGURED
-        const BOT_USERNAME = "realldoler87ok_bot"; // CONFIGURED
+        const BACKEND_URL = "https://monetagads-1.onrender.com"; // আপনার Render URL
+        const MONETAG_FUNC = "show_10318378"; 
+        const BOT_USERNAME = "realldoler87ok_bot"; // আপনার Telegram Bot Username
         
-        // Firebase Public Config (telegram-web-app-f8f42) - CONFIGURED
+        // Firebase Public Config (ক্লায়েন্ট SDK-র জন্য)
         const firebaseConfig = {
             apiKey: "AIzaSyDzqE5shOJtwd-iYYIEhzx_WbxuS6gdiwY",
             authDomain: "telegram-web-app-f8f42.firebaseapp.com",
@@ -370,7 +370,7 @@
                 document.getElementById('connectionStatus').style.color = 'red';
             });
 
-            // 2. Realtime Listener
+            // 2. Realtime Listener (পয়েন্ট এবং রেফারেল আপডেট পড়ার জন্য)
             db.collection('users').doc(state.userId).onSnapshot(doc => {
                 if(doc.exists) {
                     const data = doc.data();
@@ -385,7 +385,14 @@
                     state.ads = data.totalAdsWatched || 0;
                     state.referrals = data.referrals || 0;
                     updateUI();
+                } else {
+                    // যদি ফায়ারবেস ক্লায়েন্ট ডেটা পড়তে না পারে
+                    showToast("Error: Cannot read data. Check Firebase Rules.", '#ff4d4d');
                 }
+            }, err => {
+                // নেটওয়ার্ক বা পারমিশন ত্রুটি
+                showToast("DB Connection Error: Check Firebase Rules/Status.", '#ff4d4d');
+                console.error("Snapshot Error:", err);
             });
         }
 
@@ -395,27 +402,27 @@
             document.getElementById('refCountDisplay').innerText = state.referrals;
         }
 
-        // --- ADS ---
+        // --- ADS (পয়েন্ট কাউন্ট লজিক) ---
         function watchAd() {
             const btn = document.getElementById('watchAdBtn');
             btn.style.filter = "grayscale(1)";
             
             if (typeof window[MONETAG_FUNC] === 'function') {
-                // Use MONETAG_FUNC from configured global
+                // Monetag অ্যাড সফল হলে claimReward কল হবে
                 window[MONETAG_FUNC]().then(() => {
                     claimReward();
                 }).catch(e => {
-                    showToast("Ad Closed/Error (Ad network issue)");
+                    showToast("Ad Closed/Error. Please try again.");
                     btn.style.filter = "none";
                 });
             } else {
-                // FALLBACK FOR TESTING
+                // TESTING FALLBACK
                 console.log("Monetag SDK missing - Simulating Ad");
                 setTimeout(() => claimReward(), 2000);
             }
         }
 
-        // UPDATED: সার্ভার থেকে আসা ত্রুটি বার্তা দেখাবে
+        // UPDATED: সার্ভার থেকে আসা ত্রুটি বার্তা দেখাবে (পয়েন্ট না বাড়ার কারণ)
         async function claimReward() {
             const btn = document.getElementById('watchAdBtn');
             try {
@@ -424,17 +431,22 @@
                     headers: { 'x-telegram-init-data': tg.initData }
                 });
                 
-                // Response এর JSON ডেটা পড়ুন
                 const data = await res.json(); 
 
                 if(res.ok) {
                     showToast("+1 POINT EARNED!");
                 } else {
-                    // সার্ভার থেকে আসা ত্রুটি বার্তা দেখান (যেমন: "Integrity Failed" বা অন্য কোনো ফায়ারবেস ত্রুটি)
-                    showToast(data.error || "Reward Failed: Unknown Server Error"); 
+                    // সার্ভার থেকে আসা ত্রুটি বার্তা দেখান (যদি Auth বা DB ত্রুটি হয়)
+                    let errorMsg = data.error || "Reward Failed: Unknown Server Error";
+                    if (errorMsg.includes('Integrity Failed')) {
+                        errorMsg = "Security Check Failed. Refresh App or Check Bot Token.";
+                    } else if (errorMsg.includes('DB Write Error')) {
+                        errorMsg = "Database Error. Contact Support.";
+                    }
+                    showToast(errorMsg, '#ff4d4d'); 
                 }
             } catch(e) {
-                showToast("Network Error: Check Server Connectivity");
+                showToast("Network Error: Cannot connect to server.");
             } finally {
                 btn.style.filter = "none";
             }
@@ -442,7 +454,7 @@
 
         // --- REFERRAL ---
         function openReferralModal() {
-            // Correct link generation
+            // Correct link generation (রেফারেল লিংক)
             const link = `https://t.me/${BOT_USERNAME}?start=${state.userId}`;
             document.getElementById('refLink').value = link;
             openModal('referralModal');
@@ -452,11 +464,10 @@
             const input = document.getElementById('refLink');
             input.select();
             input.setSelectionRange(0, 99999);
-            // Use modern clipboard API
             navigator.clipboard.writeText(input.value).then(() => {
                 showToast("Link Copied!");
             }).catch(err => {
-                 showToast("Copy failed: " + err);
+                 showToast("Copy failed.");
             });
         }
 
@@ -466,16 +477,9 @@
             const number = document.getElementById('wNumber').value.trim();
             const amountPoints = parseInt(document.getElementById('wInputPoints').value);
 
-            if(isNaN(amountPoints) || amountPoints < 1000) {
-                return showToast("Minimum withdrawal is 1000 Points.");
-            }
-            if(amountPoints > state.coins) {
-                return showToast("Insufficient Points.");
-            }
-            
-            if(number.length !== 11) {
-                return showToast("Wallet Number must be 11 digits.");
-            }
+            if(isNaN(amountPoints) || amountPoints < 1000) return showToast("Minimum withdrawal is 1000 Points.");
+            if(amountPoints > state.coins) return showToast("Insufficient Points.");
+            if(number.length !== 11) return showToast("Wallet Number must be 11 digits.");
             
             showToast("Submitting Withdrawal...");
 
@@ -493,11 +497,9 @@
                 if(res.ok) {
                     showToast("Withdrawal Sent! We will process it soon.");
                     closeModal('withdrawModal');
-                    // Clear inputs
                     document.getElementById('wInputPoints').value = '';
                     document.getElementById('wNumber').value = '';
                 } else {
-                    // সার্ভার থেকে আসা ত্রুটি বার্তা দেখান (যেমন: "Min 20 Referrals required")
                     showToast(data.error || "Failed to submit withdrawal request.");
                 }
             } catch(e) {
@@ -512,13 +514,11 @@
             list.innerHTML = "<div style='text-align: center; color: #999;'>Loading...</div>";
 
             try {
-                // Fetching from Firestore is client-side here
                 const snap = await db.collection('users').orderBy('coins', 'desc').limit(10).get();
                 let html = "";
                 snap.forEach((doc, index) => {
                     const d = doc.data();
-                    const name = d.firstName || d.first_name || d.username || 'User'; 
-                    // Highlight current user
+                    const name = d.firstName || d.username || 'User'; 
                     const isCurrentUser = d.userId === state.userId ? 'style="background: #202c40; border-radius: 5px;"' : '';
 
                     html += `
@@ -529,7 +529,7 @@
                 });
                 list.innerHTML = html;
                 if (snap.empty) {
-                    list.innerHTML = "<div style='text-align: center; color: #999;'>No users found in leaderboard.</div>";
+                    list.innerHTML = "<div style='text-align: center; color: #999;'>No users found.</div>";
                 }
             } catch(e) {
                 list.innerHTML = "<div style='text-align: center; color: red;'>Error loading data. Check Firebase Rules.</div>";
@@ -554,11 +554,12 @@
             });
         }
 
-        function showToast(msg) {
+        function showToast(msg, bgColor = '#00f0ff') {
             const t = document.getElementById('toast');
             t.innerText = msg;
+            t.style.background = bgColor;
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            setTimeout(() => t.classList.remove('show'), 4000);
         }
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
