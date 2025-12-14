@@ -1,19 +1,16 @@
 {
-  "name": "neon-orb-earner",
+  "name": "monetagads-server",
   "version": "1.0.0",
-  "description": "3D Telegram Mini App Backend",
+  "description": "Backend server for Telegram Mini App monetization.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
-    "express": "^4.18.2",
-    "firebase-admin": "^12.0.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "express": "^4.19.2",
+    "firebase-admin": "^12.1.0",
+    "node-telegram-bot-api": "^0.66.0"
   }
 }
