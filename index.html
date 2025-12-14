@@ -34,8 +34,6 @@
             display: flex; flex-direction: column; align-items: center;
             overflow-x: hidden;
         }
-
-        /* --- 3D ORB --- */
         .orb-stage {
             position: relative;
             width: 220px; height: 220px;
@@ -56,18 +54,6 @@
             transition: transform 0.2s;
         }
 
-        .orb:active { transform: scale(0.95); }
-        .orb.pulse { animation: pulseHit 0.3s ease-out; }
-
-        .orb-ring {
-            position: absolute;
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            border: 2px dashed rgba(255,255,255,0.2);
-            animation: spin 10s linear infinite;
-            pointer-events: none;
-        }
-
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulseHit { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.5); } 100% { transform: scale(1); filter: brightness(1); } }
@@ -86,7 +72,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             display: flex; gap: 15px; align-items: center;
         }
-        .stat-icon { color: var(--neon-orange); font-size: 20px; }
 
         /* --- 3D BUTTONS --- */
         .grid-menu {
@@ -146,8 +131,6 @@
 
         .btn-3d:active .btn-shadow { transform: translateY(0); }
         .btn-3d:active .btn-face { transform: translateY(0); }
-
-        /* --- MODALS --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8);
@@ -165,29 +148,11 @@
             box-shadow: 0 0 30px rgba(0,240,255,0.1);
             position: relative;
         }
-        .modal h2 { margin-top: 0; color: var(--neon-blue); font-family: 'Orbitron'; }
-        
-        input, select {
-            width: 100%; padding: 12px; margin: 10px 0;
-            background: rgba(255,255,255,0.05); border: 1px solid #333;
-            color: white; border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px;
-        }
         
         .copy-box {
             display: flex; gap: 5px; margin-top: 10px;
         }
-        .copy-box input { margin: 0; }
-        .btn-copy {
-            background: var(--neon-purple); border: none; color: white;
-            border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: bold;
-        }
-
-        .list-item {
-            display: flex; justify-content: space-between;
-            padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* --- TOAST --- */
+        
         .toast {
             position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
             background: var(--neon-blue); color: #000;
@@ -311,11 +276,12 @@
 
     <script>
         // --- CONFIGURATION ---
-        const BACKEND_URL = "https://monetagads-1.onrender.com"; // আপনার Render URL
+        // নিশ্চিত করুন যে আপনি Render-এ ডেপ্লয় করার পর এই URL টি আপডেট করেছেন!
+        const BACKEND_URL = "https://monetagads-1.onrender.com"; 
         const MONETAG_FUNC = "show_10318378"; 
         const BOT_USERNAME = "realldoler87ok_bot"; // আপনার Telegram Bot Username
         
-        // Firebase Public Config (ক্লায়েন্ট SDK-র জন্য)
+        // Firebase Public Config (এটি আপনার Firebase Console থেকে পাওয়া পাবলিক কী)
         const firebaseConfig = {
             apiKey: "AIzaSyDzqE5shOJtwd-iYYIEhzx_WbxuS6gdiwY",
             authDomain: "telegram-web-app-f8f42.firebaseapp.com",
@@ -343,7 +309,6 @@
             const startParam = tg.initDataUnsafe?.start_param || null;
 
             if(!user) {
-                console.warn("No Telegram User detected (Local Mode)");
                 state.userId = "test_user_1";
                 document.getElementById('username').innerText = "TESTER";
             } else {
@@ -366,7 +331,6 @@
                     document.getElementById('connectionStatus').style.color = 'red';
                 }
             }).catch(e => {
-                console.error("Sync fail", e);
                 document.getElementById('connectionStatus').style.color = 'red';
             });
 
@@ -386,13 +350,11 @@
                     state.referrals = data.referrals || 0;
                     updateUI();
                 } else {
-                    // যদি ফায়ারবেস ক্লায়েন্ট ডেটা পড়তে না পারে
+                    // এটি দেখায় Firebase Rules বা API এনাবল না থাকার সমস্যা
                     showToast("Error: Cannot read data. Check Firebase Rules.", '#ff4d4d');
                 }
             }, err => {
-                // নেটওয়ার্ক বা পারমিশন ত্রুটি
                 showToast("DB Connection Error: Check Firebase Rules/Status.", '#ff4d4d');
-                console.error("Snapshot Error:", err);
             });
         }
 
@@ -408,7 +370,6 @@
             btn.style.filter = "grayscale(1)";
             
             if (typeof window[MONETAG_FUNC] === 'function') {
-                // Monetag অ্যাড সফল হলে claimReward কল হবে
                 window[MONETAG_FUNC]().then(() => {
                     claimReward();
                 }).catch(e => {
@@ -416,13 +377,10 @@
                     btn.style.filter = "none";
                 });
             } else {
-                // TESTING FALLBACK
-                console.log("Monetag SDK missing - Simulating Ad");
-                setTimeout(() => claimReward(), 2000);
+                setTimeout(() => claimReward(), 2000); // TESTING FALLBACK
             }
         }
 
-        // UPDATED: সার্ভার থেকে আসা ত্রুটি বার্তা দেখাবে (পয়েন্ট না বাড়ার কারণ)
         async function claimReward() {
             const btn = document.getElementById('watchAdBtn');
             try {
@@ -436,12 +394,12 @@
                 if(res.ok) {
                     showToast("+1 POINT EARNED!");
                 } else {
-                    // সার্ভার থেকে আসা ত্রুটি বার্তা দেখান (যদি Auth বা DB ত্রুটি হয়)
                     let errorMsg = data.error || "Reward Failed: Unknown Server Error";
                     if (errorMsg.includes('Integrity Failed')) {
-                        errorMsg = "Security Check Failed. Refresh App or Check Bot Token.";
+                        // এটিই আপনার প্রধান সমস্যা ছিল!
+                        errorMsg = "Security Check Failed! (Update Bot Token in Render)";
                     } else if (errorMsg.includes('DB Write Error')) {
-                        errorMsg = "Database Error. Contact Support.";
+                        errorMsg = "Database Error! (Check Firebase Service Account)";
                     }
                     showToast(errorMsg, '#ff4d4d'); 
                 }
@@ -454,7 +412,6 @@
 
         // --- REFERRAL ---
         function openReferralModal() {
-            // Correct link generation (রেফারেল লিংক)
             const link = `https://t.me/${BOT_USERNAME}?start=${state.userId}`;
             document.getElementById('refLink').value = link;
             openModal('referralModal');
@@ -533,7 +490,6 @@
                 }
             } catch(e) {
                 list.innerHTML = "<div style='text-align: center; color: red;'>Error loading data. Check Firebase Rules.</div>";
-                console.error("Leaderboard Error:", e);
             }
         }
 
@@ -570,4 +526,4 @@
 
     </script>
 </body>
-    </html>
+</html>
