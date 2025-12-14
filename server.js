@@ -1,3 +1,4 @@
+// final server.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -9,14 +10,13 @@ app.use(cors());
 app.use(express.json());
 
 // --- CONFIGURATION ---
-// On Render, set FIREBASE_SERVICE_ACCOUNT_BASE64 env var with your JSON key encoded in Base64
 let serviceAccount;
 try {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
         const jsonString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8');
         serviceAccount = JSON.parse(jsonString);
     } else {
-        serviceAccount = require('./serviceAccountKey.json'); // Local fallback
+        serviceAccount = require('./serviceAccountKey.json');
     }
 } catch (e) {
     console.error("Firebase Config Error: Missing Service Account");
@@ -42,7 +42,7 @@ const verifyTelegram = (req, res, next) => {
         urlParams.delete('hash');
 
         const dataToCheck = [...urlParams.entries()]
-            .map(([key, val]) => `${key}=${val}`)
+            .map(([key, val]) => `\( {key}= \){val}`)
             .sort()
             .join('\n');
 
@@ -60,30 +60,45 @@ const verifyTelegram = (req, res, next) => {
 
 // --- ENDPOINTS ---
 
-// 1. Sync User
+// 1. Sync User & Referrals
 app.post('/api/sync', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
+    const { startParam } = req.body;
     const userRef = db.collection('users').doc(uid);
     
     try {
-        const doc = await userRef.get();
-        if (!doc.exists) {
-            await userRef.set({
-                userId: uid,
-                firstName: req.tgUser.first_name,
-                username: req.tgUser.username || '',
-                coins: 0,
-                totalAdsWatched: 0,
-                joinedAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-        }
+        await db.runTransaction(async (t) => {
+            const doc = await t.get(userRef);
+            if (!doc.exists) {
+                t.set(userRef, {
+                    userId: uid,
+                    firstName: req.tgUser.first_name,
+                    username: req.tgUser.username || '',
+                    coins: 0,
+                    totalAdsWatched: 0,
+                    referrals: 0,
+                    joinedAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+
+                if (startParam && startParam !== uid) {
+                    const referrerRef = db.collection('users').doc(String(startParam));
+                    const referrerDoc = await t.get(referrerRef);
+                    if (referrerDoc.exists) {
+                        t.update(referrerRef, {
+                            coins: admin.firestore.FieldValue.increment(2),
+                            referrals: admin.firestore.FieldValue.increment(1)
+                        });
+                    }
+                }
+            }
+        });
         res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: 'DB Error' });
     }
 });
 
-// 2. Claim Reward (Secure)
+// 2. Claim Reward
 app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
     const userRef = db.collection('users').doc(uid);
@@ -93,13 +108,9 @@ app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
             const doc = await t.get(userRef);
             if (!doc.exists) throw "User not found";
             
-            const currentCoins = doc.data().coins || 0;
-            const currentAds = doc.data().totalAdsWatched || 0;
-            
-            // Add +1 Point
             t.update(userRef, {
-                coins: currentCoins + 1,
-                totalAdsWatched: currentAds + 1,
+                coins: admin.firestore.FieldValue.increment(1),
+                totalAdsWatched: admin.firestore.FieldValue.increment(1),
                 lastActive: admin.firestore.FieldValue.serverTimestamp()
             });
         });
@@ -117,16 +128,19 @@ app.post('/api/withdraw', verifyTelegram, async (req, res) => {
     try {
         const userRef = db.collection('users').doc(uid);
         const doc = await userRef.get();
-        const balance = doc.data()?.coins || 0;
+        const data = doc.data();
+        const balance = data?.coins || 0;
+        const refCount = data?.referrals || 0;
 
         if (balance < 1000) return res.status(400).json({ error: "Min 1000 Points required" });
+        if (refCount < 20) return res.status(400).json({ error: "Min 20 Referrals required" });
+        if (amountPoints > balance) return res.status(400).json({ error: "Insufficient Balance" });
+        if (amountPoints < 1000) return res.status(400).json({ error: "Min withdrawal is 1000 points" });
 
-        // Note: We do NOT deduct balance here automatically. 
-        // Admin reviews request, pays, then deducts manually in Firebase Console.
         await db.collection('withdrawals').add({
             userId: uid,
             username: req.tgUser.username,
-            amountPoints: balance, // Requesting full balance
+            amountPoints: amountPoints, 
             method: method,
             number: number,
             status: 'pending',
