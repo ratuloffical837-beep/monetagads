@@ -61,6 +61,7 @@ const verifyTelegram = (req, res, next) => {
         const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataToCheck).digest('hex');
 
         if (calculatedHash !== hash) {
+             // THIS IS THE INTEGRITY FAILED ERROR SOURCE
              console.log(`Integrity Failed for user: ${urlParams.get('user')}`);
              return res.status(403).json({ error: 'Integrity Failed: Invalid Auth/Token' });
         }
@@ -76,7 +77,6 @@ const verifyTelegram = (req, res, next) => {
 // --- MIDDLEWARE: ADMIN KEY SECURITY ---
 const verifyAdmin = (req, res, next) => {
     const adminKey = req.headers['x-admin-key'];
-    // ADMIN_SECRET_KEY নিশ্চিত করুন যে আপনি এটি পরিবর্তন করেছেন
     if (adminKey === ADMIN_KEY && ADMIN_KEY !== 'default-admin-key-MUST-CHANGE') {
         next();
     } else {
@@ -84,7 +84,7 @@ const verifyAdmin = (req, res, next) => {
     }
 };
 
-// --- ENDPOINTS (পয়েন্ট এবং রেফারেল লজিক ফিক্সড) ---
+// --- ENDPOINTS (LOGIC) ---
 
 // 1. Sync User & Referrals
 app.post('/api/sync', verifyTelegram, async (req, res) => {
@@ -96,7 +96,7 @@ app.post('/api/sync', verifyTelegram, async (req, res) => {
         await db.runTransaction(async (t) => {
             const doc = await t.get(userRef);
             if (!doc.exists) {
-                // ... (New User Creation and Referral Logic)
+                // New User Creation
                 t.set(userRef, {
                     userId: uid,
                     firstName: req.tgUser.first_name,
@@ -107,13 +107,14 @@ app.post('/api/sync', verifyTelegram, async (req, res) => {
                     joinedAt: admin.firestore.FieldValue.serverTimestamp()
                 });
 
+                // Referral Logic
                 if (startParam && startParam !== uid) {
                     const referrerRef = db.collection('users').doc(String(startParam));
                     const referrerDoc = await t.get(referrerRef);
                     
                     if (referrerDoc.exists) {
                         t.update(referrerRef, {
-                            coins: admin.firestore.FieldValue.increment(2), 
+                            coins: admin.firestore.FieldValue.increment(2), // 2 point referral bonus
                             referrals: admin.firestore.FieldValue.increment(1) 
                         });
                     }
@@ -131,7 +132,7 @@ app.post('/api/sync', verifyTelegram, async (req, res) => {
     }
 });
 
-// 2. Claim Reward (পয়েন্ট কাউন্টিং - ১০০% ফিক্সড)
+// 2. Claim Reward (Fixed and Secure Point Counting)
 app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
     const userRef = db.collection('users').doc(uid);
@@ -156,7 +157,6 @@ app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
 
 // 3. Withdraw Request
 app.post('/api/withdraw', verifyTelegram, async (req, res) => {
-    // ... (Withdrawal logic - no changes needed)
     const uid = String(req.tgUser.id);
     const { method, number, amountPoints } = req.body;
 
