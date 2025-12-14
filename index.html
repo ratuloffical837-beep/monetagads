@@ -1,4 +1,3 @@
-<!-- final index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,16 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neon Orb Earner</title>
     
-    <!-- SDKs -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <!-- Confetti Effect -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- Monetag SDK - তোর আসল Zone ID দিয়ে -->
     <script src="//libtl.com/sdk.js" data-zone="10318378" data-sdk="show_10318378"></script>
 
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
@@ -177,7 +172,7 @@
             background: rgba(255,255,255,0.05); border: 1px solid #333;
             color: white; border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px;
         }
-
+        
         .copy-box {
             display: flex; gap: 5px; margin-top: 10px;
         }
@@ -186,7 +181,7 @@
             background: var(--neon-purple); border: none; color: white;
             border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: bold;
         }
-        
+
         .list-item {
             display: flex; justify-content: space-between;
             padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -194,7 +189,7 @@
 
         /* --- TOAST --- */
         .toast {
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
             background: var(--neon-blue); color: #000;
             padding: 10px 20px; border-radius: 30px;
             font-weight: bold; opacity: 0; transition: all 0.3s;
@@ -206,7 +201,6 @@
 </head>
 <body>
 
-    <!-- UI -->
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
         <div style="font-weight: bold;">HELLO, <span id="username" style="color:var(--neon-blue)">USER</span></div>
         <div id="connectionStatus" style="font-size:10px; color:#555;">●</div>
@@ -257,20 +251,19 @@
         </button>
     </div>
 
-    <!-- WITHDRAW MODAL -->
     <div class="modal-overlay" id="withdrawModal">
         <div class="modal">
             <h2>CASH OUT</h2>
             <p style="font-size: 12px; color: #aaa;">Requirements: 1000+ Points & 20+ Referrals</p>
             
-            <input type="number" id="wInputPoints" placeholder="Enter Points to Withdraw">
+            <input type="number" id="wInputPoints" placeholder="Enter Points to Withdraw (Min 1000)">
             
             <select id="wMethod">
                 <option value="Bkash">Bkash</option>
                 <option value="Nagad">Nagad</option>
                 <option value="Rocket">Rocket</option>
             </select>
-            <input type="number" id="wNumber" placeholder="Wallet Number">
+            <input type="number" id="wNumber" placeholder="Wallet Number (11 Digits)">
             
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
                 <button class="btn-3d btn-primary" onclick="submitWithdraw()">
@@ -283,7 +276,6 @@
         </div>
     </div>
 
-    <!-- REFERRAL MODAL -->
     <div class="modal-overlay" id="referralModal">
         <div class="modal">
             <h2>INVITE FRIENDS</h2>
@@ -304,13 +296,11 @@
         </div>
     </div>
 
-    <!-- LEADERBOARD MODAL -->
     <div class="modal-overlay" id="leaderboardModal">
         <div class="modal">
             <h2>LEADERS</h2>
             <div id="leaderboardList" style="text-align:left; max-height: 200px; overflow-y:auto; font-size:14px;">
-                <!-- Items injected here -->
-            </div>
+                </div>
             <button class="btn-3d btn-secondary" onclick="closeModal('leaderboardModal')" style="margin-top:15px; width:100%">
                 <span class="btn-edge"></span><span class="btn-face">CLOSE</span>
             </button>
@@ -321,19 +311,18 @@
 
     <script>
         // --- CONFIG ---
-        const BACKEND_URL = "https://monetagads-1.onrender.com";
-        const MONETAG_FUNC = "show_10318378"; // তোর আসল Monetag ফাংশন নাম
+        const BACKEND_URL = "https://monetagads-1.onrender.com"; // CONFIGURED
+        const MONETAG_FUNC = "show_10318378"; // CONFIGURED
+        const BOT_USERNAME = "realldoler87ok_bot"; // CONFIGURED
         
-        const BOT_USERNAME = "realldoler87ok_bot"; // তোর বট ইউজারনেম (@ ছাড়া)
-        
-        // তোর আসল Firebase Config
+        // Firebase Public Config (telegram-web-app-f8f42) - CONFIGURED
         const firebaseConfig = {
-            apiKey: "AIzaSyAyHbj89lXQjftn81XFTRnhrCQenmusu8k",
-            authDomain: "moneteg-ads-afb9f.firebaseapp.com",
-            projectId: "moneteg-ads-afb9f",
-            storageBucket: "moneteg-ads-afb9f.firebasestorage.app",
-            messagingSenderId: "622725908968",
-            appId: "1:622725908968:web:f7c317c2bd1cdd73da7c5d"
+            apiKey: "AIzaSyDzqE5shOJtwd-iYYIEhzx_WbxuS6gdiwY",
+            authDomain: "telegram-web-app-f8f42.firebaseapp.com",
+            projectId: "telegram-web-app-f8f42",
+            storageBucket: "telegram-web-app-f8f42.firebasestorage.app",
+            messagingSenderId: "832378414446",
+            appId: "1:832378414446:web:eb811e28bda89536518d7f"
         };
 
         // --- INIT ---
@@ -347,8 +336,11 @@
         let state = { coins: 0, ads: 0, referrals: 0, userId: null };
         const coinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
 
+        // --- APP LOGIC ---
+
         function initApp() {
             const user = tg.initDataUnsafe?.user;
+            // Extract start_param for referral tracking
             const startParam = tg.initDataUnsafe?.start_param || null;
 
             if(!user) {
@@ -360,6 +352,7 @@
                 document.getElementById('username').innerText = (user.first_name || "User").toUpperCase();
             }
 
+            // 1. Sync User & Referrals
             fetch(`${BACKEND_URL}/api/sync`, {
                 method: 'POST',
                 headers: { 
@@ -367,8 +360,18 @@
                     'x-telegram-init-data': tg.initData 
                 },
                 body: JSON.stringify({ startParam: startParam })
-            }).catch(e => console.error("Sync fail", e));
+            }).then(res => {
+                if(res.ok) {
+                    document.getElementById('connectionStatus').style.color = '#00ff00';
+                } else {
+                    document.getElementById('connectionStatus').style.color = 'red';
+                }
+            }).catch(e => {
+                console.error("Sync fail", e);
+                document.getElementById('connectionStatus').style.color = 'red';
+            });
 
+            // 2. Realtime Listener
             db.collection('users').doc(state.userId).onSnapshot(doc => {
                 if(doc.exists) {
                     const data = doc.data();
@@ -391,7 +394,6 @@
             document.getElementById('pointsDisplay').innerText = state.coins;
             document.getElementById('adsDisplay').innerText = state.ads;
             document.getElementById('refCountDisplay').innerText = state.referrals;
-            document.getElementById('connectionStatus').style.color = '#00ff00';
         }
 
         // --- ADS ---
@@ -400,6 +402,7 @@
             btn.style.filter = "grayscale(1)";
             
             if (typeof window[MONETAG_FUNC] === 'function') {
+                // Use MONETAG_FUNC from configured global
                 window[MONETAG_FUNC]().then(() => {
                     claimReward();
                 }).catch(e => {
@@ -422,10 +425,10 @@
                 if(res.ok) {
                     showToast("+1 POINT EARNED!");
                 } else {
-                    showToast("Reward Failed");
+                    showToast("Reward Failed (Auth/Server Error)");
                 }
             } catch(e) {
-                showToast("Network Error");
+                showToast("Network Error: Check Server");
             } finally {
                 document.getElementById('watchAdBtn').style.filter = "none";
             }
@@ -433,7 +436,8 @@
 
         // --- REFERRAL ---
         function openReferralModal() {
-            const link = `https://t.me/\( {https://t.me/realldoler87ok_bot}?start= \){state.userId}`;
+            // Correct link generation
+            const link = `https://t.me/${BOT_USERNAME}?start=${state.userId}`;
             document.getElementById('refLink').value = link;
             openModal('referralModal');
         }
@@ -442,22 +446,40 @@
             const input = document.getElementById('refLink');
             input.select();
             input.setSelectionRange(0, 99999);
+            // Use modern clipboard API
             navigator.clipboard.writeText(input.value).then(() => {
                 showToast("Link Copied!");
+            }).catch(err => {
+                 showToast("Copy failed: " + err);
             });
         }
 
         // --- WITHDRAW ---
         async function submitWithdraw() {
             const method = document.getElementById('wMethod').value;
-            const number = document.getElementById('wNumber').value;
+            const number = document.getElementById('wNumber').value.trim();
             const amountPoints = parseInt(document.getElementById('wInputPoints').value);
 
-            if(isNaN(amountPoints) || amountPoints <= 0) return showToast("Enter valid amount");
-            if(amountPoints > state.coins) return showToast("Insufficient Points");
-            if(state.coins < 1000) return showToast("Need 1000+ Points");
-            if(state.referrals < 20) return showToast("Need 20+ Referrals!");
-            if(!number) return showToast("Enter Wallet Number");
+            if(isNaN(amountPoints) || amountPoints < 1000) {
+                return showToast("Minimum withdrawal is 1000 Points.");
+            }
+            if(amountPoints > state.coins) {
+                return showToast("Insufficient Points.");
+            }
+            
+            // Conditions (MATCHING BACKEND LOGIC)
+            if(state.coins < 1000) {
+                return showToast("You need 1000+ Points to withdraw!");
+            }
+            if(state.referrals < 20) {
+                return showToast("You need to refer at least 20 people to withdraw!");
+            }
+
+            if(number.length !== 11) {
+                return showToast("Wallet Number must be 11 digits.");
+            }
+            
+            showToast("Submitting Withdrawal...");
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/withdraw`, {
@@ -471,13 +493,16 @@
 
                 const data = await res.json();
                 if(res.ok) {
-                    showToast("Withdrawal Sent!");
+                    showToast("Withdrawal Sent! We will process it soon.");
                     closeModal('withdrawModal');
+                    // Clear inputs
+                    document.getElementById('wInputPoints').value = '';
+                    document.getElementById('wNumber').value = '';
                 } else {
-                    showToast(data.error || "Failed to submit");
+                    showToast(data.error || "Failed to submit withdrawal request.");
                 }
             } catch(e) {
-                showToast("Error");
+                showToast("Connection Error submitting withdrawal.");
             }
         }
 
@@ -492,16 +517,21 @@
                 let html = "";
                 snap.forEach((doc, index) => {
                     const d = doc.data();
-                    const name = d.firstName || d.first_name || 'User';
+                    // Fix: Robustly display name
+                    const name = d.firstName || d.first_name || d.username || 'User'; 
                     html += `
                         <div class="list-item">
-                            <span>#\( {index+1} \){name}</span>
+                            <span>#${index+1} ${name}</span>
                             <span style="color:var(--neon-blue)">${d.coins}</span>
                         </div>`;
                 });
                 list.innerHTML = html;
+                if (snap.empty) {
+                    list.innerHTML = "No users found in leaderboard.";
+                }
             } catch(e) {
-                list.innerHTML = "Error loading data";
+                list.innerHTML = "Error loading data.";
+                console.error(e);
             }
         }
 
