@@ -1,3 +1,4 @@
+<!-- final index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,8 +12,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <!-- Confetti Effect -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- Monetag SDK -->
-<script src="//libtl.com/sdk.js" data-zone="10318378" data-sdk="show_10318378"></script>
+    <!-- Monetag SDK - তোর আসল Zone ID দিয়ে -->
+    <script src="//libtl.com/sdk.js" data-zone="10318378" data-sdk="show_10318378"></script>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
@@ -117,12 +118,14 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transform: translateY(2px);
             transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+            pointer-events: none;
         }
 
         .btn-edge {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             border-radius: 12px;
             background: linear-gradient(to left, #0e0e0e 0%, #333 8%, #333 92%, #0e0e0e 100%);
+            pointer-events: none;
         }
 
         .btn-face {
@@ -137,12 +140,14 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             overflow: hidden;
+            pointer-events: none;
         }
 
         /* Button Colors */
         .btn-primary .btn-face { background: linear-gradient(135deg, var(--neon-blue), #2a5ee8); box-shadow: 0 0 15px rgba(0,240,255,0.3); }
         .btn-secondary .btn-face { background: linear-gradient(135deg, var(--neon-purple), #8a2be2); box-shadow: 0 0 15px rgba(188,19,254,0.3); }
         .btn-danger .btn-face { background: linear-gradient(135deg, #ff4d4d, #c0392b); }
+        .btn-refer .btn-face { background: linear-gradient(135deg, #ff00ff, #bc13fe); box-shadow: 0 0 15px rgba(188,19,254,0.3); }
 
         .btn-3d:active .btn-shadow { transform: translateY(0); }
         .btn-3d:active .btn-face { transform: translateY(0); }
@@ -172,6 +177,15 @@
             background: rgba(255,255,255,0.05); border: 1px solid #333;
             color: white; border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px;
         }
+
+        .copy-box {
+            display: flex; gap: 5px; margin-top: 10px;
+        }
+        .copy-box input { margin: 0; }
+        .btn-copy {
+            background: var(--neon-purple); border: none; color: white;
+            border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: bold;
+        }
         
         .list-item {
             display: flex; justify-content: space-between;
@@ -180,7 +194,7 @@
 
         /* --- TOAST --- */
         .toast {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
             background: var(--neon-blue); color: #000;
             padding: 10px 20px; border-radius: 30px;
             font-weight: bold; opacity: 0; transition: all 0.3s;
@@ -224,16 +238,22 @@
             <span class="btn-face">WITHDRAW</span>
         </button>
 
+        <button class="btn-3d btn-refer" onclick="openReferralModal()">
+            <span class="btn-shadow"></span>
+            <span class="btn-edge"></span>
+            <span class="btn-face">REFER & EARN</span>
+        </button>
+
         <button class="btn-3d" onclick="loadLeaderboard()">
             <span class="btn-shadow"></span>
             <span class="btn-edge"></span>
             <span class="btn-face">TOP USERS</span>
         </button>
         
-        <button class="btn-3d btn-danger" onclick="Telegram.WebApp.close()">
+        <button class="btn-3d btn-danger" style="grid-column: span 2;" onclick="Telegram.WebApp.close()">
             <span class="btn-shadow"></span>
             <span class="btn-edge"></span>
-            <span class="btn-face">EXIT</span>
+            <span class="btn-face">EXIT APP</span>
         </button>
     </div>
 
@@ -241,14 +261,17 @@
     <div class="modal-overlay" id="withdrawModal">
         <div class="modal">
             <h2>CASH OUT</h2>
-            <p style="font-size: 12px; color: #aaa;">Rate: 1000 Points = $1.00</p>
-            <input type="text" id="wAmount" value="0 Points ($0.00)" readonly style="text-align:center; font-weight:bold;">
+            <p style="font-size: 12px; color: #aaa;">Requirements: 1000+ Points & 20+ Referrals</p>
+            
+            <input type="number" id="wInputPoints" placeholder="Enter Points to Withdraw">
+            
             <select id="wMethod">
                 <option value="Bkash">Bkash</option>
                 <option value="Nagad">Nagad</option>
                 <option value="Rocket">Rocket</option>
             </select>
             <input type="number" id="wNumber" placeholder="Wallet Number">
+            
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
                 <button class="btn-3d btn-primary" onclick="submitWithdraw()">
                     <span class="btn-edge"></span><span class="btn-face">SUBMIT</span>
@@ -257,6 +280,27 @@
                     <span class="btn-edge"></span><span class="btn-face">CANCEL</span>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- REFERRAL MODAL -->
+    <div class="modal-overlay" id="referralModal">
+        <div class="modal">
+            <h2>INVITE FRIENDS</h2>
+            <p>Earn <span style="color:var(--neon-blue)">2 Points</span> for every friend you invite!</p>
+            
+            <div class="copy-box">
+                <input type="text" id="refLink" readonly>
+                <button class="btn-copy" onclick="copyReferralLink()">COPY</button>
+            </div>
+            
+            <p style="margin-top: 20px;">You have referred:</p>
+            <h1 id="refCountDisplay" style="color:var(--neon-purple); margin:0;">0</h1>
+            <p style="font-size:12px; opacity:0.7">PEOPLE</p>
+
+            <button class="btn-3d btn-secondary" onclick="closeModal('referralModal')" style="margin-top:15px; width:100%">
+                <span class="btn-edge"></span><span class="btn-face">CLOSE</span>
+            </button>
         </div>
     </div>
 
@@ -277,22 +321,20 @@
 
     <script>
         // --- CONFIG ---
-        const BACKEND_URL = "https://monetagads-1.onrender.com"; // UPDATE THIS
-        const MONETAG_FUNC = "show_10318378"; // Must match data-sdk in script tag
+        const BACKEND_URL = "https://monetagads-1.onrender.com";
+        const MONETAG_FUNC = "show_10318378"; // তোর আসল Monetag ফাংশন নাম
         
-        // Firebase Public Config
-const firebaseConfig = {
-  apiKey: "AIzaSyAyHbj89lXQjftn81XFTRnhrCQenmusu8k",
-  authDomain: "moneteg-ads-afb9f.firebaseapp.com",
-  projectId: "moneteg-ads-afb9f",
-  storageBucket: "moneteg-ads-afb9f.firebasestorage.app",
-  messagingSenderId: "622725908968",
-  appId: "1:622725908968:web:f7c317c2bd1cdd73da7c5d"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+        const BOT_USERNAME = "realldoler87ok_bot"; // তোর বট ইউজারনেম (@ ছাড়া)
+        
+        // তোর আসল Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyHbj89lXQjftn81XFTRnhrCQenmusu8k",
+            authDomain: "moneteg-ads-afb9f.firebaseapp.com",
+            projectId: "moneteg-ads-afb9f",
+            storageBucket: "moneteg-ads-afb9f.firebasestorage.app",
+            messagingSenderId: "622725908968",
+            appId: "1:622725908968:web:f7c317c2bd1cdd73da7c5d"
+        };
 
         // --- INIT ---
         const tg = window.Telegram.WebApp;
@@ -302,13 +344,13 @@ const db = firebase.firestore();
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let state = { coins: 0, ads: 0, userId: null };
-        const coinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3'); // Generic coin sound
-
-        // --- APP LOGIC ---
+        let state = { coins: 0, ads: 0, referrals: 0, userId: null };
+        const coinSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3');
 
         function initApp() {
             const user = tg.initDataUnsafe?.user;
+            const startParam = tg.initDataUnsafe?.start_param || null;
+
             if(!user) {
                 console.warn("No Telegram User detected (Local Mode)");
                 state.userId = "test_user_1";
@@ -318,18 +360,19 @@ const db = firebase.firestore();
                 document.getElementById('username').innerText = (user.first_name || "User").toUpperCase();
             }
 
-            // 1. Sync User Creation
             fetch(`${BACKEND_URL}/api/sync`, {
                 method: 'POST',
-                headers: { 'x-telegram-init-data': tg.initData }
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-telegram-init-data': tg.initData 
+                },
+                body: JSON.stringify({ startParam: startParam })
             }).catch(e => console.error("Sync fail", e));
 
-            // 2. Realtime Listener
             db.collection('users').doc(state.userId).onSnapshot(doc => {
                 if(doc.exists) {
                     const data = doc.data();
                     
-                    // Detect increase for effect
                     if(data.coins > state.coins) {
                         pulseOrb();
                         triggerConfetti();
@@ -338,6 +381,7 @@ const db = firebase.firestore();
 
                     state.coins = data.coins || 0;
                     state.ads = data.totalAdsWatched || 0;
+                    state.referrals = data.referrals || 0;
                     updateUI();
                 }
             });
@@ -346,11 +390,7 @@ const db = firebase.firestore();
         function updateUI() {
             document.getElementById('pointsDisplay').innerText = state.coins;
             document.getElementById('adsDisplay').innerText = state.ads;
-            
-            const dollars = (state.coins / 1000).toFixed(2);
-            document.getElementById('wAmount').value = `${state.coins} Points ($${dollars})`;
-            
-            // Connection indicator
+            document.getElementById('refCountDisplay').innerText = state.referrals;
             document.getElementById('connectionStatus').style.color = '#00ff00';
         }
 
@@ -367,7 +407,6 @@ const db = firebase.firestore();
                     btn.style.filter = "none";
                 });
             } else {
-                // For development testing without script
                 console.log("Monetag SDK missing - Simulating Ad");
                 setTimeout(() => claimReward(), 2000);
             }
@@ -392,13 +431,33 @@ const db = firebase.firestore();
             }
         }
 
+        // --- REFERRAL ---
+        function openReferralModal() {
+            const link = `https://t.me/\( {BOT_USERNAME}?start= \){state.userId}`;
+            document.getElementById('refLink').value = link;
+            openModal('referralModal');
+        }
+
+        function copyReferralLink() {
+            const input = document.getElementById('refLink');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                showToast("Link Copied!");
+            });
+        }
+
         // --- WITHDRAW ---
         async function submitWithdraw() {
             const method = document.getElementById('wMethod').value;
             const number = document.getElementById('wNumber').value;
+            const amountPoints = parseInt(document.getElementById('wInputPoints').value);
 
-            if(state.coins < 1000) return showToast("Need 1000 Points");
-            if(!number) return showToast("Enter Number");
+            if(isNaN(amountPoints) || amountPoints <= 0) return showToast("Enter valid amount");
+            if(amountPoints > state.coins) return showToast("Insufficient Points");
+            if(state.coins < 1000) return showToast("Need 1000+ Points");
+            if(state.referrals < 20) return showToast("Need 20+ Referrals!");
+            if(!number) return showToast("Enter Wallet Number");
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/withdraw`, {
@@ -407,21 +466,22 @@ const db = firebase.firestore();
                         'Content-Type': 'application/json',
                         'x-telegram-init-data': tg.initData 
                     },
-                    body: JSON.stringify({ method, number })
+                    body: JSON.stringify({ method, number, amountPoints })
                 });
 
+                const data = await res.json();
                 if(res.ok) {
-                    showToast("Request Sent!");
+                    showToast("Withdrawal Sent!");
                     closeModal('withdrawModal');
                 } else {
-                    showToast("Failed to submit");
+                    showToast(data.error || "Failed to submit");
                 }
             } catch(e) {
                 showToast("Error");
             }
         }
 
-        // --- EXTRAS ---
+        // --- LEADERBOARD ---
         async function loadLeaderboard() {
             openModal('leaderboardModal');
             const list = document.getElementById('leaderboardList');
@@ -432,9 +492,10 @@ const db = firebase.firestore();
                 let html = "";
                 snap.forEach((doc, index) => {
                     const d = doc.data();
+                    const name = d.firstName || d.first_name || 'User';
                     html += `
                         <div class="list-item">
-                            <span>#${index+1} ${d.firstName || 'User'}</span>
+                            <span>#\( {index+1} \){name}</span>
                             <span style="color:var(--neon-blue)">${d.coins}</span>
                         </div>`;
                 });
@@ -448,7 +509,7 @@ const db = firebase.firestore();
         function pulseOrb() {
             const orb = document.getElementById('orbBtn');
             orb.classList.remove('pulse');
-            void orb.offsetWidth; // Trigger reflow
+            void orb.offsetWidth;
             orb.classList.add('pulse');
         }
 
