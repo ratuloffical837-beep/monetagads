@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="//libtl.com/sdk.js" data-zone="10318378" data-sdk="show_10318378"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght=500;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -310,7 +310,7 @@
     <div class="toast" id="toast">Notification</div>
 
     <script>
-        // --- CONFIG ---
+        // --- CONFIGURATION ---
         const BACKEND_URL = "https://monetagads-1.onrender.com"; // CONFIGURED
         const MONETAG_FUNC = "show_10318378"; // CONFIGURED
         const BOT_USERNAME = "realldoler87ok_bot"; // CONFIGURED
@@ -340,7 +340,6 @@
 
         function initApp() {
             const user = tg.initDataUnsafe?.user;
-            // Extract start_param for referral tracking
             const startParam = tg.initDataUnsafe?.start_param || null;
 
             if(!user) {
@@ -406,31 +405,38 @@
                 window[MONETAG_FUNC]().then(() => {
                     claimReward();
                 }).catch(e => {
-                    showToast("Ad Closed/Error");
+                    showToast("Ad Closed/Error (Ad network issue)");
                     btn.style.filter = "none";
                 });
             } else {
+                // FALLBACK FOR TESTING
                 console.log("Monetag SDK missing - Simulating Ad");
                 setTimeout(() => claimReward(), 2000);
             }
         }
 
+        // UPDATED: সার্ভার থেকে আসা ত্রুটি বার্তা দেখাবে
         async function claimReward() {
+            const btn = document.getElementById('watchAdBtn');
             try {
                 const res = await fetch(`${BACKEND_URL}/api/claim-reward`, {
                     method: 'POST',
                     headers: { 'x-telegram-init-data': tg.initData }
                 });
                 
+                // Response এর JSON ডেটা পড়ুন
+                const data = await res.json(); 
+
                 if(res.ok) {
                     showToast("+1 POINT EARNED!");
                 } else {
-                    showToast("Reward Failed (Auth/Server Error)");
+                    // সার্ভার থেকে আসা ত্রুটি বার্তা দেখান (যেমন: "Integrity Failed" বা অন্য কোনো ফায়ারবেস ত্রুটি)
+                    showToast(data.error || "Reward Failed: Unknown Server Error"); 
                 }
             } catch(e) {
-                showToast("Network Error: Check Server");
+                showToast("Network Error: Check Server Connectivity");
             } finally {
-                document.getElementById('watchAdBtn').style.filter = "none";
+                btn.style.filter = "none";
             }
         }
 
@@ -467,14 +473,6 @@
                 return showToast("Insufficient Points.");
             }
             
-            // Conditions (MATCHING BACKEND LOGIC)
-            if(state.coins < 1000) {
-                return showToast("You need 1000+ Points to withdraw!");
-            }
-            if(state.referrals < 20) {
-                return showToast("You need to refer at least 20 people to withdraw!");
-            }
-
             if(number.length !== 11) {
                 return showToast("Wallet Number must be 11 digits.");
             }
@@ -499,6 +497,7 @@
                     document.getElementById('wInputPoints').value = '';
                     document.getElementById('wNumber').value = '';
                 } else {
+                    // সার্ভার থেকে আসা ত্রুটি বার্তা দেখান (যেমন: "Min 20 Referrals required")
                     showToast(data.error || "Failed to submit withdrawal request.");
                 }
             } catch(e) {
@@ -510,28 +509,31 @@
         async function loadLeaderboard() {
             openModal('leaderboardModal');
             const list = document.getElementById('leaderboardList');
-            list.innerHTML = "Loading...";
+            list.innerHTML = "<div style='text-align: center; color: #999;'>Loading...</div>";
 
             try {
+                // Fetching from Firestore is client-side here
                 const snap = await db.collection('users').orderBy('coins', 'desc').limit(10).get();
                 let html = "";
                 snap.forEach((doc, index) => {
                     const d = doc.data();
-                    // Fix: Robustly display name
                     const name = d.firstName || d.first_name || d.username || 'User'; 
+                    // Highlight current user
+                    const isCurrentUser = d.userId === state.userId ? 'style="background: #202c40; border-radius: 5px;"' : '';
+
                     html += `
-                        <div class="list-item">
+                        <div class="list-item" ${isCurrentUser}>
                             <span>#${index+1} ${name}</span>
                             <span style="color:var(--neon-blue)">${d.coins}</span>
                         </div>`;
                 });
                 list.innerHTML = html;
                 if (snap.empty) {
-                    list.innerHTML = "No users found in leaderboard.";
+                    list.innerHTML = "<div style='text-align: center; color: #999;'>No users found in leaderboard.</div>";
                 }
             } catch(e) {
-                list.innerHTML = "Error loading data.";
-                console.error(e);
+                list.innerHTML = "<div style='text-align: center; color: red;'>Error loading data. Check Firebase Rules.</div>";
+                console.error("Leaderboard Error:", e);
             }
         }
 
