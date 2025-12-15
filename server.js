@@ -14,21 +14,20 @@ app.use(express.json());
 let serviceAccount;
 try {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-        // IMPORTANT: Reads from the Render Environment Variable
         const jsonString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8');
         serviceAccount = JSON.parse(jsonString);
     } else {
-        // Fallback for local testing (not for Render)
         console.warn("Using local service account key path. Ensure FIREBASE_SERVICE_ACCOUNT_BASE64 is set in production.");
     }
     
-    // Check if serviceAccount was successfully loaded before initializing
     if (serviceAccount) {
         admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
+            credential: admin.credential.cert(serviceAccount),
+            // Project ID: monetas-ads-4241 (from the service account JSON)
+            databaseURL: `https://${serviceAccount.project_id}.firebaseio.com` 
         });
     } else {
-        console.error("FATAL: Firebase Admin SDK could not initialize due to missing service account data.");
+        console.error("FATAL: Firebase Admin SDK could not initialize due to missing or invalid service account data.");
     }
 
 } catch (e) {
