@@ -1,3 +1,4 @@
+// server.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -5,134 +6,120 @@ const admin = require('firebase-admin');
 const crypto = require('crypto');
 
 const app = express();
-app.use(cors({
-    origin: '*', 
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: ['Content-Type', 'x-telegram-init-data', 'x-admin-key']
-}));
+app.use(cors());
 app.use(express.json());
 
-// --- CONFIGURATION: FIREBASE ADMIN ---
+// --- CONFIGURATION ---
+// Initialize Firebase Admin SDK via Environment Variable (Base64)
 let serviceAccount;
 try {
-    // FIREBASE_SERVICE_ACCOUNT_BASE64: Render Env Variable থেকে লোড হবে
     if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+        // IMPORTANT: Reads from the Render Environment Variable
         const jsonString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8');
         serviceAccount = JSON.parse(jsonString);
-    } 
+    } else {
+        // Fallback for local testing (not for Render)
+        console.warn("Using local service account key path. Ensure FIREBASE_SERVICE_ACCOUNT_BASE64 is set in production.");
+    }
+    
+    // Check if serviceAccount was successfully loaded before initializing
+    if (serviceAccount) {
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+    } else {
+        console.error("FATAL: Firebase Admin SDK could not initialize due to missing service account data.");
+    }
+
 } catch (e) {
-    console.error("Firebase Config Error: Missing or invalid FIREBASE_SERVICE_ACCOUNT_BASE64 env variable. Check Render Env.");
-    serviceAccount = null; 
+    console.error("Firebase Config Error:", e.message);
 }
 
-if (serviceAccount) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-} else {
-    console.error("Firebase Admin SDK was NOT initialized. Database access will fail.");
-}
 const db = admin.firestore();
 
-// --- SECRETS & CONSTANTS ---
-// Render Env Variable থেকে টোকেন এবং অ্যাডমিন পাসওয়ার্ড লোড হবে
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
-const ADMIN_KEY = process.env.ADMIN_SECRET_KEY || 'default-admin-key-MUST-CHANGE'; 
-
-// --- MIDDLEWARE: TELEGRAM SECURITY ---
+// --- CRITICAL SECURITY MIDDLEWARE (DO NOT REMOVE) ---
 const verifyTelegram = (req, res, next) => {
     const initData = req.headers['x-telegram-init-data'];
-    const botToken = BOT_TOKEN; 
+    const botToken = process.env.TELEGRAM_BOT_TOKEN; // CRITICAL: Reads from Env Variable
 
-    if (!initData) return res.status(403).json({ error: 'Auth Missing: initData' });
-    if (!botToken || botToken === 'YOUR_BOT_TOKEN_HERE') return res.status(500).json({ error: 'Server Config Error: TELEGRAM_BOT_TOKEN Missing in Render Env.' });
+    if (!initData || !botToken) {
+        return res.status(403).json({ error: "Integrity Failed: Missing Token or Data" });
+    }
 
     try {
         const urlParams = new URLSearchParams(initData);
         const hash = urlParams.get('hash');
         urlParams.delete('hash');
 
+        // Sort keys alphabetically to match Telegram's signing algorithm
         const dataToCheck = [...urlParams.entries()]
             .map(([key, val]) => `${key}=${val}`)
             .sort()
             .join('\n');
 
+        // Calculate HMAC-SHA256
         const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
         const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataToCheck).digest('hex');
 
         if (calculatedHash !== hash) {
-             // THIS IS THE INTEGRITY FAILED ERROR SOURCE
-             console.log(`Integrity Failed for user: ${urlParams.get('user')}`);
-             return res.status(403).json({ error: 'Integrity Failed: Invalid Auth/Token' });
+            console.error("Hash Mismatch. Calculated:", calculatedHash, "Received:", hash);
+            return res.status(403).json({ error: "Integrity Failed: Invalid Auth Token or Data" });
         }
 
+        // Attach user data to request
         req.tgUser = JSON.parse(urlParams.get('user'));
         next();
     } catch (e) {
-        console.error("Telegram Auth Error:", e);
-        return res.status(403).json({ error: 'Auth Error' });
+        console.error("Auth Error:", e);
+        return res.status(403).json({ error: "Integrity Failed: Malformed Data" });
     }
 };
 
-// --- MIDDLEWARE: ADMIN KEY SECURITY ---
-const verifyAdmin = (req, res, next) => {
-    const adminKey = req.headers['x-admin-key'];
-    if (adminKey === ADMIN_KEY && ADMIN_KEY !== 'default-admin-key-MUST-CHANGE') {
-        next();
-    } else {
-        res.status(403).json({ error: 'Admin Access Denied. Check x-admin-key header.' });
-    }
-};
+// --- ROUTES ---
 
-// --- ENDPOINTS (LOGIC) ---
-
-// 1. Sync User & Referrals
+// 1. Sync User & Handle Referrals
 app.post('/api/sync', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
-    const { startParam } = req.body; 
+    const { startParam } = req.body;
     const userRef = db.collection('users').doc(uid);
     
     try {
         await db.runTransaction(async (t) => {
             const doc = await t.get(userRef);
+            
             if (!doc.exists) {
-                // New User Creation
+                // Create New User
                 t.set(userRef, {
                     userId: uid,
                     firstName: req.tgUser.first_name,
                     username: req.tgUser.username || '',
                     coins: 0,
                     totalAdsWatched: 0,
-                    referrals: 0, 
+                    referrals: 0,
                     joinedAt: admin.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Referral Logic
+                // Handle Referral (Give 2 points to referrer)
                 if (startParam && startParam !== uid) {
                     const referrerRef = db.collection('users').doc(String(startParam));
                     const referrerDoc = await t.get(referrerRef);
-                    
                     if (referrerDoc.exists) {
                         t.update(referrerRef, {
-                            coins: admin.firestore.FieldValue.increment(2), // 2 point referral bonus
-                            referrals: admin.firestore.FieldValue.increment(1) 
+                            coins: admin.firestore.FieldValue.increment(2),
+                            referrals: admin.firestore.FieldValue.increment(1)
                         });
                     }
                 }
-            } else {
-                t.update(userRef, {
-                    lastActive: admin.firestore.FieldValue.serverTimestamp()
-                });
             }
         });
         res.json({ success: true });
     } catch (e) {
-        console.error("Sync Transaction Failed:", e);
-        res.status(500).json({ error: 'DB Error on Sync (Check Firebase Service Account/API)' });
+        console.error("Sync Error:", e);
+        res.status(500).json({ error: 'Database Sync Error' });
     }
 });
 
-// 2. Claim Reward (Fixed and Secure Point Counting)
+// 2. Claim Reward (Ad Watched)
 app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
     const userRef = db.collection('users').doc(uid);
@@ -140,18 +127,18 @@ app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
     try {
         await db.runTransaction(async (t) => {
             const doc = await t.get(userRef);
-            if (!doc.exists) throw new Error("User data missing. Sync failed.");
+            if (!doc.exists) throw "User not found";
             
             t.update(userRef, {
-                coins: admin.firestore.FieldValue.increment(1), 
+                coins: admin.firestore.FieldValue.increment(1),
                 totalAdsWatched: admin.firestore.FieldValue.increment(1),
                 lastActive: admin.firestore.FieldValue.serverTimestamp()
             });
         });
         res.json({ success: true, reward: 1 });
     } catch (e) {
-        console.error("Claim Reward Transaction Failed:", e);
-        res.status(500).json({ error: `DB Write Error: ${e.message}` });
+        console.error("Claim Error:", e);
+        res.status(500).json({ error: 'Transaction Failed' });
     }
 });
 
@@ -159,33 +146,34 @@ app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
 app.post('/api/withdraw', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
     const { method, number, amountPoints } = req.body;
-
-    if (!method || !number || !amountPoints || typeof amountPoints !== 'number' || amountPoints < 1000 || number.length !== 11) {
-        return res.status(400).json({ error: "Invalid withdrawal amount or details." });
-    }
+    const userRef = db.collection('users').doc(uid);
 
     try {
         await db.runTransaction(async (t) => {
-            const userRef = db.collection('users').doc(uid);
             const doc = await t.get(userRef);
-            if (!doc.exists) throw new Error("User data missing.");
+            if (!doc.exists) throw "User not found";
             
             const data = doc.data();
-            const balance = data?.coins || 0;
-            const refCount = data?.referrals || 0;
+            const balance = data.coins || 0;
+            const refCount = data.referrals || 0;
 
-            if (balance < 1000) throw new Error("Min 1000 Points required");
-            if (refCount < 20) throw new Error("Min 20 Referrals required");
-            if (amountPoints > balance) throw new Error("Insufficient Balance");
-            
+            // Strict Validation
+            if (balance < 1000) throw "Minimum 1000 Points required";
+            if (refCount < 20) throw "Minimum 20 Referrals required";
+            if (amountPoints > balance) throw "Insufficient Balance";
+            if (amountPoints <= 0) throw "Invalid Amount";
+
+            // Deduct Points
             t.update(userRef, {
                 coins: admin.firestore.FieldValue.increment(-amountPoints)
             });
 
-            db.collection('withdrawals').add({
+            // Create Withdrawal Record
+            const withdrawRef = db.collection('withdrawals').doc();
+            t.set(withdrawRef, {
                 userId: uid,
-                username: req.tgUser.username || req.tgUser.first_name,
-                amountPoints: amountPoints, 
+                username: req.tgUser.username || 'Unknown',
+                amountPoints: parseInt(amountPoints),
                 method: method,
                 number: number,
                 status: 'pending',
@@ -195,75 +183,11 @@ app.post('/api/withdraw', verifyTelegram, async (req, res) => {
 
         res.json({ success: true });
     } catch (e) {
-        if (e.message.includes("Points required")) return res.status(400).json({ error: "Need 1000+ Points!" });
-        if (e.message.includes("Referrals required")) return res.status(400).json({ error: "Need 20+ Referrals!" });
-        if (e.message.includes("Insufficient Balance")) return res.status(400).json({ error: "Insufficient Balance" });
-        
-        res.status(500).json({ error: 'Withdrawal processing failed.' });
-    }
-});
-
-
-// 4. ADMIN ENDPOINT: Get All Pending Withdrawals
-app.get('/admin/withdrawals', verifyAdmin, async (req, res) => {
-    try {
-        const snapshot = await db.collection('withdrawals')
-                                  .where('status', '==', 'pending')
-                                  .orderBy('timestamp', 'asc')
-                                  .get();
-        
-        const withdrawals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        res.json(withdrawals);
-
-    } catch (e) {
-        console.error("Admin Get Error:", e);
-        res.status(500).json({ error: 'Failed to fetch withdrawals.' });
-    }
-});
-
-// 5. ADMIN ENDPOINT: Update Withdrawal Status (Payment Confirmation)
-app.post('/admin/update-withdrawal', verifyAdmin, async (req, res) => {
-    const { withdrawalId, newStatus } = req.body;
-
-    if (!withdrawalId || !['approved', 'rejected'].includes(newStatus)) {
-        return res.status(400).json({ error: "Invalid parameters." });
-    }
-
-    try {
-        const withdrawalRef = db.collection('withdrawals').doc(withdrawalId);
-        
-        await db.runTransaction(async (t) => {
-            const withdrawalDoc = await t.get(withdrawalRef);
-            if (!withdrawalDoc.exists) throw new Error("Withdrawal not found.");
-            
-            if (withdrawalDoc.data().status !== 'pending') {
-                throw new Error("Withdrawal already processed.");
-            }
-
-            // Rejected হলে পয়েন্ট ফেরত
-            if (newStatus === 'rejected') {
-                const userId = withdrawalDoc.data().userId;
-                const amountPoints = withdrawalDoc.data().amountPoints;
-                
-                const userRef = db.collection('users').doc(userId);
-                
-                t.update(userRef, {
-                    coins: admin.firestore.FieldValue.increment(amountPoints)
-                });
-            }
-            
-            // Status আপডেট
-            t.update(withdrawalRef, {
-                status: newStatus,
-                processedAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-        });
-
-        res.json({ success: true, message: `Withdrawal ${newStatus}.` });
-    } catch (e) {
-        res.status(500).json({ error: `Transaction failed: ${e.message}` });
+        // Return specific logic error or generic 500
+        const isLogicError = typeof e === 'string';
+        res.status(isLogicError ? 400 : 500).json({ error: isLogicError ? e : 'Withdrawal Processing Error' });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
