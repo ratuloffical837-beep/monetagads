@@ -24,10 +24,12 @@
             --neon-orange: #ff8b00;
             --text-main: #ffffff;
             --input-bg: #1a1a1a;
+            --button-main: #00f0ff;
+            --button-edge: #00aaff;
         }
 
+        /* --- Global Styles --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
         body {
             margin: 0; padding: 20px;
             background: radial-gradient(circle at center, #1a1f2e 0%, var(--bg) 100%);
@@ -37,191 +39,150 @@
             display: flex; flex-direction: column; align-items: center;
             overflow-x: hidden;
         }
+        
+        /* --- HEADER & USER INFO --- */
+        .app-header {
+            width: 100%; display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 20px;
+        }
 
-        /* --- 3D ORB --- */
+        .user-info {
+            font-weight: bold; font-size: 14px; text-align: right;
+        }
+        .user-info .status {
+            font-size: 10px; color: #555; display: block;
+        }
+
+        /* --- ORB (POINTS DISPLAY) --- */
         .orb-stage {
-            position: relative;
-            width: 220px; height: 220px;
-            margin: 30px 0;
+            position: relative; width: 250px; height: 250px; margin: 30px 0;
             display: flex; justify-content: center; align-items: center;
         }
 
         .orb {
-            width: 180px; height: 180px;
-            border-radius: 50%;
+            width: 200px; height: 200px; border-radius: 50%;
             background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 50%),
                         linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-            box-shadow: 0 0 40px rgba(0, 240, 255, 0.3), inset 0 0 20px rgba(255,255,255,0.2);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.4), inset 0 0 30px rgba(255,255,255,0.3);
+            position: relative; z-index: 2;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            position: relative;
-            z-index: 2;
-            animation: float 4s ease-in-out infinite;
-        }
-
-        .orb.pulse { animation: pulseHit 0.3s ease-out; }
-
-        .orb-ring {
-            position: absolute;
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            border: 2px dashed rgba(255,255,255,0.2);
-            animation: spin 10s linear infinite;
-            pointer-events: none;
+            animation: float 5s ease-in-out infinite;
         }
 
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .orb-ring {
+            position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.1); 
+            animation: spin 15s linear infinite; pointer-events: none;
+        }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes pulseHit { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.5); } 100% { transform: scale(1); filter: brightness(1); } }
+        
+        .points-val { font-family: 'Orbitron', sans-serif; font-size: 50px; font-weight: 900; text-shadow: 0 0 15px var(--neon-blue); }
+        .points-label { font-size: 14px; letter-spacing: 3px; opacity: 0.8; text-transform: uppercase; }
 
-        .points-val { font-family: 'Orbitron', sans-serif; font-size: 42px; font-weight: 900; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
-        .points-label { font-size: 14px; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase; }
+        .orb.pulse { animation: pulse 0.5s ease-out; }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 50px rgba(0, 240, 255, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 70px var(--neon-blue); } 100% { transform: scale(1); } }
 
         /* --- STATS BOX --- */
         .stats-panel {
-            background: var(--glass);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-            display: flex; gap: 15px; align-items: center; width: 100%; max-width: 400px; justify-content: space-around;
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 15px 10px; border-radius: 15px;
+            backdrop-filter: blur(10px); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; 
+            width: 100%; max-width: 400px; font-size: 14px; margin-bottom: 30px;
         }
 
-        /* --- 3D BUTTONS --- */
-        .grid-menu {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
-            width: 100%; max-width: 400px;
-        }
+        .stat-item { text-align: center; padding: 5px 0; border-right: 1px solid rgba(255,255,255,0.1); }
+        .stat-item:last-child { border-right: none; }
+        .stat-item strong { color: var(--neon-orange); display: block; font-size: 18px; }
 
+        /* --- 3D BUTTONS (Modernized) --- */
+        .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
         .btn-3d {
-            position: relative;
-            background: transparent;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            outline-offset: 4px;
+            position: relative; border: none; padding: 0; outline: none; cursor: pointer;
+            transition: transform 0.1s ease;
         }
-
+        .btn-3d:active { transform: translateY(3px); }
         .btn-edge {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 12px;
-            background: linear-gradient(to left, #0e0e0e 0%, #333 8%, #333 92%, #0e0e0e 100%);
+            position: absolute; top: 0; left: 0; right: 0; height: 100%;
+            border-radius: 10px; transform: translateY(3px);
+            background: var(--button-edge); z-index: 1;
         }
-
         .btn-face {
-            display: block; position: relative;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16px; font-weight: 700; color: white;
-            transform: translateY(-4px);
-            transition: transform 150ms;
-            border: 1px solid rgba(255,255,255,0.1);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            position: relative; display: block; padding: 15px 20px; border-radius: 10px;
+            background: var(--button-main); color: var(--bg); font-weight: bold; font-size: 16px;
+            transform: translateY(-3px); transition: transform 0.1s ease; z-index: 2;
         }
-
-        .btn-primary .btn-face { background: linear-gradient(135deg, var(--neon-blue), #2a5ee8); box-shadow: 0 0 15px rgba(0,240,255,0.3); }
-        .btn-secondary .btn-face { background: linear-gradient(135deg, var(--neon-purple), #8a2be2); box-shadow: 0 0 15px rgba(188,19,254,0.3); }
-        .btn-danger .btn-face { background: linear-gradient(135deg, #ff4d4d, #c0392b); }
-        .btn-refer .btn-face { background: linear-gradient(135deg, #ff00ff, #bc13fe); box-shadow: 0 0 15px rgba(188,19,254,0.3); }
-
         .btn-3d:active .btn-face { transform: translateY(0); }
+        .btn-disabled { opacity: 0.6; pointer-events: none; }
 
-        /* Disable state for cooldown/limit */
-        .btn-disabled .btn-face { 
-            background: #333 !important; 
-            box-shadow: none !important;
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
+        .btn-primary { --button-main: var(--neon-blue); --button-edge: #00aaff; }
+        .btn-secondary { --button-main: #34c759; --button-edge: #2db84c; } /* Green for Withdraw */
+        .btn-refer { --button-main: var(--neon-purple); --button-edge: #a410db; }
+        .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } /* Red for Exit */
+        
         /* --- SOCIAL BUTTONS --- */
-        .social-buttons {
-            display: flex; gap: 10px;
-        }
+        .social-buttons { display: flex; gap: 10px; }
         .social-btn {
-            background: var(--glass);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
-            width: 35px; height: 35px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 18px;
-            cursor: pointer;
-            color: var(--text-main);
-            transition: background 0.2s;
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
+            width: 35px; height: 35px; display: flex; justify-content: center; align-items: center;
+            font-size: 18px; cursor: pointer; color: var(--text-main); transition: transform 0.2s;
         }
-        .social-btn:hover { background: rgba(255, 255, 255, 0.1); }
-        .social-btn i { color: var(--neon-blue); }
+        .social-btn:active { transform: scale(0.9); }
         .social-btn.fb i { color: #1877f2; }
         .social-btn.yt i { color: #ff0000; }
 
-        /* --- MODALS --- */
+        /* --- MODAL (Keep Existing Style) --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center;
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
         }
         .modal {
-            background: #151922;
-            border: 1px solid var(--neon-blue);
-            padding: 25px;
-            border-radius: 20px;
-            width: 90%; max-width: 350px;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(0,240,255,0.1);
-            position: relative;
+            background: #151922; border: 1px solid var(--neon-blue); border-radius: 10px;
+            padding: 25px; width: 90%; max-width: 350px; text-align: center;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
         }
-        .modal h2 { margin-top: 0; color: var(--neon-blue); font-family: 'Orbitron'; margin-bottom: 20px; }
+        .modal h2 { color: var(--neon-blue); margin-top: 0; font-family: 'Orbitron', sans-serif; }
         
-        /* FIX FOR INPUT VISIBILITY */
-        input, select {
-            width: 100%; padding: 12px; margin: 10px 0;
-            background: var(--input-bg); /* Dark grey background */
-            border: 1px solid #444;
-            color: white; /* White text */
-            border-radius: 8px; font-family: 'Rajdhani'; font-size: 16px;
-            outline: none;
+        .modal input, .modal select {
+            width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #444; border-radius: 5px;
+            background: var(--input-bg); color: var(--text-main); font-size: 16px;
         }
-        input:focus, select:focus { border-color: var(--neon-blue); }
-        
-        /* FIX: Placeholder color for readability */
-        ::placeholder { color: #888; opacity: 1; }
-
-        .copy-box { display: flex; gap: 5px; margin-top: 10px; }
-        .copy-box input { margin: 0; }
-        .btn-copy { background: var(--neon-purple); border: none; color: white; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: bold; }
+        .copy-box { display: flex; margin-top: 15px; }
+        .copy-box input { flex-grow: 1; margin-bottom: 0; border-radius: 5px 0 0 5px; }
+        .btn-copy { 
+            background: var(--neon-purple); color: white; border: none; padding: 12px 15px;
+            border-radius: 0 5px 5px 0; font-weight: bold; cursor: pointer;
+        }
 
         /* --- TOAST --- */
         .toast {
-            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: var(--neon-blue); color: #000;
-            padding: 10px 20px; border-radius: 30px;
-            font-weight: bold; opacity: 0; transition: all 0.3s;
-            pointer-events: none; z-index: 2000;
-            text-align: center; width: 80%;
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 240, 255, 0.9); color: #000; padding: 10px 15px;
+            border-radius: 5px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            visibility: hidden; opacity: 0; transition: opacity 0.3s, visibility 0.3s;
+            z-index: 1001; font-weight: bold;
         }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .toast.error { background: #ff4d4d; color: white; }
-
+        .toast.show { visibility: visible; opacity: 1; }
+        .toast.error { background: rgba(255, 0, 0, 0.9); color: white; }
     </style>
 </head>
 <body>
 
-    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+    <div class="app-header">
         
         <div class="social-buttons">
-            <a href="https://www.facebook.com/share/1D7RcWgUAW/" target="_blank" class="social-btn fb">
+            <a href="https://www.facebook.com/share/1UQCaxE29T/" target="_blank" class="social-btn fb">
                 <i class="fab fa-facebook-f"></i>
             </a>
-            <a href="https://youtube.com/@alex-42-41?si=fHj-XX2czgI_44Jf" target="_blank" class="social-btn yt">
+            <a href="https://youtube.com/@alex-42-41?si=swPmmTf8er-fRruK" target="_blank" class="social-btn yt">
                 <i class="fab fa-youtube"></i>
             </a>
         </div>
 
-        <div style="font-weight: bold;">HELLO, <span id="username" style="color:var(--neon-blue)">USER</span></div>
-        <div id="connectionStatus" style="font-size:10px; color:#555;">●</div>
+        <div class="user-info">
+            HELLO, <span id="username" style="color:var(--neon-blue)">USER</span>
+            <span id="connectionStatus" class="status">● Connecting...</span>
+        </div>
     </div>
 
     <div class="orb-stage">
@@ -233,8 +194,9 @@
     </div>
 
     <div class="stats-panel">
-        <div>Ads Today: <strong id="adsTodayDisplay" style="color:white;">0/60</strong></div>
-        <div>Refs: <strong id="refsDisplay" style="color:white;">0</strong></div>
+        <div class="stat-item">Ads Today: <strong id="adsTodayDisplay">0/60</strong></div>
+        <div class="stat-item">Total Ads: <strong id="totalAdsDisplay">0</strong></div>
+        <div class="stat-item">Refs: <strong id="refsDisplay">0</strong></div>
     </div>
 
     <div class="grid-menu">
@@ -243,11 +205,11 @@
         </button>
         
         <button class="btn-3d btn-secondary" onclick="openModal('withdrawModal')">
-            <span class="btn-edge"></span><span class="btn-face">WITHDRAW</span>
+            <span class="btn-edge"></span><span class="btn-face">WITHDRAW (600/10)</span>
         </button>
 
         <button class="btn-3d btn-refer" onclick="openReferralModal()">
-            <span class="btn-edge"></span><span class="btn-face">REFER & EARN</span>
+            <span class="btn-edge"></span><span class="btn-face">REFER & EARN (+1 PT)</span>
         </button>
 
         <button class="btn-3d btn-danger" onclick="Telegram.WebApp.close()">
@@ -306,16 +268,15 @@
 
     <script>
         // --- CONFIGURATION ---
-        // **UPDATED** to your new Render URL:
-        const BACKEND_URL = "https://monetagads4241r.onrender.com"; 
-        const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; // Bot Username
+        const BACKEND_URL = "https://monetagads4241r.onrender.com"; // আপনার Render URL
+        const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; // আপনার বটের ইউজারনেম
         
-        // Monetag Function Name
+        // Monetag Function Name (From SDK Tag)
         const MONETAG_FUNC = "show_10318378"; 
         
-        // Firebase Config (Public) - Project ID: monetas-ads-4241
+        // Firebase Config (Public - DO NOT CHANGE)
         const firebaseConfig = {
-          apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdE",
+          apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
           authDomain: "monetas-ads-4241.firebaseapp.com",
           projectId: "monetas-ads-4241",
           storageBucket: "monetas-ads-4241.firebasestorage.app",
@@ -323,10 +284,10 @@
           appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
         };
         
-        // **NEW LIMITS & COOLDOWN**
+        // NEW LIMITS & COOLDOWN
         const AD_DAILY_LIMIT = 60; // Max ads per day
         const AD_COOLDOWN_SECONDS = 80; // 80 seconds gap between ads
-
+        
         // --- INIT ---
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -339,7 +300,6 @@
         let adsToday = 0;
         let cooldownInterval = null;
         
-        // Helper to get today's date string (YYYY-MM-DD)
         function getTodayDateString() {
             return new Date().toISOString().slice(0, 10);
         }
@@ -348,15 +308,14 @@
             const user = tg.initDataUnsafe?.user;
             const startParam = tg.initDataUnsafe?.start_param || null;
 
-            if(!user) {
-                console.warn("No Telegram User detected (Local Mode)");
-                state.userId = "test_user_1";
-                state.username = "TESTER";
-                document.getElementById('username').innerText = "TESTER";
-            } else {
+            if(user) {
                 state.userId = String(user.id);
                 state.username = user.username || "User";
                 document.getElementById('username').innerText = (user.first_name || "User").toUpperCase();
+            } else {
+                // Fallback for testing outside Telegram
+                state.userId = "test_user_1";
+                document.getElementById('username').innerText = "TESTER";
             }
 
             // 1. Sync User & Handle Referrals
@@ -369,9 +328,7 @@
                 body: JSON.stringify({ startParam: startParam })
             })
             .then(res => {
-                if(res.status === 403) {
-                    showToast("Security Check Failed! (Update Bot Token in Render)", true);
-                }
+                if(res.status === 403) showToast("Security Check Failed! (Update Bot Token)", true);
             })
             .catch(e => {
                 console.error("Sync fail", e);
@@ -385,34 +342,24 @@
                     
                     if(data.coins > state.coins) {
                         pulseOrb();
-                        triggerConfetti();
+                        triggerConfetti(); // Reward Confetti
                     }
 
                     state.coins = data.coins || 0;
                     state.ads = data.totalAdsWatched || 0;
                     state.referrals = data.referrals || 0;
                     
-                    // Daily Ad Counter Logic
                     const today = getTodayDateString();
                     if(data.lastAdDate === today) {
                         adsToday = data.adsToday || 0;
                     } else {
-                        // Reset count if it's a new day
                         adsToday = 0;
-                        db.collection('users').doc(state.userId).update({
-                            adsToday: 0,
-                            lastAdDate: today
-                        }).catch(e => console.error("Daily Reset Error:", e));
                     }
                     
-                    // Restore last ad time for cooldown check
                     if(data.lastAdTime) {
                         lastAdTime = data.lastAdTime.toDate().getTime();
                     }
 
-
-                    updateUI();
-                } else {
                     updateUI();
                 }
             });
@@ -423,7 +370,9 @@
             document.getElementById('refsDisplay').innerText = state.referrals;
             document.getElementById('refCountDisplay').innerText = state.referrals;
             document.getElementById('adsTodayDisplay').innerText = `${adsToday}/${AD_DAILY_LIMIT}`;
+            document.getElementById('totalAdsDisplay').innerText = state.ads;
             document.getElementById('connectionStatus').style.color = '#00ff00';
+            document.getElementById('connectionStatus').innerText = '● Connected';
             
             checkAdStatus();
         }
@@ -437,7 +386,6 @@
 
             if (adsToday >= AD_DAILY_LIMIT) {
                 btn.classList.add('btn-disabled');
-                btn.onclick = () => showToast("Daily Ad Limit Reached! Try again tomorrow.", true);
                 btnFace.innerText = "LIMIT REACHED";
                 if(cooldownInterval) clearInterval(cooldownInterval);
                 return;
@@ -445,23 +393,20 @@
 
             if (remainingTime > 0) {
                 btn.classList.add('btn-disabled');
-                btn.onclick = () => showToast(`Wait ${Math.ceil(remainingTime)}s for next ad`, true);
                 
-                // Start or update cooldown timer display
                 if (!cooldownInterval) {
                     cooldownInterval = setInterval(() => {
                         const newRemaining = AD_COOLDOWN_SECONDS - ( (Date.now() - lastAdTime) / 1000 );
                         if (newRemaining <= 0) {
                             clearInterval(cooldownInterval);
                             cooldownInterval = null;
-                            checkAdStatus(); // Re-enable button
+                            checkAdStatus();
                         } else {
                             btnFace.innerText = `WAIT ${Math.ceil(newRemaining)}S`;
                         }
                     }, 1000);
                 }
             } else {
-                // Button Ready
                 if(cooldownInterval) clearInterval(cooldownInterval);
                 cooldownInterval = null;
                 btn.classList.remove('btn-disabled');
@@ -473,71 +418,61 @@
 
         // --- ADS ---
         function watchAd() {
-            // Re-check status before showing ad
             const now = Date.now();
             const timeElapsed = (now - lastAdTime) / 1000;
             
             if (adsToday >= AD_DAILY_LIMIT) return showToast("Daily Ad Limit Reached!", true);
-            if (timeElapsed < AD_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(AD_COOLDOWN_SECONDS - timeElapsed)}s for next ad`, true);
+            if (timeElapsed < AD_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(AD_COOLDOWN_SECONDS - timeElapsed)}s`, true);
 
 
             const btn = document.getElementById('watchAdBtn');
-            btn.classList.add('btn-disabled'); // Temporarily disable button
+            btn.classList.add('btn-disabled');
             
             if (typeof window[MONETAG_FUNC] === 'function') {
-                window[MONETAG_FUNC]().then(() => {
-                    // Update frontend state immediately
+                
+                // Pass ymid (User ID) for postback tracking
+                window[MONETAG_FUNC]({ ymid: state.userId }).then(() => {
+                    
+                    // Update front-end state (cooldown/limit)
                     lastAdTime = Date.now();
                     adsToday++;
                     
-                    // Claim reward on the backend
+                    // Claim reward on the backend (only updates ad counts/time)
                     claimReward();
                     
-                    // Update UI (starts cooldown timer)
                     checkAdStatus();
                     
+                    showToast("Ad Complete! Reward Pending (Postback)."); 
+
                 }).catch(e => {
-                    showToast("Ad Closed or Not Loaded", true);
-                    // Re-enable button if ad failed (but keep cooldown)
+                    showToast("Ad Closed, Skipped, or Failed to Load.", true);
                     checkAdStatus(); 
                 });
             } else {
-                console.log("Monetag SDK missing - Is adblock on? Function:", MONETAG_FUNC);
                 showToast("Ad SDK Loading...", true);
-                // Simulate Ad completion for testing/if SDK fails to load completely
-                
-                // --- REMOVE THIS BLOCK IN PRODUCTION IF MONETAG SDK IS RELIABLE ---
-                // lastAdTime = Date.now();
-                // adsToday++;
-                // claimReward();
-                // checkAdStatus();
-                // ------------------------------------------------------------------
+                checkAdStatus();
             }
         }
 
         async function claimReward() {
+            // This now only updates ad counts and cooldown time on the backend.
             try {
-                // Also update lastAdDate and adsToday count on the backend
                 const res = await fetch(`${BACKEND_URL}/api/claim-reward`, {
                     method: 'POST',
                     headers: { 'x-telegram-init-data': tg.initData }
                 });
                 
-                if(res.ok) {
-                    showToast("+1 POINT EARNED!");
-                    // Database listener will update full state.
-                } else {
+                if(!res.ok) {
                     const data = await res.json();
-                    showToast(data.error || "Reward Failed", true);
+                    console.error("Ad Count Update Failed:", data.error);
                 }
             } catch(e) {
-                showToast("Network Error", true);
+                console.error("Ad Count Network Error:", e);
             }
         }
 
         // --- REFERRALS ---
         function openReferralModal() {
-            // Uses the Bot Username: realldoler87ok_bot
             const link = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${state.userId}`;
             document.getElementById('refLink').value = link;
             openModal('referralModal');
@@ -561,7 +496,6 @@
             if(!amountPoints || amountPoints <= 0) return showToast("Enter valid points", true);
             if(!number) return showToast("Enter wallet number", true);
 
-            // Pre-validation (Frontend) - NEW CONDITIONS: 600 points, 10 referrals
             if(state.coins < 600) return showToast("Need 600+ Points", true);
             if(state.referrals < 10) return showToast("Need 10+ Referrals", true);
             if(amountPoints > state.coins) return showToast("Insufficient Balance", true);
@@ -578,7 +512,7 @@
 
                 const data = await res.json();
                 if(res.ok) {
-                    showToast("Withdrawal Sent!");
+                    showToast("Withdrawal Sent! Status: Pending Admin Approval.");
                     closeModal('withdrawModal');
                 } else {
                     showToast(data.error || "Failed", true);
@@ -598,9 +532,7 @@
 
         function triggerConfetti() {
             confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
+                particleCount: 70, spread: 50, origin: { y: 0.6 },
                 colors: ['#00f0ff', '#bc13fe', '#ffffff']
             });
         }
@@ -612,13 +544,12 @@
             else t.classList.remove('error');
             
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            setTimeout(() => t.classList.remove('show'), 4000);
         }
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // Boot
         initApp();
 
     </script>
