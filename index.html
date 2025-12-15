@@ -13,6 +13,7 @@
     <script src='//libtl.com/sdk.js' data-zone='10318378' data-sdk='show_10318378'></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght<500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
         :root {
@@ -126,6 +127,34 @@
 
         .btn-3d:active .btn-face { transform: translateY(0); }
 
+        /* Disable state for cooldown/limit */
+        .btn-disabled .btn-face { 
+            background: #333 !important; 
+            box-shadow: none !important;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* --- SOCIAL BUTTONS --- */
+        .social-buttons {
+            display: flex; gap: 10px;
+        }
+        .social-btn {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            width: 35px; height: 35px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: background 0.2s;
+        }
+        .social-btn:hover { background: rgba(255, 255, 255, 0.1); }
+        .social-btn i { color: var(--neon-blue); }
+        .social-btn.fb i { color: #1877f2; }
+        .social-btn.yt i { color: #ff0000; }
+
         /* --- MODALS --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -181,6 +210,16 @@
 <body>
 
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+        
+        <div class="social-buttons">
+            <a href="https://www.facebook.com/share/1D7RcWgUAW/" target="_blank" class="social-btn fb">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://youtube.com/@alex-42-41?si=fHj-XX2czgI_44Jf" target="_blank" class="social-btn yt">
+                <i class="fab fa-youtube"></i>
+            </a>
+        </div>
+
         <div style="font-weight: bold;">HELLO, <span id="username" style="color:var(--neon-blue)">USER</span></div>
         <div id="connectionStatus" style="font-size:10px; color:#555;">●</div>
     </div>
@@ -194,13 +233,13 @@
     </div>
 
     <div class="stats-panel">
-        <div>Ads: <strong id="adsDisplay" style="color:white;">0</strong></div>
+        <div>Ads Today: <strong id="adsTodayDisplay" style="color:white;">0/60</strong></div>
         <div>Refs: <strong id="refsDisplay" style="color:white;">0</strong></div>
     </div>
 
     <div class="grid-menu">
         <button class="btn-3d btn-primary" id="watchAdBtn" onclick="watchAd()">
-            <span class="btn-edge"></span><span class="btn-face">WATCH AD</span>
+            <span class="btn-edge"></span><span class="btn-face" id="watchAdFace">WATCH AD</span>
         </button>
         
         <button class="btn-3d btn-secondary" onclick="openModal('withdrawModal')">
@@ -220,10 +259,10 @@
         <div class="modal">
             <h2>CASH OUT</h2>
             <p style="font-size: 12px; color: #ccc; margin-bottom: 10px;">
-                Required: 1000+ Points & 20+ Referrals
+                Required: 600+ Points & 10+ Referrals
             </p>
             
-            <input type="number" id="wInputPoints" placeholder="Enter Points (e.g., 1000)">
+            <input type="number" id="wInputPoints" placeholder="Enter Points (e.g., 600)">
             
             <select id="wMethod">
                 <option value="Bkash">Bkash</option>
@@ -247,7 +286,7 @@
     <div class="modal-overlay" id="referralModal">
         <div class="modal">
             <h2>INVITE FRIENDS</h2>
-            <p>Earn <span style="color:var(--neon-blue)">2 Points</span> for every friend!</p>
+            <p>Earn <span style="color:var(--neon-blue)">1 Point</span> for every friend!</p>
             
             <div class="copy-box">
                 <input type="text" id="refLink" readonly value="Loading...">
@@ -283,6 +322,10 @@
           messagingSenderId: "482009819786",
           appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
         };
+        
+        // **NEW LIMITS & COOLDOWN**
+        const AD_DAILY_LIMIT = 60; // Max ads per day
+        const AD_COOLDOWN_SECONDS = 80; // 80 seconds gap between ads
 
         // --- INIT ---
         const tg = window.Telegram.WebApp;
@@ -292,8 +335,14 @@
         const db = firebase.firestore();
 
         let state = { coins: 0, ads: 0, referrals: 0, userId: null, username: '' };
+        let lastAdTime = 0;
+        let adsToday = 0;
+        let cooldownInterval = null;
         
-        // --- APP LOGIC ---
+        // Helper to get today's date string (YYYY-MM-DD)
+        function getTodayDateString() {
+            return new Date().toISOString().slice(0, 10);
+        }
 
         function initApp() {
             const user = tg.initDataUnsafe?.user;
@@ -328,8 +377,8 @@
                 console.error("Sync fail", e);
                 document.getElementById('connectionStatus').style.color = 'red';
             });
-
-            // 2. Realtime Listener
+            
+            // 2. Realtime Listener & Daily Ad Count
             db.collection('users').doc(state.userId).onSnapshot(doc => {
                 if(doc.exists) {
                     const data = doc.data();
@@ -342,6 +391,26 @@
                     state.coins = data.coins || 0;
                     state.ads = data.totalAdsWatched || 0;
                     state.referrals = data.referrals || 0;
+                    
+                    // Daily Ad Counter Logic
+                    const today = getTodayDateString();
+                    if(data.lastAdDate === today) {
+                        adsToday = data.adsToday || 0;
+                    } else {
+                        // Reset count if it's a new day
+                        adsToday = 0;
+                        db.collection('users').doc(state.userId).update({
+                            adsToday: 0,
+                            lastAdDate: today
+                        }).catch(e => console.error("Daily Reset Error:", e));
+                    }
+                    
+                    // Restore last ad time for cooldown check
+                    if(data.lastAdTime) {
+                        lastAdTime = data.lastAdTime.toDate().getTime();
+                    }
+
+
                     updateUI();
                 } else {
                     updateUI();
@@ -351,33 +420,104 @@
 
         function updateUI() {
             document.getElementById('pointsDisplay').innerText = state.coins;
-            document.getElementById('adsDisplay').innerText = state.ads;
             document.getElementById('refsDisplay').innerText = state.referrals;
             document.getElementById('refCountDisplay').innerText = state.referrals;
+            document.getElementById('adsTodayDisplay').innerText = `${adsToday}/${AD_DAILY_LIMIT}`;
             document.getElementById('connectionStatus').style.color = '#00ff00';
+            
+            checkAdStatus();
         }
+        
+        function checkAdStatus() {
+            const btn = document.getElementById('watchAdBtn');
+            const btnFace = document.getElementById('watchAdFace');
+            const now = Date.now();
+            const timeElapsed = (now - lastAdTime) / 1000;
+            const remainingTime = AD_COOLDOWN_SECONDS - timeElapsed;
+
+            if (adsToday >= AD_DAILY_LIMIT) {
+                btn.classList.add('btn-disabled');
+                btn.onclick = () => showToast("Daily Ad Limit Reached! Try again tomorrow.", true);
+                btnFace.innerText = "LIMIT REACHED";
+                if(cooldownInterval) clearInterval(cooldownInterval);
+                return;
+            }
+
+            if (remainingTime > 0) {
+                btn.classList.add('btn-disabled');
+                btn.onclick = () => showToast(`Wait ${Math.ceil(remainingTime)}s for next ad`, true);
+                
+                // Start or update cooldown timer display
+                if (!cooldownInterval) {
+                    cooldownInterval = setInterval(() => {
+                        const newRemaining = AD_COOLDOWN_SECONDS - ( (Date.now() - lastAdTime) / 1000 );
+                        if (newRemaining <= 0) {
+                            clearInterval(cooldownInterval);
+                            cooldownInterval = null;
+                            checkAdStatus(); // Re-enable button
+                        } else {
+                            btnFace.innerText = `WAIT ${Math.ceil(newRemaining)}S`;
+                        }
+                    }, 1000);
+                }
+            } else {
+                // Button Ready
+                if(cooldownInterval) clearInterval(cooldownInterval);
+                cooldownInterval = null;
+                btn.classList.remove('btn-disabled');
+                btn.onclick = watchAd;
+                btnFace.innerText = "WATCH AD";
+            }
+        }
+
 
         // --- ADS ---
         function watchAd() {
+            // Re-check status before showing ad
+            const now = Date.now();
+            const timeElapsed = (now - lastAdTime) / 1000;
+            
+            if (adsToday >= AD_DAILY_LIMIT) return showToast("Daily Ad Limit Reached!", true);
+            if (timeElapsed < AD_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(AD_COOLDOWN_SECONDS - timeElapsed)}s for next ad`, true);
+
+
             const btn = document.getElementById('watchAdBtn');
-            btn.style.filter = "grayscale(1)";
+            btn.classList.add('btn-disabled'); // Temporarily disable button
             
             if (typeof window[MONETAG_FUNC] === 'function') {
                 window[MONETAG_FUNC]().then(() => {
+                    // Update frontend state immediately
+                    lastAdTime = Date.now();
+                    adsToday++;
+                    
+                    // Claim reward on the backend
                     claimReward();
+                    
+                    // Update UI (starts cooldown timer)
+                    checkAdStatus();
+                    
                 }).catch(e => {
                     showToast("Ad Closed or Not Loaded", true);
-                    btn.style.filter = "none";
+                    // Re-enable button if ad failed (but keep cooldown)
+                    checkAdStatus(); 
                 });
             } else {
                 console.log("Monetag SDK missing - Is adblock on? Function:", MONETAG_FUNC);
                 showToast("Ad SDK Loading...", true);
-                setTimeout(() => { btn.style.filter = "none"; }, 2000);
+                // Simulate Ad completion for testing/if SDK fails to load completely
+                
+                // --- REMOVE THIS BLOCK IN PRODUCTION IF MONETAG SDK IS RELIABLE ---
+                // lastAdTime = Date.now();
+                // adsToday++;
+                // claimReward();
+                // checkAdStatus();
+                // ------------------------------------------------------------------
             }
         }
 
         async function claimReward() {
             try {
+                // Also update lastAdDate and adsToday count on the backend
                 const res = await fetch(`${BACKEND_URL}/api/claim-reward`, {
                     method: 'POST',
                     headers: { 'x-telegram-init-data': tg.initData }
@@ -385,14 +525,13 @@
                 
                 if(res.ok) {
                     showToast("+1 POINT EARNED!");
+                    // Database listener will update full state.
                 } else {
                     const data = await res.json();
                     showToast(data.error || "Reward Failed", true);
                 }
             } catch(e) {
                 showToast("Network Error", true);
-            } finally {
-                document.getElementById('watchAdBtn').style.filter = "none";
             }
         }
 
@@ -422,9 +561,9 @@
             if(!amountPoints || amountPoints <= 0) return showToast("Enter valid points", true);
             if(!number) return showToast("Enter wallet number", true);
 
-            // Pre-validation (Frontend)
-            if(state.coins < 1000) return showToast("Need 1000+ Points", true);
-            if(state.referrals < 20) return showToast("Need 20+ Referrals", true);
+            // Pre-validation (Frontend) - NEW CONDITIONS: 600 points, 10 referrals
+            if(state.coins < 600) return showToast("Need 600+ Points", true);
+            if(state.referrals < 10) return showToast("Need 10+ Referrals", true);
             if(amountPoints > state.coins) return showToast("Insufficient Balance", true);
 
             try {
