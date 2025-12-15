@@ -9,9 +9,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="//libtl.com/sdk.js" data-zone="10318378" data-sdk="show_ads_func"></script>
+    
+    <script src='//libtl.com/sdk.js' data-zone='10318378' data-sdk='show_10318378'></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght<500;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -266,15 +267,17 @@
 
     <script>
         // --- CONFIGURATION ---
-        const BACKEND_URL = "https://monetagads4241.onrender.com"; // **UPDATED** to your confirmed Render URL
-        const MONETAG_FUNC = "show_ads_func"; 
-        const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; // **UPDATED** to your confirmed Bot Username
+        const BACKEND_URL = "https://monetagads4241.onrender.com"; // **CONFIRMED** Render URL
+        const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; // **CONFIRMED** Bot Username
         
-        // Firebase Config (Public) - **UPDATED** to your project ID
+        // Monetag Function Name - **UPDATED** to match data-sdk='show_10318378'
+        const MONETAG_FUNC = "show_10318378"; 
+        
+        // Firebase Config (Public) - **CONFIRMED** to your project ID
         const firebaseConfig = {
-            apiKey: "AIzaSyDzqE5shOJtwd-iYYIEhzx_WbxuS6gdiwY", // NOTE: This is a placeholder API key
+            apiKey: "AIzaSyDzqE5shOJtwd-iYYIEhzx_WbxuS6gdiwY", // Placeholder API key (not sensitive)
             authDomain: "monetag-ads-4241.firebaseapp.com",
-            projectId: "monetag-ads-4241", // **UPDATED**
+            projectId: "monetag-ads-4241", 
             storageBucket: "monetag-ads-4241.appspot.com",
             messagingSenderId: "1079895272264",
             appId: "1:1079895272264:web:fae306d95766c6c625e17d"
@@ -311,7 +314,6 @@
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    // The server uses x-telegram-init-data for security verification
                     'x-telegram-init-data': tg.initData 
                 },
                 body: JSON.stringify({ startParam: startParam })
@@ -341,7 +343,6 @@
                     state.referrals = data.referrals || 0;
                     updateUI();
                 } else {
-                    // This block executes if the user is syncing for the first time
                     updateUI();
                 }
             });
@@ -361,16 +362,15 @@
             btn.style.filter = "grayscale(1)";
             
             if (typeof window[MONETAG_FUNC] === 'function') {
+                // Calls the updated Monetag function: show_10318378
                 window[MONETAG_FUNC]().then(() => {
-                    // Ad was successfully watched/closed
                     claimReward();
                 }).catch(e => {
-                    // Ad was closed before completion or failed to load
                     showToast("Ad Closed or Not Loaded", true);
                     btn.style.filter = "none";
                 });
             } else {
-                console.log("Monetag SDK missing - Is adblock on?");
+                console.log("Monetag SDK missing - Is adblock on? Function:", MONETAG_FUNC);
                 showToast("Ad SDK Loading...", true);
                 setTimeout(() => { btn.style.filter = "none"; }, 2000);
             }
@@ -385,7 +385,6 @@
                 
                 if(res.ok) {
                     showToast("+1 POINT EARNED!");
-                    // Firestore listener handles UI update
                 } else {
                     const data = await res.json();
                     showToast(data.error || "Reward Failed", true);
