@@ -98,13 +98,14 @@ app.post('/api/sync', verifyTelegram, async (req, res) => {
                     joinedAt: admin.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Handle Referral (Give 2 points to referrer)
+                // Handle Referral (Give 1 point to referrer)
                 if (startParam && startParam !== uid) {
                     const referrerRef = db.collection('users').doc(String(startParam));
                     const referrerDoc = await t.get(referrerRef);
                     if (referrerDoc.exists) {
                         t.update(referrerRef, {
-                            coins: admin.firestore.FieldValue.increment(2),
+                            // *** CHANGE: REFERRAL POINT IS NOW 1 ***
+                            coins: admin.firestore.FieldValue.increment(1),
                             referrals: admin.firestore.FieldValue.increment(1)
                         });
                     }
@@ -147,6 +148,10 @@ app.post('/api/withdraw', verifyTelegram, async (req, res) => {
     const { method, number, amountPoints } = req.body;
     const userRef = db.collection('users').doc(uid);
 
+    // *** WITHDRAWAL CONSTANTS ***
+    const MIN_POINTS = 600; // New minimum points
+    const MIN_REFERRALS = 10; // New minimum referrals
+
     try {
         await db.runTransaction(async (t) => {
             const doc = await t.get(userRef);
@@ -156,9 +161,9 @@ app.post('/api/withdraw', verifyTelegram, async (req, res) => {
             const balance = data.coins || 0;
             const refCount = data.referrals || 0;
 
-            // Strict Validation
-            if (balance < 1000) throw "Minimum 1000 Points required";
-            if (refCount < 20) throw "Minimum 20 Referrals required";
+            // Validation (Updated Conditions)
+            if (balance < MIN_POINTS) throw `Minimum ${MIN_POINTS} Points required`;
+            if (refCount < MIN_REFERRALS) throw `Minimum ${MIN_REFERRALS} Referrals required`;
             if (amountPoints > balance) throw "Insufficient Balance";
             if (amountPoints <= 0) throw "Invalid Amount";
 
