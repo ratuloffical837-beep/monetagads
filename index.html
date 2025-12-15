@@ -267,20 +267,21 @@
 
     <script>
         // --- CONFIGURATION ---
-        const BACKEND_URL = "https://monetagads4241.onrender.com"; // **CONFIRMED** Render URL
-        const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; // **CONFIRMED** Bot Username
+        // **UPDATED** to your new Render URL:
+        const BACKEND_URL = "https://monetagads4241r.onrender.com"; 
+        const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; // Bot Username
         
-        // Monetag Function Name - **UPDATED** to match data-sdk='show_10318378'
+        // Monetag Function Name
         const MONETAG_FUNC = "show_10318378"; 
         
-        // Firebase Config (Public) - **CONFIRMED** to your project ID
+        // Firebase Config (Public) - Project ID: monetas-ads-4241
         const firebaseConfig = {
-            apiKey: "AIzaSyDzqE5shOJtwd-iYYIEhzx_WbxuS6gdiwY", // Placeholder API key (not sensitive)
-            authDomain: "monetag-ads-4241.firebaseapp.com",
-            projectId: "monetag-ads-4241", 
-            storageBucket: "monetag-ads-4241.appspot.com",
-            messagingSenderId: "1079895272264",
-            appId: "1:1079895272264:web:fae306d95766c6c625e17d"
+          apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdE",
+          authDomain: "monetas-ads-4241.firebaseapp.com",
+          projectId: "monetas-ads-4241",
+          storageBucket: "monetas-ads-4241.firebasestorage.app",
+          messagingSenderId: "482009819786",
+          appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
         };
 
         // --- INIT ---
@@ -362,7 +363,6 @@
             btn.style.filter = "grayscale(1)";
             
             if (typeof window[MONETAG_FUNC] === 'function') {
-                // Calls the updated Monetag function: show_10318378
                 window[MONETAG_FUNC]().then(() => {
                     claimReward();
                 }).catch(e => {
@@ -398,7 +398,7 @@
 
         // --- REFERRALS ---
         function openReferralModal() {
-            // Uses the updated constant TELEGRAM_BOT_USERNAME
+            // Uses the Bot Username: realldoler87ok_bot
             const link = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${state.userId}`;
             document.getElementById('refLink').value = link;
             openModal('referralModal');
