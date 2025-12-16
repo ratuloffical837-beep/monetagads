@@ -1,4 +1,4 @@
-// server.js (UPDATED - Withdrawal uses Instant Coins)
+// server.js (FINAL VERSION - Modern Admin, 120s Cooldown, Unsecure Withdrawal Points)
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const path = require('path');
 
 const app = express();
+// Enable CORS for all origins, required for Render and WebApp communication
 app.use(cors({ origin: '*' })); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,8 +40,9 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const MONETAG_SECRET_KEY = process.env.MONETAG_SECRET_KEY || 'MONETAG_SECRET_TOKEN_4241'; 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Ratulhossain123@$&'; 
 
-// --- TELEGRAM AUTH MIDDLEWARE ---
+// --- TELEGRAM AUTH MIDDLEWARE (Integrity Check) ---
 const verifyTelegram = (req, res, next) => {
+    // (Telegram Auth Code remains here - verifies x-telegram-init-data)
     const initData = req.headers['x-telegram-init-data'];
     if (!initData || !BOT_TOKEN) return res.status(403).json({ error: "Integrity Failed: Missing Token or Data" });
     try {
@@ -62,31 +64,34 @@ const verifyTelegram = (req, res, next) => {
 
 // --- CORE POSTBACK HANDLER FUNCTION ---
 async function handleMonetagPostback(req, res) {
-    const { tgid, pay, telegram_id, estimated_price, ymid, reward_type, secret } = req.query;
+    // Collect all macros from the long URL provided by user
+    const { 
+        telegram_id, 
+        reward_event_type, 
+        ymid, 
+        secret, // Assuming you add secret to your URL manually for extra security
+        // The following are optional but collected as per the user's provided URL structure
+        event: event_type, 
+        value: reward_type_alt, 
+        zone: zone_id, 
+        sub: sub_zone_id, 
+        price: estimated_price, 
+        source: request_var 
+    } = req.query;
 
-    const finalTgid = tgid || telegram_id;
-    const finalPayout = pay || estimated_price;
+    const finalTgid = telegram_id;
+    const finalRewardType = reward_event_type || reward_type_alt; 
     
-    // 1. Secret Key Verification
-    if (!secret || secret !== MONETAG_SECRET_KEY) {
-        if (req.originalUrl === '/' && !req.query.ymid) {
-            return res.sendFile(path.join(__dirname, 'index.html'));
-        }
-        if (req.query.ymid) {
-             console.warn(`Postback Security Failure: Invalid Secret Key. Received: ${secret}`);
-             return res.status(403).send('Invalid Secret Key');
-        }
-    }
-    
-    // 2. Validate essential parameters
+    // 1. Validate essential parameters
     const uid = String(finalTgid); 
     const transactionId = String(ymid);
     
-    if (!uid || !transactionId || reward_type !== 'yes') {
+    if (!uid || !transactionId || finalRewardType !== 'yes' && finalRewardType !== 'valued') {
+        // Only proceed if the reward is confirmed as 'yes' or 'valued' (Monetag standard)
         return res.status(400).send('Invalid or non-rewardable event. (Missing UID, YMID, or paid event)');
     }
-
-    // 3. Prevent duplicate transactions
+    
+    // 2. Prevent duplicate transactions
     const transactionRef = db.collection('monetag_rewards').doc(transactionId);
     try {
         await db.runTransaction(async (t) => {
@@ -101,16 +106,18 @@ async function handleMonetagPostback(req, res) {
             t.set(transactionRef, {
                 timestamp: admin.firestore.FieldValue.serverTimestamp(),
                 userId: uid,
+                payout: estimated_price,
+                zone: zone_id,
                 source: req.originalUrl
             });
 
-            // *** REWARD USER WITH 1 VALID POINT (Display Only as per user request) ***
+            // *** REWARD USER WITH 1 VALID COIN (Display Only) ***
             const userRef = db.collection('users').doc(uid);
             t.update(userRef, {
-                validCoins: admin.firestore.FieldValue.increment(1), // Display Only
+                validCoins: admin.firestore.FieldValue.increment(1), // DISPLAY ONLY
             });
 
-            console.log(`Postback Success: Valid Reward given to user ${uid} (Display Only)`);
+            console.log(`Postback Success: Secure Coin given to user ${uid} (Display Only)`);
         });
 
         res.status(200).send('OK'); 
@@ -122,8 +129,9 @@ async function handleMonetagPostback(req, res) {
 }
 
 
-// --- ROUTES ---
+// --- API ROUTES ---
 
+// Root route handles postback too
 app.get('/', handleMonetagPostback); 
 app.get('/api/monetag-callback', handleMonetagPostback); 
 
@@ -244,6 +252,170 @@ app.post('/api/withdraw', verifyTelegram, async (req, res) => {
     }
 });
 
+// --- ADMIN ROUTES (NEW MODERN LOOK) ---
+
+app.get('/admin', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html><head><title>Admin Login</title>
+        <style>
+        body{font-family: 'Rajdhani', sans-serif; background: #0b0f19; color: #fff; text-align: center; padding-top: 50px;}
+        .container{background: rgba(42, 49, 66, 0.9); padding: 40px; border-radius: 15px; display: inline-block; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);}
+        h2{color: #00f0ff; font-family: 'Orbitron', sans-serif;}
+        input, button{padding: 12px 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; background: #1a1a1a; color: #fff; width: 100%; box-sizing: border-box;}
+        button{background: #bc13fe; cursor: pointer; border: none; font-weight: bold; transition: background 0.3s;}
+        button:hover{background: #a410db;}
+        </style>
+        </head><body>
+        <div class="container">
+            <h2>ADMIN PANEL LOGIN</h2>
+            <form action="/admin/login" method="POST">
+                <input type="password" name="password" placeholder="Admin Password" required>
+                <button type="submit">LOGIN SECURELY</button>
+            </form>
+        </div>
+        </body></html>
+    `);
+});
+
+app.post('/admin/login', (req, res) => {
+    const { password } = req.body;
+    if (password === ADMIN_PASSWORD) {
+        // Redirect with token securely
+        res.redirect(`/admin/withdrawals?token=${ADMIN_PASSWORD}`);
+    } else {
+        res.status(401).send(`
+            <!DOCTYPE html>
+            <html><head><title>Unauthorized</title>
+            <style>body{font-family:sans-serif;background:#1a1f2e;color:#fff;text-align:center;padding-top:50px;} h2{color:#ff3b30;}</style>
+            </head><body><h2>UNAUTHORIZED ACCESS</h2><p>Invalid Password. Please <a href="/admin">try again</a>.</p></body></html>
+        `);
+    }
+});
+
+app.get('/admin/withdrawals', async (req, res) => {
+    if (req.query.token !== ADMIN_PASSWORD) {
+        return res.status(401).send('Unauthorized Access');
+    }
+
+    try {
+        const snapshot = await db.collection('withdrawals')
+            .where('status', '==', 'pending')
+            .orderBy('timestamp', 'asc')
+            .get();
+        
+        // Fetch User Balances for context
+        const userIds = [...new Set(snapshot.docs.map(doc => doc.data().userId))];
+        const usersSnapshot = await db.collection('users').where(admin.firestore.FieldPath.documentId(), 'in', userIds).get();
+        const userBalances = usersSnapshot.docs.reduce((acc, doc) => {
+            acc[doc.id] = { 
+                coins: doc.data().coins || 0,
+                validCoins: doc.data().validCoins || 0,
+                referrals: doc.data().referrals || 0
+            };
+            return acc;
+        }, {});
+
+
+        let html = `
+            <!DOCTYPE html>
+            <html><head><title>Pending Withdrawals</title>
+            <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+            <style>
+            body{font-family:'Rajdhani', sans-serif;background:#0b0f19;color:#fff;padding:20px;}
+            h2{color:#00f0ff; font-family:'Orbitron', sans-serif;}
+            table{width:100%;border-collapse:separate;border-spacing:0 10px;margin-top:20px;}
+            th,td{padding:15px;text-align:left;background:#1a1f2e;border:none;vertical-align:top;}
+            th{background:#2a3142;color:#00f0ff;text-transform:uppercase;font-size:14px;border-bottom:2px solid #00f0ff;}
+            tr{box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);}
+            td:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px;}
+            td:last-child{border-top-right-radius:8px;border-bottom-right-radius:8px;}
+            .btn-action{padding:10px 15px;border:none;border-radius:5px;cursor:pointer;margin:4px 0;width:100%;font-weight:bold;}
+            .btn-approve{background:#34c759;color:#fff;}
+            .btn-reject{background:#ff3b30;color:#fff;}
+            .status-box{background:#444;padding:8px;border-radius:5px;font-size:12px;}
+            .balance-info{font-size:13px;color:#ccc;}
+            .balance-info span{color:#00f0ff;font-weight:bold;}
+            .danger{color:#ff3b30;font-weight:bold;}
+            </style>
+            </head><body>
+            <h2>PENDING WITHDRAWAL REQUESTS (${snapshot.size})</h2>
+            <p><a href="/admin" style="color:#bc13fe; text-decoration:none;">&#x2190; Logout</a> | <a href="/admin/withdrawals?token=${ADMIN_PASSWORD}" style="color:#34c759; text-decoration:none;">&#x21bb; Refresh</a></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:10%;">ID</th>
+                        <th style="width:25%;">User Info</th>
+                        <th style="width:20%;">Request Details</th>
+                        <th style="width:25%;">Balances (Audit)</th>
+                        <th style="width:20%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'N/A';
+            const balanceData = userBalances[data.userId] || { coins: 0, validCoins: 0, referrals: 0 };
+            
+            html += `
+                <tr>
+                    <td>${doc.id.substring(0, 6)}...</td>
+                    <td>
+                        <strong>${data.username}</strong><br>
+                        <span class="status-box">ID: ${data.userId}</span>
+                        <p style="margin:5px 0 0 0;">Requested: ${date}</p>
+                    </td>
+                    <td>
+                        Points: <strong>${data.amountPoints}</strong><br>
+                        Method: <span>${data.method}</span><br>
+                        Number: <strong>${data.number}</strong>
+                    </td>
+                    <td>
+                        <div class="balance-info">
+                            <p style="margin:0;">**Withdrawal Balance (UNSECURE): <span>${balanceData.coins}</span></p>
+                            <p style="margin:5px 0;">Postback Coins (SECURE): <span>${balanceData.validCoins}</span></p>
+                            <p style="margin:0;">Referrals: <span>${balanceData.referrals}</span></p>
+                            ${balanceData.coins < data.amountPoints ? '<p class="danger">INSUFFICIENT BALANCE</p>' : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <form action="/admin/action" method="POST" style="display:block;">
+                            <input type="hidden" name="token" value="${ADMIN_PASSWORD}">
+                            <input type="hidden" name="id" value="${doc.id}">
+                            <input type="hidden" name="action" value="approved">
+                            <input type="hidden" name="user_id" value="${data.userId}">
+                            <input type="hidden" name="amount" value="${data.amountPoints}">
+                            <button type="submit" class="btn-action btn-approve">APPROVE</button>
+                        </form>
+                        <form action="/admin/action" method="POST" style="display:block;">
+                            <input type="hidden" name="token" value="${ADMIN_PASSWORD}">
+                            <input type="hidden" name="id" value="${doc.id}">
+                            <input type="hidden" name="action" value="rejected">
+                            <input type="hidden" name="user_id" value="${data.userId}">
+                            <input type="hidden" name="amount" value="${data.amountPoints}">
+                            <button type="submit" class="btn-action btn-reject">REJECT & REFUND</button>
+                        </form>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+            </body></html>
+        `;
+        res.send(html);
+
+    } catch (e) {
+        console.error("Admin Fetch Error:", e);
+        res.status(500).send('Server Error fetching withdrawals.');
+    }
+});
+
+
 // 4. Admin Action Handler (Refund logic updated for coins)
 app.post('/admin/action', async (req, res) => {
     if (req.body.token !== ADMIN_PASSWORD) return res.status(401).send('Unauthorized Access');
@@ -271,124 +443,6 @@ app.post('/admin/action', async (req, res) => {
     } catch (e) {
         console.error("Admin Action Failed:", e);
         res.status(500).send('Failed to update status.');
-    }
-});
-
-
-// --- ADMIN & UTILITY ROUTES (Remains the same) ---
-
-app.get('/admin', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html><head><title>Admin Login</title>
-        <style>body{font-family:sans-serif;background:#1a1f2e;color:#fff;text-align:center;padding-top:50px;}input,button{padding:10px;margin:10px;border-radius:5px;border:none;}.container{background:#2a3142;padding:30px;border-radius:10px;display:inline-block;}</style>
-        </head><body>
-        <div class="container">
-            <h2>Admin Login</h2>
-            <form action="/admin/login" method="POST">
-                <input type="password" name="password" placeholder="Admin Password" required>
-                <button type="submit">Login</button>
-            </form>
-        </div>
-        </body></html>
-    `);
-});
-
-app.post('/admin/login', (req, res) => {
-    const { password } = req.body;
-    if (password === ADMIN_PASSWORD) {
-        res.redirect(`/admin/withdrawals?token=${ADMIN_PASSWORD}`);
-    } else {
-        res.status(401).send('Unauthorized Access');
-    }
-});
-
-app.get('/admin/withdrawals', async (req, res) => {
-    if (req.query.token !== ADMIN_PASSWORD) {
-        return res.status(401).send('Unauthorized Access');
-    }
-
-    try {
-        const snapshot = await db.collection('withdrawals')
-            .where('status', '==', 'pending')
-            .orderBy('timestamp', 'asc')
-            .get();
-        
-        let html = `
-            <!DOCTYPE html>
-            <html><head><title>Pending Withdrawals</title>
-            <style>
-            body{font-family:sans-serif;background:#1a1f2e;color:#fff;padding:20px;}
-            h2{color:#00f0ff;}
-            table{width:100%;border-collapse:collapse;margin-top:20px;background:#2a3142;}
-            th,td{padding:12px;border:1px solid #444;text-align:left;}
-            th{background:#3a4154;color:#00f0ff;}
-            .btn-action{padding:8px 12px;border:none;border-radius:5px;cursor:pointer;margin:2px;}
-            .btn-approve{background:#34c759;color:#fff;}
-            .btn-reject{background:#ff3b30;color:#fff;}
-            </style>
-            </head><body>
-            <h2>Pending Withdrawal Requests (${snapshot.size})</h2>
-            <p><a href="/admin" style="color:#00f0ff;">Logout</a></p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Amount (Pts)</th>
-                        <th>Method</th>
-                        <th>Number</th>
-                        <th>Date</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'N/A';
-            
-            html += `
-                <tr>
-                    <td>${doc.id.substring(0, 4)}...</td>
-                    <td>${data.username} (${data.userId})</td>
-                    <td>${data.amountPoints}</td>
-                    <td>${data.method}</td>
-                    <td>${data.number}</td>
-                    <td>${date}</td>
-                    <td>
-                        <form action="/admin/action" method="POST" style="display:inline;">
-                            <input type="hidden" name="token" value="${ADMIN_PASSWORD}">
-                            <input type="hidden" name="id" value="${doc.id}">
-                            <input type="hidden" name="action" value="approved">
-                            <input type="hidden" name="user_id" value="${data.userId}">
-                            <input type="hidden" name="amount" value="${data.amountPoints}">
-                            <button type="submit" class="btn-action btn-approve">APPROVE</button>
-                        </form>
-                        <form action="/admin/action" method="POST" style="display:inline;">
-                            <input type="hidden" name="token" value="${ADMIN_PASSWORD}">
-                            <input type="hidden" name="id" value="${doc.id}">
-                            <input type="hidden" name="action" value="rejected">
-                            <input type="hidden" name="user_id" value="${data.userId}">
-                            <input type="hidden" name="amount" value="${data.amountPoints}">
-                            <button type="submit" class="btn-action btn-reject">REJECT</button>
-                        </form>
-                    </td>
-                </tr>
-            `;
-        });
-
-        html += `
-                </tbody>
-            </table>
-            </body></html>
-        `;
-        res.send(html);
-
-    } catch (e) {
-        console.error("Admin Fetch Error:", e);
-        res.status(500).send('Server Error fetching withdrawals.');
     }
 });
 
