@@ -1,22 +1,25 @@
-// server.js (FINAL v6 - Telegram Notification for Withdrawals)
+// server.js (FINAL v7 - Monetag + AdGem Secure Postbacks)
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 const path = require('path');
-const fetch = require('node-fetch'); // Required for sending Telegram messages
+const fetch = require('node-fetch'); 
 
 const app = express();
 app.use(cors({ origin: '*' })); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Serve index.html from the root path
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// --- CONFIGURATION ---
+
+// --- CONFIGURATION & INIT ---
 let serviceAccount;
 try {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+        // NOTE: This will only work if you set FIREBASE_SERVICE_ACCOUNT_BASE64 in Render Env
         const jsonString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8');
         serviceAccount = JSON.parse(jsonString);
     } 
@@ -29,6 +32,7 @@ try {
         console.log("Firebase Admin Initialized.");
     } else {
         console.error("FATAL: Firebase Admin SDK could not initialize. Check FIREBASE_SERVICE_ACCOUNT_BASE64.");
+        // If Firebase fails to init, transactions will fail.
     }
 
 } catch (e) {
@@ -37,10 +41,10 @@ try {
 
 const db = admin.firestore();
 
-// --- SECURITY CONSTANTS (Set these in your Render Environment Variables) ---
+// --- SECURITY CONSTANTS (FROM RENDER ENV) ---
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Ratulhossain123@$&'; 
-const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID; // Your ID: 8144732556
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '8144732556'; // Default to your ID
+const ADGEM_POSTBACK_KEY = process.env.ADGEM_POSTBACK_KEY || 'ln52395j792ff3a7a44le0i5'; // Your AdGem Secret Key
 
 // --- TELEGRAM AUTH MIDDLEWARE (Integrity Check) ---
 const verifyTelegram = (req, res, next) => {
@@ -83,7 +87,6 @@ async function sendTelegramMessage(chatId, text) {
                 parse_mode: 'Markdown' 
             })
         });
-
         const data = await response.json();
         if (!data.ok) {
             console.error("Telegram API Error:", data.description);
@@ -94,36 +97,30 @@ async function sendTelegramMessage(chatId, text) {
 }
 
 
-// --- CORE POSTBACK HANDLER FUNCTION (SECURE POINT COUNTING) ---
-async function handleMonetagPostback(req, res) {
-    // Collect all macros from the URL
-    const { 
-        telegram_id, 
-        reward_event_type, 
-        ymid, 
-        value: reward_type_alt // Alternate field for reward status
-    } = req.query;
+// --- CORE HANDLERS ---
 
-    const finalTgid = telegram_id;
+// 1. Monetag Postback Handler (Secure Point Counting)
+app.get('/api/monetag-callback', async (req, res) => {
+    // telegram_id is the user ID passed via ymid macro
+    const { telegram_id, ymid, reward_event_type, value: reward_type_alt } = req.query;
+
     const finalRewardType = reward_event_type || reward_type_alt; 
     
-    // 1. Validate essential parameters and reward status
-    const uid = String(finalTgid); 
-    const transactionId = String(ymid);
-    
     // Only reward if Monetag confirms it was a paid event ('yes' or 'valued')
-    if (!uid || !transactionId || (finalRewardType !== 'yes' && finalRewardType !== 'valued')) {
-        return res.status(200).send('Ignored: Not a valued event.');
+    if (!telegram_id || !ymid || (finalRewardType !== 'yes' && finalRewardType !== 'valued')) {
+        return res.status(200).send('Ignored: Not a valued Monetag event.');
     }
     
-    // 2. Prevent duplicate transactions (ymid acts as transaction ID)
+    const uid = String(telegram_id); 
+    const transactionId = String(ymid); // ymid acts as a unique transaction ID
     const transactionRef = db.collection('monetag_rewards').doc(transactionId);
+    
     try {
         await db.runTransaction(async (t) => {
             const doc = await t.get(transactionRef);
 
             if (doc.exists) {
-                console.log(`Duplicate transaction ignored: ${transactionId}`);
+                console.log(`Duplicate Monetag transaction ignored: ${transactionId}`);
                 return; 
             }
 
@@ -131,7 +128,7 @@ async function handleMonetagPostback(req, res) {
             t.set(transactionRef, {
                 timestamp: admin.firestore.FieldValue.serverTimestamp(),
                 userId: uid,
-                source: req.originalUrl,
+                source: 'monetag',
                 rewardType: finalRewardType 
             });
 
@@ -141,7 +138,7 @@ async function handleMonetagPostback(req, res) {
                 validCoins: admin.firestore.FieldValue.increment(1), 
             });
 
-            console.log(`✅ Postback Success: Secure Coin given to user ${uid}.`);
+            console.log(`✅ Monetag Postback Success: Secure Coin given to user ${uid}.`);
         });
 
         res.status(200).send('OK'); 
@@ -150,15 +147,70 @@ async function handleMonetagPostback(req, res) {
         console.error("Monetag Postback DB Error:", e);
         res.status(500).send('Server Error');
     }
-}
+});
 
 
-// --- API ROUTES ---
+// 2. AdGem Postback Handler (Secure Offerwall Point Counting)
+app.get('/api/adgem-callback', async (req, res) => {
+    const { player_id, amount, transaction_id, verifier } = req.query;
+    
+    // Basic Validation
+    if (!player_id || !amount || !transaction_id || !verifier) {
+        console.log('AdGem: Missing required parameters.');
+        return res.status(200).send('Error: Missing parameters.');
+    }
 
-app.get('/api/monetag-callback', handleMonetagPostback); 
+    const uid = String(player_id); // Telegram User ID
+    const points = parseInt(amount);
+    
+    // 1. Verify Hash (Security Check)
+    const dataToHash = `${transaction_id}:${amount}:${player_id}:${ADGEM_POSTBACK_KEY}`;
+    const calculatedHash = crypto.createHash('md5').update(dataToHash).digest('hex');
+
+    if (calculatedHash !== verifier) {
+        console.error(`AdGem: Hash mismatch for TxID ${transaction_id}. Calculated: ${calculatedHash}, Received: ${verifier}`);
+        return res.status(200).send('Error: Invalid Verifier.');
+    }
+    
+    // 2. Prevent Duplicate Transactions
+    const transactionRef = db.collection('adgem_rewards').doc(transaction_id);
+
+    try {
+        await db.runTransaction(async (t) => {
+            const doc = await t.get(transactionRef);
+
+            if (doc.exists) {
+                console.log(`Duplicate AdGem transaction ignored: ${transaction_id}`);
+                return; 
+            }
+            
+            // Record transaction
+            t.set(transactionRef, {
+                timestamp: admin.firestore.FieldValue.serverTimestamp(),
+                userId: uid,
+                amount: points,
+                source: 'adgem'
+            });
+
+            // *** REWARD USER WITH VALID COINS (SECURE POSTBACK POINTS) ***
+            const userRef = db.collection('users').doc(uid);
+            t.update(userRef, {
+                validCoins: admin.firestore.FieldValue.increment(points), 
+            });
+
+            console.log(`✅ AdGem Postback Success: ${points} Secure Coins given to user ${uid}.`);
+        });
+
+        res.status(200).send('OK'); 
+
+    } catch (e) {
+        console.error("AdGem Postback DB Error:", e);
+        res.status(500).send('Server Error');
+    }
+});
 
 
-// 1. Sync User & Handle Referrals 
+// 3. Sync User & Handle Referrals 
 app.post('/api/sync', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
     const startParam = req.startParam; 
@@ -174,8 +226,8 @@ app.post('/api/sync', verifyTelegram, async (req, res) => {
                     userId: uid,
                     firstName: req.tgUser.first_name,
                     username: req.tgUser.username || '',
-                    coins: 0, 
-                    validCoins: 0, 
+                    coins: 0, // Unsecure Withdrawal Points
+                    validCoins: 0, // Secure Postback Points (Monetag/AdGem)
                     totalAdsWatched: 0,
                     referrals: 0,
                     joinedAt: admin.firestore.FieldValue.serverTimestamp()
@@ -202,7 +254,7 @@ app.post('/api/sync', verifyTelegram, async (req, res) => {
     }
 });
 
-// 2. Front-end Claim (IMMEDIATE UNSECURE POINT ADDITION & AD COUNT)
+// 4. Front-end Claim (Monetag Unsecure Point Addition & Ad Count)
 app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
     const userRef = db.collection('users').doc(uid);
@@ -227,7 +279,7 @@ app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
     }
 });
 
-// 3. Withdraw Request (UPDATED: Sends Notification to Telegram Admin)
+// 5. Withdraw Request (Sends Notification to Telegram Admin)
 app.post('/api/withdraw', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
     const username = req.tgUser.username || 'N/A';
@@ -238,7 +290,6 @@ app.post('/api/withdraw', verifyTelegram, async (req, res) => {
 
     const MIN_POINTS = 600; 
     const MIN_REFERRALS = 10; 
-
     
     try {
         let isWithdrawSuccessful = false;
@@ -301,21 +352,11 @@ _You can check the Admin Panel to approve._`;
 });
 
 
-// --- ADMIN ROUTES (Keep this section, it is required for /admin to work) ---
+// --- ADMIN ROUTES (Placeholder) ---
+// Note: You must implement Admin routes if you want to use the admin panel.
+
 app.get('/admin', (req, res) => {
-    // ... (Admin Login HTML)
-});
-
-app.post('/admin/login', (req, res) => {
-    // ... (Admin Login Logic)
-});
-
-app.get('/admin/withdrawals', async (req, res) => {
-    // ... (Admin Withdrawal View Logic)
-});
-
-app.post('/admin/action', async (req, res) => {
-    // ... (Admin Action Logic)
+    res.send("Admin Panel is not yet implemented.");
 });
 
 
