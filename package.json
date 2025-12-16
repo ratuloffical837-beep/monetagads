@@ -1,19 +1,18 @@
 {
-  "name": "monetag-adgem-earner",
-  "version": "2.0.0",
-  "description": "Secure Telegram Mini App Backend with Monetag and AdGem Integration",
+  "name": "monetag-adgem-server",
+  "version": "1.0.0",
+  "description": "Backend for handling Telegram Mini App earnings and postbacks.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "firebase-admin": "^12.0.0",
-    "node-fetch": "^3.3.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase-admin": "^11.11.0",
+    "crypto": "^1.0.1",
+    "node-fetch": "^2.7.0",
+    "path": "^0.12.7"
   }
 }
