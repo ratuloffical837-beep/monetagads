@@ -1,7 +1,7 @@
 {
-  "name": "monetag-ads-earner",
+  "name": "monetag-adgem-earner",
   "version": "2.0.0",
-  "description": "Secure Telegram Mini App Backend",
+  "description": "Secure Telegram Mini App Backend with Monetag and AdGem Integration",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
