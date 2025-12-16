@@ -26,9 +26,8 @@
             --input-bg: #1a1a1a;
             --button-main: #00f0ff;
             --button-edge: #00aaff;
+            --danger-red: #ff3b30; 
         }
-
-        /* --- Global Styles --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             margin: 0; padding: 20px;
@@ -39,26 +38,20 @@
             display: flex; flex-direction: column; align-items: center;
             overflow-x: hidden;
         }
-        
-        /* --- HEADER & USER INFO --- */
         .app-header {
             width: 100%; display: flex; justify-content: space-between; align-items: center; 
             margin-bottom: 20px;
         }
-
         .user-info {
             font-weight: bold; font-size: 14px; text-align: right;
         }
         .user-info .status {
             font-size: 10px; color: #555; display: block;
         }
-
-        /* --- ORB (POINTS DISPLAY) --- */
         .orb-stage {
-            position: relative; width: 250px; height: 250px; margin: 30px 0;
+            position: relative; width: 250px; height: 250px; margin: 30px 0 10px 0;
             display: flex; justify-content: center; align-items: center;
         }
-
         .orb {
             width: 200px; height: 200px; border-radius: 50%;
             background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 50%),
@@ -68,33 +61,24 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             animation: float 5s ease-in-out infinite;
         }
-
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        
         .orb-ring {
             position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.1); 
             animation: spin 15s linear infinite; pointer-events: none;
         }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
         .points-val { font-family: 'Orbitron', sans-serif; font-size: 50px; font-weight: 900; text-shadow: 0 0 15px var(--neon-blue); }
         .points-label { font-size: 14px; letter-spacing: 3px; opacity: 0.8; text-transform: uppercase; }
-
         .orb.pulse { animation: pulse 0.5s ease-out; }
         @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 50px rgba(0, 240, 255, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 70px var(--neon-blue); } 100% { transform: scale(1); } }
-
-        /* --- STATS BOX --- */
         .stats-panel {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 15px 10px; border-radius: 15px;
             backdrop-filter: blur(10px); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; 
             width: 100%; max-width: 400px; font-size: 14px; margin-bottom: 30px;
         }
-
         .stat-item { text-align: center; padding: 5px 0; border-right: 1px solid rgba(255,255,255,0.1); }
         .stat-item:last-child { border-right: none; }
         .stat-item strong { color: var(--neon-orange); display: block; font-size: 18px; }
-
-        /* --- 3D BUTTONS (Modernized) --- */
         .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
         .btn-3d {
             position: relative; border: none; padding: 0; outline: none; cursor: pointer;
@@ -113,13 +97,10 @@
         }
         .btn-3d:active .btn-face { transform: translateY(0); }
         .btn-disabled { opacity: 0.6; pointer-events: none; }
-
         .btn-primary { --button-main: var(--neon-blue); --button-edge: #00aaff; }
-        .btn-secondary { --button-main: #34c759; --button-edge: #2db84c; } /* Green for Withdraw */
+        .btn-secondary { --button-main: #34c759; --button-edge: #2db84c; } 
         .btn-refer { --button-main: var(--neon-purple); --button-edge: #a410db; }
-        .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } /* Red for Exit */
-        
-        /* --- SOCIAL BUTTONS --- */
+        .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } 
         .social-buttons { display: flex; gap: 10px; }
         .social-btn {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
@@ -129,8 +110,6 @@
         .social-btn:active { transform: scale(0.9); }
         .social-btn.fb i { color: #1877f2; }
         .social-btn.yt i { color: #ff0000; }
-
-        /* --- MODAL (Keep Existing Style) --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
@@ -153,8 +132,6 @@
             background: var(--neon-purple); color: white; border: none; padding: 12px 15px;
             border-radius: 0 5px 5px 0; font-weight: bold; cursor: pointer;
         }
-
-        /* --- TOAST --- */
         .toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(0, 240, 255, 0.9); color: #000; padding: 10px 15px;
@@ -164,6 +141,16 @@
         }
         .toast.show { visibility: visible; opacity: 1; }
         .toast.error { background: rgba(255, 0, 0, 0.9); color: white; }
+        
+        /* New Style for the Postback Balance Display */
+        .balance-info {
+            width: 100%; max-width: 400px; text-align: center; margin-bottom: 10px;
+            padding: 10px; background: rgba(0, 255, 0, 0.1); border-radius: 8px; /* Changed to green for positive tone */
+            border: 1px solid #34c759; 
+            font-size: 13px;
+        }
+        .balance-info strong { color: #34c759; display: block; font-size: 16px; margin-top: 5px; }
+
     </style>
 </head>
 <body>
@@ -189,8 +176,13 @@
         <div class="orb-ring"></div>
         <div class="orb" id="orbBtn">
             <span class="points-val" id="pointsDisplay">0</span>
-            <span class="points-label">POINTS</span>
+            <span class="points-label">WITHDRAWAL POINTS</span>
         </div>
+    </div>
+    
+    <div class="balance-info">
+        SECURE POSTBACK COINS (FOR VIEW ONLY): 
+        <strong id="validPointsDisplay">0</strong>
     </div>
 
     <div class="stats-panel">
@@ -223,6 +215,9 @@
             <p style="font-size: 12px; color: #ccc; margin-bottom: 10px;">
                 Required: 600+ Points & 10+ Referrals
             </p>
+            <p style="font-size: 14px; color: var(--neon-blue); margin-bottom: 15px;">
+                Available Withdrawal Balance: <strong id="modalWithdrawPoints">0</strong>
+            </p>
             
             <input type="number" id="wInputPoints" placeholder="Enter Points (e.g., 600)">
             
@@ -248,7 +243,7 @@
     <div class="modal-overlay" id="referralModal">
         <div class="modal">
             <h2>INVITE FRIENDS</h2>
-            <p>Earn <span style="color:var(--neon-blue)">1 Point</span> for every friend!</p>
+            <p>Earn <span style="color:var(--neon-blue)">1 Withdrawal Point</span> for every friend!</p>
             
             <div class="copy-box">
                 <input type="text" id="refLink" readonly value="Loading...">
@@ -268,13 +263,10 @@
 
     <script>
         // --- CONFIGURATION ---
-        const BACKEND_URL = "https://monetagads4241r.onrender.com"; // আপনার Render URL
-        const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; // আপনার বটের ইউজারনেম
-        
-        // Monetag Function Name (From SDK Tag)
+        const BACKEND_URL = "https://monetagads4241r.onrender.com"; 
+        const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; 
         const MONETAG_FUNC = "show_10318378"; 
         
-        // Firebase Config (Public - DO NOT CHANGE)
         const firebaseConfig = {
           apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
           authDomain: "monetas-ads-4241.firebaseapp.com",
@@ -284,9 +276,8 @@
           appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
         };
         
-        // NEW LIMITS & COOLDOWN
-        const AD_DAILY_LIMIT = 60; // Max ads per day
-        const AD_COOLDOWN_SECONDS = 80; // 80 seconds gap between ads
+        const AD_DAILY_LIMIT = 60; 
+        const AD_COOLDOWN_SECONDS = 80; 
         
         // --- INIT ---
         const tg = window.Telegram.WebApp;
@@ -295,7 +286,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let state = { coins: 0, ads: 0, referrals: 0, userId: null, username: '' };
+        // state now tracks two coin balances
+        let state = { coins: 0, validCoins: 0, ads: 0, referrals: 0, userId: null, username: '' }; 
         let lastAdTime = 0;
         let adsToday = 0;
         let cooldownInterval = null;
@@ -313,12 +305,11 @@
                 state.username = user.username || "User";
                 document.getElementById('username').innerText = (user.first_name || "User").toUpperCase();
             } else {
-                // Fallback for testing outside Telegram
                 state.userId = "test_user_1";
                 document.getElementById('username').innerText = "TESTER";
             }
 
-            // 1. Sync User & Handle Referrals
+            // 1. Sync User & Handle Referrals (Code remains the same)
             fetch(`${BACKEND_URL}/api/sync`, {
                 method: 'POST',
                 headers: { 
@@ -340,12 +331,20 @@
                 if(doc.exists) {
                     const data = doc.data();
                     
+                    // Check if WITHDRAWAL coins increased (for immediate feedback)
                     if(data.coins > state.coins) {
                         pulseOrb();
-                        triggerConfetti(); // Reward Confetti
+                        triggerConfetti(); 
+                        showToast("Withdrawal Point Added!");
+                    }
+                    
+                    // Check if POSTBACK coins increased (for postback success notification)
+                    if(data.validCoins > state.validCoins) {
+                         showToast("Monetag Postback Confirmed! Secure Coins Added.");
                     }
 
-                    state.coins = data.coins || 0;
+                    state.coins = data.coins || 0; // Withdrawal Balance (UNSECURE)
+                    state.validCoins = data.validCoins || 0; // Display Only
                     state.ads = data.totalAdsWatched || 0;
                     state.referrals = data.referrals || 0;
                     
@@ -366,7 +365,11 @@
         }
 
         function updateUI() {
-            document.getElementById('pointsDisplay').innerText = state.coins;
+            document.getElementById('pointsDisplay').innerText = state.coins; // Withdrawal Balance
+            document.getElementById('modalWithdrawPoints').innerText = state.coins; // Modal Balance
+            
+            document.getElementById('validPointsDisplay').innerText = state.validCoins; // Postback Display
+            
             document.getElementById('refsDisplay').innerText = state.referrals;
             document.getElementById('refCountDisplay').innerText = state.referrals;
             document.getElementById('adsTodayDisplay').innerText = `${adsToday}/${AD_DAILY_LIMIT}`;
@@ -377,6 +380,7 @@
             checkAdStatus();
         }
         
+        // (checkAdStatus remains the same)
         function checkAdStatus() {
             const btn = document.getElementById('watchAdBtn');
             const btnFace = document.getElementById('watchAdFace');
@@ -430,19 +434,18 @@
             
             if (typeof window[MONETAG_FUNC] === 'function') {
                 
-                // Pass ymid (User ID) for postback tracking
                 window[MONETAG_FUNC]({ ymid: state.userId }).then(() => {
                     
-                    // Update front-end state (cooldown/limit)
+                    // 1. Update front-end state (cooldown/limit)
                     lastAdTime = Date.now();
                     adsToday++;
                     
-                    // Claim reward on the backend (only updates ad counts/time)
+                    // 2. Claim reward on the backend (This immediately adds the WITHDRAWAL point)
                     claimReward();
                     
                     checkAdStatus();
                     
-                    showToast("Ad Complete! Reward Pending (Postback)."); 
+                    showToast("Ad Complete! Waiting for Monetag Postback Confirmation..."); 
 
                 }).catch(e => {
                     showToast("Ad Closed, Skipped, or Failed to Load.", true);
@@ -455,7 +458,7 @@
         }
 
         async function claimReward() {
-            // This now only updates ad counts and cooldown time on the backend.
+            // This now adds the immediate WITHDRAWAL point and updates ad counts/time
             try {
                 const res = await fetch(`${BACKEND_URL}/api/claim-reward`, {
                     method: 'POST',
@@ -471,23 +474,7 @@
             }
         }
 
-        // --- REFERRALS ---
-        function openReferralModal() {
-            const link = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${state.userId}`;
-            document.getElementById('refLink').value = link;
-            openModal('referralModal');
-        }
-
-        function copyReferralLink() {
-            const input = document.getElementById('refLink');
-            input.select();
-            input.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(input.value).then(() => {
-                showToast("Link Copied!");
-            });
-        }
-
-        // --- WITHDRAW ---
+        // --- WITHDRAW (Checks UNSECURE coins) ---
         async function submitWithdraw() {
             const method = document.getElementById('wMethod').value;
             const number = document.getElementById('wNumber').value;
@@ -496,9 +483,10 @@
             if(!amountPoints || amountPoints <= 0) return showToast("Enter valid points", true);
             if(!number) return showToast("Enter wallet number", true);
 
-            if(state.coins < 600) return showToast("Need 600+ Points", true);
+            // *** IMPORTANT: CHECKING UNSECURE COINS ***
+            if(state.coins < 600) return showToast("Need 600+ Points for Withdrawal", true);
             if(state.referrals < 10) return showToast("Need 10+ Referrals", true);
-            if(amountPoints > state.coins) return showToast("Insufficient Balance", true);
+            if(amountPoints > state.coins) return showToast("Insufficient Withdrawal Balance", true);
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/withdraw`, {
@@ -522,7 +510,7 @@
             }
         }
 
-        // --- UTILS ---
+        // --- UTILS (Confetti, Toast, Modal remain the same) ---
         function pulseOrb() {
             const orb = document.getElementById('orbBtn');
             orb.classList.remove('pulse');
@@ -547,11 +535,32 @@
             setTimeout(() => t.classList.remove('show'), 4000);
         }
 
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function openModal(id) { 
+            // Update balance on modal open
+            if(id === 'withdrawModal') {
+                document.getElementById('modalWithdrawPoints').innerText = state.coins;
+            }
+            document.getElementById(id).style.display = 'flex'; 
+        }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        initApp();
+        // (copyReferralLink and openReferralModal remain the same)
+        function openReferralModal() {
+            const link = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${state.userId}`;
+            document.getElementById('refLink').value = link;
+            openModal('referralModal');
+        }
 
+        function copyReferralLink() {
+            const input = document.getElementById('refLink');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                showToast("Link Copied!");
+            });
+        }
+
+        initApp();
     </script>
 </body>
     </html>
