@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monetag Ads Earner</title>
+    <title>Monetag 3D Earning App</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -12,7 +12,7 @@
     
     <script src='//libtl.com/sdk.js' data-zone='10318378' data-sdk='show_10318378'></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght<500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
@@ -142,10 +142,10 @@
         .toast.show { visibility: visible; opacity: 1; }
         .toast.error { background: rgba(255, 0, 0, 0.9); color: white; }
         
-        /* New Style for the Postback Balance Display */
+        /* Postback Balance Display */
         .balance-info {
             width: 100%; max-width: 400px; text-align: center; margin-bottom: 10px;
-            padding: 10px; background: rgba(0, 255, 0, 0.1); border-radius: 8px; /* Changed to green for positive tone */
+            padding: 10px; background: rgba(0, 255, 0, 0.1); border-radius: 8px; 
             border: 1px solid #34c759; 
             font-size: 13px;
         }
@@ -277,7 +277,7 @@
         };
         
         const AD_DAILY_LIMIT = 60; 
-        const AD_COOLDOWN_SECONDS = 80; 
+        const AD_COOLDOWN_SECONDS = 120; // UPDATED to 2 minutes
         
         // --- INIT ---
         const tg = window.Telegram.WebApp;
@@ -309,7 +309,7 @@
                 document.getElementById('username').innerText = "TESTER";
             }
 
-            // 1. Sync User & Handle Referrals (Code remains the same)
+            // 1. Sync User & Handle Referrals
             fetch(`${BACKEND_URL}/api/sync`, {
                 method: 'POST',
                 headers: { 
@@ -365,10 +365,10 @@
         }
 
         function updateUI() {
-            document.getElementById('pointsDisplay').innerText = state.coins; // Withdrawal Balance
-            document.getElementById('modalWithdrawPoints').innerText = state.coins; // Modal Balance
+            document.getElementById('pointsDisplay').innerText = state.coins; 
+            document.getElementById('modalWithdrawPoints').innerText = state.coins; 
             
-            document.getElementById('validPointsDisplay').innerText = state.validCoins; // Postback Display
+            document.getElementById('validPointsDisplay').innerText = state.validCoins; 
             
             document.getElementById('refsDisplay').innerText = state.referrals;
             document.getElementById('refCountDisplay').innerText = state.referrals;
@@ -380,7 +380,7 @@
             checkAdStatus();
         }
         
-        // (checkAdStatus remains the same)
+        // (checkAdStatus handles 120s cooldown)
         function checkAdStatus() {
             const btn = document.getElementById('watchAdBtn');
             const btnFace = document.getElementById('watchAdFace');
@@ -406,7 +406,10 @@
                             cooldownInterval = null;
                             checkAdStatus();
                         } else {
-                            btnFace.innerText = `WAIT ${Math.ceil(newRemaining)}S`;
+                            // Display time in M:SS format
+                            const minutes = Math.floor(newRemaining / 60);
+                            const seconds = Math.ceil(newRemaining % 60).toString().padStart(2, '0');
+                            btnFace.innerText = `WAIT ${minutes}:${seconds}`;
                         }
                     }, 1000);
                 }
@@ -510,7 +513,7 @@
             }
         }
 
-        // --- UTILS (Confetti, Toast, Modal remain the same) ---
+        // --- UTILS ---
         function pulseOrb() {
             const orb = document.getElementById('orbBtn');
             orb.classList.remove('pulse');
@@ -536,7 +539,6 @@
         }
 
         function openModal(id) { 
-            // Update balance on modal open
             if(id === 'withdrawModal') {
                 document.getElementById('modalWithdrawPoints').innerText = state.coins;
             }
@@ -544,7 +546,6 @@
         }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // (copyReferralLink and openReferralModal remain the same)
         function openReferralModal() {
             const link = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${state.userId}`;
             document.getElementById('refLink').value = link;
@@ -563,4 +564,4 @@
         initApp();
     </script>
 </body>
-    </html>
+                    </html>
