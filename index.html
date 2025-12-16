@@ -149,31 +149,12 @@
         }
         .btn-3d:active .btn-face { transform: translateY(0); }
         .btn-disabled { opacity: 0.6; pointer-events: none; }
-        .btn-primary { --button-main: var(--neon-blue); --button-edge: #00aaff; }
-        .btn-secondary { --button-main: #34c759; --button-edge: #2db84c; } 
+        .btn-primary { --button-main: var(--neon-blue); --button-edge: #00aaff; } /* Monetag Ad */
+        .btn-adgem { --button-main: #3b82f6; --button-edge: #2563eb; } /* AdGem Offerwall */
+        .btn-secondary { --button-main: #34c759; --button-edge: #2db84c; } /* Withdraw */
         .btn-refer { --button-main: var(--neon-purple); --button-edge: #a410db; }
         .btn-contact { --button-main: #00ff80; --button-edge: #00cc66; }
         .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } 
-
-        /* --- MODAL INPUT FIX (NEW) --- */
-        #withdrawModal input, #withdrawModal select {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px; /* Added spacing */
-            border-radius: 8px; 
-            border: 1px solid var(--neon-blue); 
-            background: #151922; /* Improved background */
-            color: var(--text-main);
-            font-size: 16px;
-            box-shadow: 0 0 5px rgba(0, 240, 255, 0.5); 
-            outline: none;
-            transition: border 0.3s, box-shadow 0.3s;
-            box-sizing: border-box; /* Crucial for width calculation */
-        }
-        #withdrawModal input:focus, #withdrawModal select:focus {
-            border-color: var(--neon-orange);
-            box-shadow: 0 0 8px rgba(255, 139, 0, 0.8);
-        }
 
         /* Modal Styles remain the same */
         .modal-overlay {
@@ -187,6 +168,13 @@
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
         }
         .modal h2 { color: var(--neon-blue); margin-top: 0; font-family: 'Orbitron', sans-serif; }
+        /* Modal Inputs */
+        #withdrawModal input, #withdrawModal select {
+            width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; 
+            border: 1px solid var(--neon-blue); background: #151922; color: var(--text-main);
+            font-size: 16px; box-shadow: 0 0 5px rgba(0, 240, 255, 0.5); outline: none;
+            transition: border 0.3s, box-shadow 0.3s; box-sizing: border-box;
+        }
         .copy-box { display: flex; margin-top: 15px; }
         .copy-box input { flex-grow: 1; margin-bottom: 0; border-radius: 5px 0 0 5px; padding: 12px; border: 1px solid #444; background: var(--input-bg); color: var(--text-main); }
         .btn-copy { 
@@ -243,7 +231,7 @@
     </div>
     
     <div class="balance-info">
-        SECURE POSTBACK COINS (Monetag Confirmed): 
+        SECURE POSTBACK COINS (Monetag/AdGem Confirmed): 
         <strong id="validPointsDisplay">0</strong>
     </div>
 
@@ -255,19 +243,19 @@
 
     <div class="grid-menu">
         <button class="btn-3d btn-primary" id="watchAdBtn" onclick="watchAd()">
-            <span class="btn-edge"></span><span class="btn-face" id="watchAdFace">WATCH AD</span>
+            <span class="btn-edge"></span><span class="btn-face" id="watchAdFace">WATCH AD (Monetag)</span>
         </button>
         
+        <button class="btn-3d btn-adgem" onclick="openAdGemOfferwall()">
+            <span class="btn-edge"></span><span class="btn-face">ADGEM OFFERWALL</span>
+        </button>
+
         <button class="btn-3d btn-secondary" onclick="openModal('withdrawModal')">
             <span class="btn-edge"></span><span class="btn-face">WITHDRAW (600/10)</span>
         </button>
 
         <button class="btn-3d btn-refer" onclick="openReferralModal()">
             <span class="btn-edge"></span><span class="btn-face">REFER & EARN (+1 PT)</span>
-        </button>
-
-        <button class="btn-3d btn-contact" onclick="window.open('https://t.me/ratulhossain56', '_blank')">
-            <span class="btn-edge"></span><span class="btn-face">CONTACT ADMIN</span>
         </button>
     </div>
     
@@ -352,9 +340,11 @@
         const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; 
         const MONETAG_FUNC = "show_10318378"; 
         const DIRECT_LINK = "https://otieu.com/4/10315373"; 
+        const ADGEM_APP_ID = "31508"; 
         
         const firebaseConfig = {
-          apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
+          // NOTE: Update these with your real Firebase config
+          apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR", 
           authDomain: "monetas-ads-4241.firebaseapp.com",
           projectId: "monetas-ads-4241",
           storageBucket: "monetas-ads-4241.firebasestorage.app",
@@ -416,16 +406,11 @@
                 if(doc.exists) {
                     const data = doc.data();
                     
-                    // --- REMOVED: UNWANTED TOAST MESSAGE (Withdrawal point added!) ---
-                    // if(data.coins > state.coins) {
-                    //     pulseOrb();
-                    //     triggerConfetti(); 
-                    //     showToast("Withdrawal Point Added!"); 
-                    // }
-                    
                     // Show toast only for SECURE (Postback) point addition
                     if(data.validCoins > state.validCoins) {
-                         showToast("Monetag Postback Confirmed! Secure Coins Added.", false, 6000); 
+                         pulseOrb();
+                         triggerConfetti(); 
+                         showToast("Secure Coins Added! (Monetag/AdGem Confirmed)", false, 6000); 
                     }
 
                     // --- DATA SYNCHRONIZATION ---
@@ -475,7 +460,7 @@
 
             if (adsToday >= AD_DAILY_LIMIT) {
                 btn.classList.add('btn-disabled');
-                btnFace.innerText = "LIMIT REACHED";
+                btnFace.innerText = "MONETAG LIMIT REACHED";
                 if(cooldownInterval) clearInterval(cooldownInterval);
                 return;
             }
@@ -502,7 +487,7 @@
                 cooldownInterval = null;
                 btn.classList.remove('btn-disabled');
                 btn.onclick = watchAd;
-                btnFace.innerText = "WATCH AD";
+                btnFace.innerText = "WATCH AD (Monetag)";
             }
         }
 
@@ -526,7 +511,7 @@
                     lastAdTime = Date.now();
                     adsToday++; 
                     
-                    claimReward(); 
+                    claimReward(); // Increment UNSECURE point on success promise
                     
                     checkAdStatus();
                     
@@ -541,6 +526,21 @@
                 checkAdStatus();
             }
         }
+        
+        // --- ADGEM OFFERWALL ---
+        function openAdGemOfferwall() {
+            if (!state.userId) {
+                return showToast("User ID not loaded. Please wait for connection.", true);
+            }
+            
+            const adGemUrl = `https://api.adgem.com/wall?app_id=${ADGEM_APP_ID}&player_id=${state.userId}`;
+            
+            // Open in external browser/tab
+            window.open(adGemUrl, '_blank');
+            
+            showToast("Opening AdGem Offerwall in a new window/tab...");
+        }
+
 
         async function claimReward() {
             try {
