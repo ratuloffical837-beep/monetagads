@@ -48,29 +48,41 @@
         .user-info .status {
             font-size: 10px; color: #555; display: block;
         }
+        /* Orb size reduced */
         .orb-stage {
-            position: relative; width: 250px; height: 250px; margin: 30px 0 10px 0;
+            position: relative; width: 200px; height: 200px; margin: 20px 0 10px 0;
             display: flex; justify-content: center; align-items: center;
         }
         .orb {
-            width: 200px; height: 200px; border-radius: 50%;
+            width: 150px; height: 150px; border-radius: 50%; /* Reduced size */
             background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 50%),
                         linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-            box-shadow: 0 0 50px rgba(0, 240, 255, 0.4), inset 0 0 30px rgba(255,255,255,0.3);
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.4), inset 0 0 20px rgba(255,255,255,0.3);
             position: relative; z-index: 2;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             animation: float 5s ease-in-out infinite;
         }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .orb-ring {
-            position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px dashed rgba(255,255,255,0.1); 
-            animation: spin 15s linear infinite; pointer-events: none;
+        .points-val { font-family: 'Orbitron', sans-serif; font-size: 40px; font-weight: 900; text-shadow: 0 0 10px var(--neon-blue); }
+        .points-label { font-size: 12px; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase; }
+        
+        /* New Notice Box Style */
+        .notice-box {
+            background: rgba(255, 255, 0, 0.1); 
+            border: 1px solid var(--neon-orange); 
+            padding: 15px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: left;
+            box-shadow: 0 0 10px rgba(255, 139, 0, 0.3);
+            line-height: 1.5;
         }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .points-val { font-family: 'Orbitron', sans-serif; font-size: 50px; font-weight: 900; text-shadow: 0 0 15px var(--neon-blue); }
-        .points-label { font-size: 14px; letter-spacing: 3px; opacity: 0.8; text-transform: uppercase; }
-        .orb.pulse { animation: pulse 0.5s ease-out; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 50px rgba(0, 240, 255, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 70px var(--neon-blue); } 100% { transform: scale(1); } }
+        .notice-box strong { color: var(--neon-orange); display: block; margin-bottom: 5px; font-size: 14px;}
+        .notice-box a { color: var(--neon-blue); text-decoration: none; font-weight: bold; }
+        
+        /* Remaining Styles (Stats Panel, Buttons) */
         .stats-panel {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 15px 10px; border-radius: 15px;
             backdrop-filter: blur(10px); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; 
@@ -79,7 +91,11 @@
         .stat-item { text-align: center; padding: 5px 0; border-right: 1px solid rgba(255,255,255,0.1); }
         .stat-item:last-child { border-right: none; }
         .stat-item strong { color: var(--neon-orange); display: block; font-size: 18px; }
+        
+        /* Updated Grid Menu for 4 buttons (2x2 layout for main) */
         .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
+        .grid-menu-extra { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; }
+        
         .btn-3d {
             position: relative; border: none; padding: 0; outline: none; cursor: pointer;
             transition: transform 0.1s ease;
@@ -101,6 +117,9 @@
         .btn-secondary { --button-main: #34c759; --button-edge: #2db84c; } 
         .btn-refer { --button-main: var(--neon-purple); --button-edge: #a410db; }
         .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } 
+        .btn-contact { --button-main: #00ff80; --button-edge: #00cc66; }
+        .btn-monetag { --button-main: #ff6600; --button-edge: #cc5200; }
+        
         .social-buttons { display: flex; gap: 10px; }
         .social-btn {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
@@ -110,6 +129,9 @@
         .social-btn:active { transform: scale(0.9); }
         .social-btn.fb i { color: #1877f2; }
         .social-btn.yt i { color: #ff0000; }
+        .social-btn.tg i { color: #2aabee; }
+
+        /* Modal Styles */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
@@ -121,27 +143,13 @@
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
         }
         .modal h2 { color: var(--neon-blue); margin-top: 0; font-family: 'Orbitron', sans-serif; }
-        
-        .modal input, .modal select {
-            width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #444; border-radius: 5px;
-            background: var(--input-bg); color: var(--text-main); font-size: 16px;
-        }
         .copy-box { display: flex; margin-top: 15px; }
-        .copy-box input { flex-grow: 1; margin-bottom: 0; border-radius: 5px 0 0 5px; }
+        .copy-box input { flex-grow: 1; margin-bottom: 0; border-radius: 5px 0 0 5px; padding: 12px; border: 1px solid #444; background: var(--input-bg); color: var(--text-main); }
         .btn-copy { 
             background: var(--neon-purple); color: white; border: none; padding: 12px 15px;
             border-radius: 0 5px 5px 0; font-weight: bold; cursor: pointer;
         }
-        .toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0, 240, 255, 0.9); color: #000; padding: 10px 15px;
-            border-radius: 5px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            visibility: hidden; opacity: 0; transition: opacity 0.3s, visibility 0.3s;
-            z-index: 1001; font-weight: bold;
-        }
-        .toast.show { visibility: visible; opacity: 1; }
-        .toast.error { background: rgba(255, 0, 0, 0.9); color: white; }
-        
+
         /* Postback Balance Display */
         .balance-info {
             width: 100%; max-width: 400px; text-align: center; margin-bottom: 10px;
@@ -164,12 +172,20 @@
             <a href="https://youtube.com/@alex-42-41?si=swPmmTf8er-fRruK" target="_blank" class="social-btn yt">
                 <i class="fab fa-youtube"></i>
             </a>
+            <a href="https://t.me/ratulhossain56" target="_blank" class="social-btn tg">
+                <i class="fab fa-telegram-plane"></i>
+            </a>
         </div>
 
         <div class="user-info">
             HELLO, <span id="username" style="color:var(--neon-blue)">USER</span>
             <span id="connectionStatus" class="status">● Connecting...</span>
         </div>
+    </div>
+    
+    <div class="notice-box">
+        <strong>🔔 জরুরি নোটিশ (Important Notice)</strong>
+        আসসালামু আলাইকুম। আপনাকে Monetag Ads এ স্বাগত জানাই। আপনি Watch Ad বাটনে টিপ দেওয়ার পর ওখানে অ্যাড আসবে। দয়া করে অ্যাড-এর নিচে থাকা **Continue** বাটনে ক্লিক করে অ্যাডটি সম্পূর্ণ দেখে আসবেন। অন্যথায়, আপনার পয়েন্ট বাড়লেও টাকার পরিমাণ কম আসতে পারে। **অবশ্যই ১০ জনকে রেফার করা জরুরি**। ৬০০ পয়েন্ট হলেই উইথড্র করতে পারবেন। যেকোনো সমস্যার জন্য এডমিন: <a href="https://t.me/ratulhossain56" target="_blank">@ratulhossain56</a> বা <a href="tel:01344594241">01344594241</a> এ যোগাযোগ করুন। পেমেন্ট সংক্রান্ত জরুরি সমস্যা হলে 01757257580 এই নম্বরে Telegram এ মেসেজ দিন।
     </div>
 
     <div class="orb-stage">
@@ -204,10 +220,30 @@
             <span class="btn-edge"></span><span class="btn-face">REFER & EARN (+1 PT)</span>
         </button>
 
-        <button class="btn-3d btn-danger" onclick="Telegram.WebApp.close()">
-            <span class="btn-edge"></span><span class="btn-face">EXIT APP</span>
+        <button class="btn-3d btn-contact" onclick="window.open('https://t.me/ratulhossain56', '_blank')">
+            <span class="btn-edge"></span><span class="btn-face">CONTACT ADMIN</span>
         </button>
     </div>
+    
+    <div class="grid-menu-extra">
+        <a href="https://www.youtube.com/@alex-42-41?si=swPmmTf8er-fRruK" target="_blank" class="btn-3d btn-primary" style="--button-main:#ff0000; --button-edge:#cc0000; height: 100%;">
+            <span class="btn-edge"></span><span class="btn-face" style="padding: 10px 5px; font-size: 14px;">YouTube</span>
+        </a>
+        <a href="https://www.facebook.com/share/1UQCaxE29T/" target="_blank" class="btn-3d btn-primary" style="--button-main:#1877f2; --button-edge:#146ac0; height: 100%;">
+            <span class="btn-edge"></span><span class="btn-face" style="padding: 10px 5px; font-size: 14px;">Facebook</span>
+        </a>
+        <a href="https://t.me/ratulhossain56" target="_blank" class="btn-3d btn-primary" style="--button-main:#2aabee; --button-edge:#208dbd; height: 100%;">
+            <span class="btn-edge"></span><span class="btn-face" style="padding: 10px 5px; font-size: 14px;">Telegram</span>
+        </a>
+        <button class="btn-3d btn-monetag" onclick="openModal('monetagLinkModal')">
+            <span class="btn-edge"></span><span class="btn-face" style="padding: 10px 5px; font-size: 14px;">Monetag Link</span>
+        </button>
+    </div>
+    
+    <button class="btn-3d btn-danger" onclick="Telegram.WebApp.close()" style="margin-top: 15px; width: 100%; max-width: 400px;">
+        <span class="btn-edge"></span><span class="btn-face">EXIT APP</span>
+    </button>
+
 
     <div class="modal-overlay" id="withdrawModal">
         <div class="modal">
@@ -258,6 +294,24 @@
             </button>
         </div>
     </div>
+    
+    <div class="modal-overlay" id="monetagLinkModal">
+        <div class="modal">
+            <h2>🌐 Monetag Direct Link</h2>
+            <p style="color: #ff6600; font-weight: bold;">
+                এই লিংকটি বেশি বেশি শেয়ার করবেন! এই লিংকের মাধ্যমে কেউ অ্যাড দেখলে আপনার অ্যাকাউন্টের ভ্যালু খুব দ্রুত বাড়বে।
+            </p>
+            
+            <div class="copy-box">
+                <input type="text" id="directLink" readonly value="https://otieu.com/4/10315373">
+                <button class="btn-copy" onclick="copyDirectLink()">COPY</button>
+            </div>
+            
+            <button class="btn-3d btn-danger" onclick="closeModal('monetagLinkModal')" style="margin-top:15px; width:100%">
+                <span class="btn-edge"></span><span class="btn-face">CLOSE</span>
+            </button>
+        </div>
+    </div>
 
     <div class="toast" id="toast">Notification</div>
 
@@ -266,6 +320,7 @@
         const BACKEND_URL = "https://monetagads4241r.onrender.com"; 
         const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; 
         const MONETAG_FUNC = "show_10318378"; 
+        const DIRECT_LINK = "https://otieu.com/4/10315373"; // New Direct Link
         
         const firebaseConfig = {
           apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
@@ -277,7 +332,7 @@
         };
         
         const AD_DAILY_LIMIT = 60; 
-        const AD_COOLDOWN_SECONDS = 120; // UPDATED to 2 minutes
+        const AD_COOLDOWN_SECONDS = 120; // 2 minutes
         
         // --- INIT ---
         const tg = window.Telegram.WebApp;
@@ -286,7 +341,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // state now tracks two coin balances
         let state = { coins: 0, validCoins: 0, ads: 0, referrals: 0, userId: null, username: '' }; 
         let lastAdTime = 0;
         let adsToday = 0;
@@ -309,7 +363,7 @@
                 document.getElementById('username').innerText = "TESTER";
             }
 
-            // 1. Sync User & Handle Referrals
+            // Sync User & Handle Referrals
             fetch(`${BACKEND_URL}/api/sync`, {
                 method: 'POST',
                 headers: { 
@@ -326,25 +380,25 @@
                 document.getElementById('connectionStatus').style.color = 'red';
             });
             
-            // 2. Realtime Listener & Daily Ad Count
+            // Realtime Listener
             db.collection('users').doc(state.userId).onSnapshot(doc => {
                 if(doc.exists) {
                     const data = doc.data();
                     
-                    // Check if WITHDRAWAL coins increased (for immediate feedback)
+                    // Check if WITHDRAWAL coins increased 
                     if(data.coins > state.coins) {
                         pulseOrb();
                         triggerConfetti(); 
                         showToast("Withdrawal Point Added!");
                     }
                     
-                    // Check if POSTBACK coins increased (for postback success notification)
+                    // Check if POSTBACK coins increased (Crucial for feedback)
                     if(data.validCoins > state.validCoins) {
-                         showToast("Monetag Postback Confirmed! Secure Coins Added.");
+                         showToast("Monetag Postback Confirmed! Secure Coins Added.", false, 6000); // longer toast
                     }
 
-                    state.coins = data.coins || 0; // Withdrawal Balance (UNSECURE)
-                    state.validCoins = data.validCoins || 0; // Display Only
+                    state.coins = data.coins || 0; 
+                    state.validCoins = data.validCoins || 0; 
                     state.ads = data.totalAdsWatched || 0;
                     state.referrals = data.referrals || 0;
                     
@@ -367,9 +421,7 @@
         function updateUI() {
             document.getElementById('pointsDisplay').innerText = state.coins; 
             document.getElementById('modalWithdrawPoints').innerText = state.coins; 
-            
             document.getElementById('validPointsDisplay').innerText = state.validCoins; 
-            
             document.getElementById('refsDisplay').innerText = state.referrals;
             document.getElementById('refCountDisplay').innerText = state.referrals;
             document.getElementById('adsTodayDisplay').innerText = `${adsToday}/${AD_DAILY_LIMIT}`;
@@ -406,7 +458,6 @@
                             cooldownInterval = null;
                             checkAdStatus();
                         } else {
-                            // Display time in M:SS format
                             const minutes = Math.floor(newRemaining / 60);
                             const seconds = Math.ceil(newRemaining % 60).toString().padStart(2, '0');
                             btnFace.innerText = `WAIT ${minutes}:${seconds}`;
@@ -439,11 +490,9 @@
                 
                 window[MONETAG_FUNC]({ ymid: state.userId }).then(() => {
                     
-                    // 1. Update front-end state (cooldown/limit)
                     lastAdTime = Date.now();
                     adsToday++;
                     
-                    // 2. Claim reward on the backend (This immediately adds the WITHDRAWAL point)
                     claimReward();
                     
                     checkAdStatus();
@@ -461,7 +510,6 @@
         }
 
         async function claimReward() {
-            // This now adds the immediate WITHDRAWAL point and updates ad counts/time
             try {
                 const res = await fetch(`${BACKEND_URL}/api/claim-reward`, {
                     method: 'POST',
@@ -477,7 +525,6 @@
             }
         }
 
-        // --- WITHDRAW (Checks UNSECURE coins) ---
         async function submitWithdraw() {
             const method = document.getElementById('wMethod').value;
             const number = document.getElementById('wNumber').value;
@@ -486,7 +533,6 @@
             if(!amountPoints || amountPoints <= 0) return showToast("Enter valid points", true);
             if(!number) return showToast("Enter wallet number", true);
 
-            // *** IMPORTANT: CHECKING UNSECURE COINS ***
             if(state.coins < 600) return showToast("Need 600+ Points for Withdrawal", true);
             if(state.referrals < 10) return showToast("Need 10+ Referrals", true);
             if(amountPoints > state.coins) return showToast("Insufficient Withdrawal Balance", true);
@@ -528,14 +574,14 @@
             });
         }
 
-        function showToast(msg, isError = false) {
+        function showToast(msg, isError = false, duration = 4000) {
             const t = document.getElementById('toast');
             t.innerText = msg;
             if(isError) t.classList.add('error');
             else t.classList.remove('error');
             
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 4000);
+            setTimeout(() => t.classList.remove('show'), duration);
         }
 
         function openModal(id) { 
@@ -560,6 +606,16 @@
                 showToast("Link Copied!");
             });
         }
+        
+        function copyDirectLink() {
+            const input = document.getElementById('directLink');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                showToast("Monetag Direct Link Copied!");
+            });
+        }
+
 
         initApp();
     </script>
