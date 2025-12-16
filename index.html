@@ -30,7 +30,7 @@
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            margin: 0; padding: 20px;
+            margin: 0; padding: 0 20px 20px 20px; 
             background: radial-gradient(circle at center, #1a1f2e 0%, var(--bg) 100%);
             color: var(--text-main);
             font-family: 'Rajdhani', sans-serif;
@@ -38,23 +38,70 @@
             display: flex; flex-direction: column; align-items: center;
             overflow-x: hidden;
         }
-        .app-header {
-            width: 100%; display: flex; justify-content: space-between; align-items: center; 
+        
+        /* --- TOP HEADER & BUTTONS --- */
+        .top-header-bar {
+            width: 100%; max-width: 400px; 
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 20px; 
             margin-bottom: 20px;
         }
+        .social-buttons { 
+            display: flex; gap: 8px; 
+        }
+        .social-btn {
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; 
+            width: 35px; height: 35px; display: flex; justify-content: center; align-items: center;
+            font-size: 16px; cursor: pointer; color: var(--text-main); transition: transform 0.2s;
+        }
+        .social-btn:active { transform: scale(0.9); }
+        .social-btn.yt { background: #ff0000; }
+        .social-btn.fb { background: #1877f2; }
+        .social-btn.tg { background: #2aabee; }
+        .social-btn.monetag { background: #ff6600; }
+        
         .user-info {
             font-weight: bold; font-size: 14px; text-align: right;
         }
         .user-info .status {
             font-size: 10px; color: #555; display: block;
         }
+
+        /* --- MARQUEE NOTICE --- */
+        .marquee-container {
+            width: 100%;
+            max-width: 400px;
+            background: linear-gradient(90deg, #ff8b00 0%, #ff6600 100%);
+            color: var(--text-main);
+            padding: 5px 0;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(255, 139, 0, 0.5);
+            overflow: hidden; 
+        }
+        .marquee-content {
+            white-space: nowrap;
+            display: inline-block;
+            padding-left: 100%; 
+            animation: marquee 30s linear infinite; 
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+        
+        .marquee-content a { color: var(--neon-blue); text-decoration: none; font-weight: 700; }
+
         /* Orb size reduced */
         .orb-stage {
-            position: relative; width: 200px; height: 200px; margin: 20px 0 10px 0;
+            position: relative; width: 200px; height: 200px; margin: 10px 0 10px 0;
             display: flex; justify-content: center; align-items: center;
         }
         .orb {
-            width: 150px; height: 150px; border-radius: 50%; /* Reduced size */
+            width: 150px; height: 150px; border-radius: 50%;
             background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 50%),
                         linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
             box-shadow: 0 0 40px rgba(0, 240, 255, 0.4), inset 0 0 20px rgba(255,255,255,0.3);
@@ -65,24 +112,15 @@
         .points-val { font-family: 'Orbitron', sans-serif; font-size: 40px; font-weight: 900; text-shadow: 0 0 10px var(--neon-blue); }
         .points-label { font-size: 12px; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase; }
         
-        /* New Notice Box Style */
-        .notice-box {
-            background: rgba(255, 255, 0, 0.1); 
-            border: 1px solid var(--neon-orange); 
-            padding: 15px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 20px;
+        /* Balance Info */
+        .balance-info {
+            width: 100%; max-width: 400px; text-align: center; margin-bottom: 10px;
+            padding: 10px; background: rgba(0, 255, 0, 0.1); border-radius: 8px; 
+            border: 1px solid #34c759; 
             font-size: 13px;
-            text-align: left;
-            box-shadow: 0 0 10px rgba(255, 139, 0, 0.3);
-            line-height: 1.5;
         }
-        .notice-box strong { color: var(--neon-orange); display: block; margin-bottom: 5px; font-size: 14px;}
-        .notice-box a { color: var(--neon-blue); text-decoration: none; font-weight: bold; }
-        
-        /* Remaining Styles (Stats Panel, Buttons) */
+        .balance-info strong { color: #34c759; display: block; font-size: 16px; margin-top: 5px; }
+
         .stats-panel {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 15px 10px; border-radius: 15px;
             backdrop-filter: blur(10px); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; 
@@ -92,9 +130,8 @@
         .stat-item:last-child { border-right: none; }
         .stat-item strong { color: var(--neon-orange); display: block; font-size: 18px; }
         
-        /* Updated Grid Menu for 4 buttons (2x2 layout for main) */
+        /* Buttons */
         .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
-        .grid-menu-extra { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; }
         
         .btn-3d {
             position: relative; border: none; padding: 0; outline: none; cursor: pointer;
@@ -116,22 +153,10 @@
         .btn-primary { --button-main: var(--neon-blue); --button-edge: #00aaff; }
         .btn-secondary { --button-main: #34c759; --button-edge: #2db84c; } 
         .btn-refer { --button-main: var(--neon-purple); --button-edge: #a410db; }
-        .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } 
         .btn-contact { --button-main: #00ff80; --button-edge: #00cc66; }
-        .btn-monetag { --button-main: #ff6600; --button-edge: #cc5200; }
-        
-        .social-buttons { display: flex; gap: 10px; }
-        .social-btn {
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
-            width: 35px; height: 35px; display: flex; justify-content: center; align-items: center;
-            font-size: 18px; cursor: pointer; color: var(--text-main); transition: transform 0.2s;
-        }
-        .social-btn:active { transform: scale(0.9); }
-        .social-btn.fb i { color: #1877f2; }
-        .social-btn.yt i { color: #ff0000; }
-        .social-btn.tg i { color: #2aabee; }
+        .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } 
 
-        /* Modal Styles */
+        /* Modals and Toast styles remain the same */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
@@ -149,31 +174,23 @@
             background: var(--neon-purple); color: white; border: none; padding: 12px 15px;
             border-radius: 0 5px 5px 0; font-weight: bold; cursor: pointer;
         }
-
-        /* Postback Balance Display */
-        .balance-info {
-            width: 100%; max-width: 400px; text-align: center; margin-bottom: 10px;
-            padding: 10px; background: rgba(0, 255, 0, 0.1); border-radius: 8px; 
-            border: 1px solid #34c759; 
-            font-size: 13px;
-        }
-        .balance-info strong { color: #34c759; display: block; font-size: 16px; margin-top: 5px; }
-
     </style>
 </head>
 <body>
 
-    <div class="app-header">
-        
+    <div class="top-header-bar">
         <div class="social-buttons">
-            <a href="https://www.facebook.com/share/1UQCaxE29T/" target="_blank" class="social-btn fb">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://youtube.com/@alex-42-41?si=swPmmTf8er-fRruK" target="_blank" class="social-btn yt">
+            <a href="https://www.youtube.com/@alex-42-41?si=swPmmTf8er-fRruK" target="_blank" class="social-btn yt" title="YouTube">
                 <i class="fab fa-youtube"></i>
             </a>
-            <a href="https://t.me/ratulhossain56" target="_blank" class="social-btn tg">
+            <a href="https://www.facebook.com/share/1UQCaxE29T/" target="_blank" class="social-btn fb" title="Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://t.me/ratulhossain56" target="_blank" class="social-btn tg" title="Telegram">
                 <i class="fab fa-telegram-plane"></i>
+            </a>
+            <a href="#" onclick="openModal('monetagLinkModal')" class="social-btn monetag" title="Monetag Link">
+                <i class="fas fa-link"></i>
             </a>
         </div>
 
@@ -183,9 +200,10 @@
         </div>
     </div>
     
-    <div class="notice-box">
-        <strong>🔔 জরুরি নোটিশ (Important Notice)</strong>
-        আসসালামু আলাইকুম। আপনাকে Monetag Ads এ স্বাগত জানাই। আপনি Watch Ad বাটনে টিপ দেওয়ার পর ওখানে অ্যাড আসবে। দয়া করে অ্যাড-এর নিচে থাকা **Continue** বাটনে ক্লিক করে অ্যাডটি সম্পূর্ণ দেখে আসবেন। অন্যথায়, আপনার পয়েন্ট বাড়লেও টাকার পরিমাণ কম আসতে পারে। **অবশ্যই ১০ জনকে রেফার করা জরুরি**। ৬০০ পয়েন্ট হলেই উইথড্র করতে পারবেন। যেকোনো সমস্যার জন্য এডমিন: <a href="https://t.me/ratulhossain56" target="_blank">@ratulhossain56</a> বা <a href="tel:01344594241">01344594241</a> এ যোগাযোগ করুন। পেমেন্ট সংক্রান্ত জরুরি সমস্যা হলে 01757257580 এই নম্বরে Telegram এ মেসেজ দিন।
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <span style="color:yellow; margin-right: 15px;">🔔 জরুরি নোটিশ:</span> আসসালামু আলাইকুম। আপনাকে Monetag Ads এ স্বাগত জানাই। Watch Ad বাটনে টিপ দিয়ে **Continue** বাটনে ক্লিক করে অ্যাড সম্পূর্ণ দেখুন। না দেখলে টাকা কম পাবেন। **১০ জনকে রেফার করা জরুরি**। ৬০০ পয়েন্ট হলেই উইথড্র করতে পারবেন। যেকোনো সমস্যার জন্য এডমিন: <a href="https://t.me/ratulhossain56" target="_blank">@ratulhossain56</a> বা 01344594241 এ যোগাযোগ করুন। পেমেন্ট নিয়ে সমস্যা হলে 01757257580 এই নম্বরে Telegram এ মেসেজ দিন। &nbsp; &nbsp; &nbsp; &nbsp; 
+        </div>
     </div>
 
     <div class="orb-stage">
@@ -197,7 +215,7 @@
     </div>
     
     <div class="balance-info">
-        SECURE POSTBACK COINS (FOR VIEW ONLY): 
+        SECURE POSTBACK COINS (Monetag Confirmed): 
         <strong id="validPointsDisplay">0</strong>
     </div>
 
@@ -222,21 +240,6 @@
 
         <button class="btn-3d btn-contact" onclick="window.open('https://t.me/ratulhossain56', '_blank')">
             <span class="btn-edge"></span><span class="btn-face">CONTACT ADMIN</span>
-        </button>
-    </div>
-    
-    <div class="grid-menu-extra">
-        <a href="https://www.youtube.com/@alex-42-41?si=swPmmTf8er-fRruK" target="_blank" class="btn-3d btn-primary" style="--button-main:#ff0000; --button-edge:#cc0000; height: 100%;">
-            <span class="btn-edge"></span><span class="btn-face" style="padding: 10px 5px; font-size: 14px;">YouTube</span>
-        </a>
-        <a href="https://www.facebook.com/share/1UQCaxE29T/" target="_blank" class="btn-3d btn-primary" style="--button-main:#1877f2; --button-edge:#146ac0; height: 100%;">
-            <span class="btn-edge"></span><span class="btn-face" style="padding: 10px 5px; font-size: 14px;">Facebook</span>
-        </a>
-        <a href="https://t.me/ratulhossain56" target="_blank" class="btn-3d btn-primary" style="--button-main:#2aabee; --button-edge:#208dbd; height: 100%;">
-            <span class="btn-edge"></span><span class="btn-face" style="padding: 10px 5px; font-size: 14px;">Telegram</span>
-        </a>
-        <button class="btn-3d btn-monetag" onclick="openModal('monetagLinkModal')">
-            <span class="btn-edge"></span><span class="btn-face" style="padding: 10px 5px; font-size: 14px;">Monetag Link</span>
         </button>
     </div>
     
@@ -320,7 +323,7 @@
         const BACKEND_URL = "https://monetagads4241r.onrender.com"; 
         const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; 
         const MONETAG_FUNC = "show_10318378"; 
-        const DIRECT_LINK = "https://otieu.com/4/10315373"; // New Direct Link
+        const DIRECT_LINK = "https://otieu.com/4/10315373"; 
         
         const firebaseConfig = {
           apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
@@ -385,28 +388,27 @@
                 if(doc.exists) {
                     const data = doc.data();
                     
-                    // Check if WITHDRAWAL coins increased 
                     if(data.coins > state.coins) {
                         pulseOrb();
                         triggerConfetti(); 
                         showToast("Withdrawal Point Added!");
                     }
                     
-                    // Check if POSTBACK coins increased (Crucial for feedback)
                     if(data.validCoins > state.validCoins) {
-                         showToast("Monetag Postback Confirmed! Secure Coins Added.", false, 6000); // longer toast
+                         showToast("Monetag Postback Confirmed! Secure Coins Added.", false, 6000); 
                     }
 
-                    state.coins = data.coins || 0; 
-                    state.validCoins = data.validCoins || 0; 
-                    state.ads = data.totalAdsWatched || 0;
-                    state.referrals = data.referrals || 0;
+                    // --- DATA SYNCHRONIZATION ---
+                    state.coins = data.coins || 0;             
+                    state.validCoins = data.validCoins || 0;   
+                    state.ads = data.totalAdsWatched || 0;     
+                    state.referrals = data.referrals || 0;     
                     
                     const today = getTodayDateString();
                     if(data.lastAdDate === today) {
                         adsToday = data.adsToday || 0;
                     } else {
-                        adsToday = 0;
+                        adsToday = 0; 
                     }
                     
                     if(data.lastAdTime) {
@@ -422,17 +424,18 @@
             document.getElementById('pointsDisplay').innerText = state.coins; 
             document.getElementById('modalWithdrawPoints').innerText = state.coins; 
             document.getElementById('validPointsDisplay').innerText = state.validCoins; 
-            document.getElementById('refsDisplay').innerText = state.referrals;
-            document.getElementById('refCountDisplay').innerText = state.referrals;
-            document.getElementById('adsTodayDisplay').innerText = `${adsToday}/${AD_DAILY_LIMIT}`;
-            document.getElementById('totalAdsDisplay').innerText = state.ads;
+            
+            document.getElementById('refsDisplay').innerText = state.referrals; 
+            document.getElementById('refCountDisplay').innerText = state.referrals; 
+            document.getElementById('adsTodayDisplay').innerText = `${adsToday}/${AD_DAILY_LIMIT}`; 
+            document.getElementById('totalAdsDisplay').innerText = state.ads; 
+            
             document.getElementById('connectionStatus').style.color = '#00ff00';
             document.getElementById('connectionStatus').innerText = '● Connected';
             
             checkAdStatus();
         }
         
-        // (checkAdStatus handles 120s cooldown)
         function checkAdStatus() {
             const btn = document.getElementById('watchAdBtn');
             const btnFace = document.getElementById('watchAdFace');
@@ -474,7 +477,7 @@
         }
 
 
-        // --- ADS ---
+        // --- ADS & CLAIM ---
         function watchAd() {
             const now = Date.now();
             const timeElapsed = (now - lastAdTime) / 1000;
@@ -491,9 +494,9 @@
                 window[MONETAG_FUNC]({ ymid: state.userId }).then(() => {
                     
                     lastAdTime = Date.now();
-                    adsToday++;
+                    adsToday++; 
                     
-                    claimReward();
+                    claimReward(); 
                     
                     checkAdStatus();
                     
@@ -511,20 +514,17 @@
 
         async function claimReward() {
             try {
-                const res = await fetch(`${BACKEND_URL}/api/claim-reward`, {
+                await fetch(`${BACKEND_URL}/api/claim-reward`, {
                     method: 'POST',
                     headers: { 'x-telegram-init-data': tg.initData }
                 });
                 
-                if(!res.ok) {
-                    const data = await res.json();
-                    console.error("Ad Count Update Failed:", data.error);
-                }
             } catch(e) {
                 console.error("Ad Count Network Error:", e);
             }
         }
 
+        // --- WITHDRAWAL ---
         async function submitWithdraw() {
             const method = document.getElementById('wMethod').value;
             const number = document.getElementById('wNumber').value;
