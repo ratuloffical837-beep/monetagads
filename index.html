@@ -69,24 +69,16 @@
 
         /* --- MARQUEE NOTICE --- */
         .marquee-container {
-            width: 100%;
-            max-width: 400px;
+            width: 100%; max-width: 400px;
             background: linear-gradient(90deg, #ff8b00 0%, #ff6600 100%);
-            color: var(--text-main);
-            padding: 5px 0;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 15px rgba(255, 139, 0, 0.5);
+            color: var(--text-main); padding: 5px 0; margin-bottom: 20px;
+            border-radius: 5px; box-shadow: 0 0 15px rgba(255, 139, 0, 0.5);
             overflow: hidden; 
         }
         .marquee-content {
-            white-space: nowrap;
-            display: inline-block;
-            padding-left: 100%; 
+            white-space: nowrap; display: inline-block; padding-left: 100%; 
             animation: marquee 30s linear infinite; 
-            font-size: 14px;
-            font-weight: bold;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            font-size: 14px; font-weight: bold; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
         @keyframes marquee {
             0% { transform: translate(0, 0); }
@@ -95,7 +87,7 @@
         
         .marquee-content a { color: var(--neon-blue); text-decoration: none; font-weight: 700; }
 
-        /* Orb size reduced */
+        /* Orb size */
         .orb-stage {
             position: relative; width: 200px; height: 200px; margin: 10px 0 10px 0;
             display: flex; justify-content: center; align-items: center;
@@ -112,7 +104,7 @@
         .points-val { font-family: 'Orbitron', sans-serif; font-size: 40px; font-weight: 900; text-shadow: 0 0 10px var(--neon-blue); }
         .points-label { font-size: 12px; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase; }
         
-        /* Balance Info */
+        /* Stats Panel & Balance Info */
         .balance-info {
             width: 100%; max-width: 400px; text-align: center; margin-bottom: 10px;
             padding: 10px; background: rgba(0, 255, 0, 0.1); border-radius: 8px; 
@@ -130,23 +122,30 @@
         .stat-item:last-child { border-right: none; }
         .stat-item strong { color: var(--neon-orange); display: block; font-size: 18px; }
         
-        /* Buttons */
+        /* Updated Grid Menu (Main Buttons) */
         .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
         
+        /* --- PROFESSIONAL BUTTON STYLING (NEW) --- */
         .btn-3d {
             position: relative; border: none; padding: 0; outline: none; cursor: pointer;
             transition: transform 0.1s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); 
         }
         .btn-3d:active { transform: translateY(3px); }
         .btn-edge {
             position: absolute; top: 0; left: 0; right: 0; height: 100%;
             border-radius: 10px; transform: translateY(3px);
             background: var(--button-edge); z-index: 1;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
         }
         .btn-face {
             position: relative; display: block; padding: 15px 20px; border-radius: 10px;
-            background: var(--button-main); color: var(--bg); font-weight: bold; font-size: 16px;
+            /* Enhanced professional look with gradient and shadow */
+            background: linear-gradient(145deg, var(--button-main) 30%, #fff 100%);
+            color: var(--bg); font-weight: bold; font-size: 16px;
             transform: translateY(-3px); transition: transform 0.1s ease; z-index: 2;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
         }
         .btn-3d:active .btn-face { transform: translateY(0); }
         .btn-disabled { opacity: 0.6; pointer-events: none; }
@@ -156,7 +155,27 @@
         .btn-contact { --button-main: #00ff80; --button-edge: #00cc66; }
         .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } 
 
-        /* Modals and Toast styles remain the same */
+        /* --- MODAL INPUT FIX (NEW) --- */
+        #withdrawModal input, #withdrawModal select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px; /* Added spacing */
+            border-radius: 8px; 
+            border: 1px solid var(--neon-blue); 
+            background: #151922; /* Improved background */
+            color: var(--text-main);
+            font-size: 16px;
+            box-shadow: 0 0 5px rgba(0, 240, 255, 0.5); 
+            outline: none;
+            transition: border 0.3s, box-shadow 0.3s;
+            box-sizing: border-box; /* Crucial for width calculation */
+        }
+        #withdrawModal input:focus, #withdrawModal select:focus {
+            border-color: var(--neon-orange);
+            box-shadow: 0 0 8px rgba(255, 139, 0, 0.8);
+        }
+
+        /* Modal Styles remain the same */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
@@ -174,6 +193,15 @@
             background: var(--neon-purple); color: white; border: none; padding: 12px 15px;
             border-radius: 0 5px 5px 0; font-weight: bold; cursor: pointer;
         }
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85); color: #fff; padding: 12px 20px;
+            border-radius: 20px; z-index: 10000; opacity: 0; visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s; min-width: 250px; text-align: center;
+        }
+        .toast.show { opacity: 1; visibility: visible; }
+        .toast.error { background: var(--danger-red); }
+
     </style>
 </head>
 <body>
@@ -388,12 +416,14 @@
                 if(doc.exists) {
                     const data = doc.data();
                     
-                    if(data.coins > state.coins) {
-                        pulseOrb();
-                        triggerConfetti(); 
-                        showToast("Withdrawal Point Added!");
-                    }
+                    // --- REMOVED: UNWANTED TOAST MESSAGE (Withdrawal point added!) ---
+                    // if(data.coins > state.coins) {
+                    //     pulseOrb();
+                    //     triggerConfetti(); 
+                    //     showToast("Withdrawal Point Added!"); 
+                    // }
                     
+                    // Show toast only for SECURE (Postback) point addition
                     if(data.validCoins > state.validCoins) {
                          showToast("Monetag Postback Confirmed! Secure Coins Added.", false, 6000); 
                     }
@@ -549,7 +579,7 @@
 
                 const data = await res.json();
                 if(res.ok) {
-                    showToast("Withdrawal Sent! Status: Pending Admin Approval.");
+                    showToast("Withdrawal Sent! Admin will check shortly.");
                     closeModal('withdrawModal');
                 } else {
                     showToast(data.error || "Failed", true);
