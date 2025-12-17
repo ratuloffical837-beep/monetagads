@@ -1,7 +1,7 @@
 {
-  "name": "monetag-adstar-neon-v3",
-  "version": "3.1.0",
-  "description": "Futuristic Neon App with Adstar & Monetag",
+  "name": "monetag-adstar-fixed-v4",
+  "version": "4.0.0",
+  "description": "Fixed Cooldown and Limit Logic",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -12,8 +12,5 @@
     "express": "^4.19.2",
     "firebase-admin": "^12.0.0",
     "node-fetch": "^3.3.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }
