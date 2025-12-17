@@ -1,7 +1,7 @@
-// server.js (FINAL CLEAN v7 - Monetag & Adsterra Fixed)
+// server.js (FINAL CORRECTED v8 - Firebase Admin SDK Fix)
 require('dotenv').config();
 const express = require('express');
-const cors = require = require('cors');
+const cors = require('cors'); // Fixed typo: const cors = require = require('cors'); to const cors = require('cors');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 const path = require('path');
@@ -13,29 +13,37 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// --- FIREBASE CONFIGURATION ---
+// --- FIREBASE CONFIGURATION (CRITICAL FIX APPLIED) ---
 let serviceAccount;
+let db; // Declare db here
 try {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+        // 1. Decode Base64 string to JSON object
         const jsonString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8');
         serviceAccount = JSON.parse(jsonString);
     } 
     
-    if (serviceAccount) {
+    if (serviceAccount && serviceAccount.project_id) {
+        // 2. Initialize Firebase Admin SDK (Using .cert to fix the error)
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
             databaseURL: `https://${serviceAccount.project_id}.firebaseio.com` 
         });
-        console.log("Firebase Admin Initialized successfully.");
+        
+        // 3. Get Firestore instance (Using the correct method)
+        db = admin.firestore();
+        
+        console.log("✅ Firebase Admin Initialized and Firestore Connected successfully.");
     } else {
-        console.error("FATAL: Firebase Admin SDK failed initialization. Check FIREBASE_SERVICE_ACCOUNT_BASE64.");
+        console.error("❌ FATAL: Firebase Admin SDK failed initialization. Check FIREBASE_SERVICE_ACCOUNT_BASE64 env var.");
+        // If it fails, db will be undefined, which might cause errors later.
     }
 
 } catch (e) {
-    console.error("Firebase Config Error:", e.message);
+    console.error("❌ Firebase Config Error (Check JSON format in Base64):", e.message);
+    // console.error(e); // Uncomment this line if the error persists
 }
 
-const db = admin.firestore();
 
 // --- SECURITY CONSTANTS ---
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
@@ -43,6 +51,9 @@ const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 
 // --- TELEGRAM AUTH MIDDLEWARE (Integrity Check) ---
 const verifyTelegram = (req, res, next) => {
+    // Before proceeding, check if DB is initialized
+    if (!db) return res.status(500).json({ error: "Server Initialization Error (Database Down)" });
+
     const initData = req.headers['x-telegram-init-data'];
     if (!initData || !BOT_TOKEN) return res.status(403).json({ error: "Integrity Failed: Missing Token or Data" });
     try {
@@ -69,6 +80,8 @@ const verifyTelegram = (req, res, next) => {
     }
 };
 
+// ... (Rest of the server.js remains the same)
+
 // --- TELEGRAM MESSAGE HELPER ---
 async function sendTelegramMessage(chatId, text) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -89,8 +102,10 @@ async function sendTelegramMessage(chatId, text) {
 
 
 // --- CORE POSTBACK HANDLER (Monetag Secure Point) ---
-// This is the server-side callback endpoint for Monetag
 app.get('/api/monetag-callback', async (req, res) => {
+    // Check if db is available
+    if (!db) return res.status(500).send('Server Database Not Ready');
+
     const { 
         telegram_id, 
         reward_event_type, 
@@ -288,7 +303,8 @@ _Please check the Admin Panel to approve._`;
     }
 });
 
-// --- ADMIN ROUTES (Minimal version) ---
+
+// 4. Admin and Default Routes
 app.get('/admin', (req, res) => res.send('Admin Panel Not Configured.'));
 app.post('/admin/login', (req, res) => res.status(404).send('Not Found'));
 app.get('/admin/withdrawals', (req, res) => res.status(404).send('Not Found'));
