@@ -1,13 +1,19 @@
 {
-  "name": "monetas-pro-v9",
-  "version": "9.0.0",
+  "name": "monetag-ads-earner",
+  "version": "2.0.0",
+  "description": "Secure Telegram Mini App Backend",
   "main": "server.js",
-  "scripts": { "start": "node server.js" },
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "firebase-admin": "^11.11.0",
-    "dotenv": "^16.3.1",
-    "node-fetch": "^2.6.1"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "firebase-admin": "^12.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
