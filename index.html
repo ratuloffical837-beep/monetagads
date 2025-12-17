@@ -3,690 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SECURE Earning System</title>
-    
+    <title>Earn Pro Max</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <script src='//libtl.com/sdk.js' data-zone='10318378' data-sdk='show_10318378'></script> 
-
-    <script
-      type="text/javascript"
-      src="https://pl28272285.effectivegatecpm.com/79/ca/d6/79cad6252204e9c90dd50644a69e75f9.js"
-    ></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght=500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* --- MAIN STYLES --- */
-        :root {
-            --bg: #0b0f19;
-            --glass: rgba(255, 255, 255, 0.05);
-            --neon-blue: #00f0ff;
-            --neon-purple: #bc13fe;
-            --neon-orange: #ff8b00;
-            --text-main: #ffffff;
-            --button-main: #00f0ff;
-            --button-edge: #00aaff;
-            --danger-red: #ff3b30; 
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --neon: #00f0ff; --glass: rgba(255, 255, 255, 0.1); }
         body {
-            margin: 0; padding: 0 20px 20px 20px; 
-            background: radial-gradient(circle at center, #1a1f2e 0%, var(--bg) 100%);
-            color: var(--text-main);
-            font-family: 'Rajdhani', sans-serif;
-            min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
-            /* ❌ সমস্যা–1 ও 2 এর FIX (Page Jump & Scroll Lock) */
-            overflow-x: hidden;
-            overflow-y: hidden; 
-            touch-action: manipulation; 
-            overscroll-behavior: none;
+            background: #0b0f19; color: white; font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 20px; overflow-x: hidden; display: flex; flex-direction: column; align-items: center;
         }
-        
-        /* (Existing styles for header, marquee, orb, stats, etc., remain here) */
-        
-        .top-header-bar {
-            width: 100%; max-width: 400px; 
-            display: flex; justify-content: space-between; align-items: center;
-            padding-top: 20px; 
-            margin-bottom: 20px;
-        }
-        .social-buttons { display: flex; gap: 8px; }
-        .social-btn {
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; 
-            width: 35px; height: 35px; display: flex; justify-content: center; align-items: center;
-            font-size: 16px; cursor: pointer; color: var(--text-main); transition: transform 0.2s;
-        }
-        .social-btn:active { transform: scale(0.9); }
-        .social-btn.yt { background: #ff0000; }
-        .social-btn.fb { background: #1877f2; }
-        .social-btn.tg { background: #2aabee; }
-        .social-btn.monetag { background: #ff6600; }
-        
-        .user-info { font-weight: bold; font-size: 14px; text-align: right; }
-        .user-info .status { font-size: 10px; color: #555; display: block; }
 
-        .marquee-container {
-            width: 100%; max-width: 400px;
-            background: linear-gradient(90deg, #ff8b00 0%, #ff6600 100%);
-            color: var(--text-main); padding: 5px 0; margin-bottom: 20px;
-            border-radius: 5px; box-shadow: 0 0 15px rgba(255, 139, 0, 0.5);
-            overflow: hidden; 
-        }
-        .marquee-content {
-            white-space: nowrap; display: inline-block; padding-left: 100%; 
-            animation: marquee 30s linear infinite; 
-            font-size: 14px; font-weight: bold; text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-        }
-        @keyframes marquee {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); }
-        }
-        
-        .orb-stage {
-            position: relative; width: 200px; height: 200px; margin: 10px 0 10px 0;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .orb {
-            width: 150px; height: 150px; border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent 50%),
-                        linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-            box-shadow: 0 0 40px rgba(0, 240, 255, 0.4), inset 0 0 20px rgba(255,255,255,0.3);
-            position: relative; z-index: 2;
+        /* 🔴 SOCIAL BUTTONS ROW */
+        .social-row { display: flex; gap: 15px; margin-bottom: 20px; }
+        .social-icon { font-size: 24px; color: white; transition: 0.3s; }
+        .fa-facebook { color: #1877F2; } .fa-telegram { color: #24A1DE; } .fa-youtube { color: #FF0000; }
+
+        /* 🔵 ORB UI FIX (বৃত্তের ডিজাইন) */
+        .orb-container {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: radial-gradient(circle, #1a2236, #000);
+            border: 4px solid var(--neon); box-shadow: 0 0 25px var(--neon);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            animation: float 5s ease-in-out infinite;
+            text-align: center; margin: 20px 0;
         }
-        .points-val { font-family: 'Orbitron', sans-serif; font-size: 40px; font-weight: 900; text-shadow: 0 0 10px var(--neon-blue); }
-        .points-label { font-size: 12px; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase; }
-        
-        .balance-info {
-            width: 100%; max-width: 400px; text-align: center; margin-bottom: 10px;
-            padding: 10px; background: rgba(0, 255, 0, 0.1); border-radius: 8px; 
-            border: 1px solid #34c759; 
-            font-size: 13px;
-        }
-        .balance-info strong { color: #34c759; display: block; font-size: 16px; margin-top: 5px; }
+        .balance-text { font-size: 32px; font-weight: bold; color: var(--neon); margin: 0; }
+        .label-text { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; padding: 0 10px; line-height: 1.2; }
 
-        .stats-panel {
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 15px 10px; border-radius: 15px;
-            backdrop-filter: blur(10px); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
-            width: 100%; max-width: 400px; font-size: 14px; margin-bottom: 30px;
-        }
-        .stat-item { text-align: center; padding: 5px 0; border-right: 1px solid rgba(255,255,255,0.1); }
-        .stat-item:last-child { border-right: none; }
-        .stat-item strong { color: var(--neon-orange); display: block; font-size: 18px; }
-        
+        /* 🟢 GRID MENU */
         .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
-        
-        .btn-3d {
-            position: relative; border: none; padding: 0; outline: none; cursor: pointer;
-            transition: transform 0.1s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); 
+        .btn {
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px); padding: 15px; border-radius: 15px;
+            color: white; font-weight: bold; display: flex; flex-direction: column;
+            align-items: center; gap: 8px; cursor: pointer; transition: 0.2s;
         }
-        /* Page jump fix is handled in body CSS */
-        .btn-3d:active { transform: translateY(3px); }
-        .btn-edge {
-            position: absolute; top: 0; left: 0; right: 0; height: 100%;
-            border-radius: 10px; transform: translateY(3px);
-            background: var(--button-edge); z-index: 1;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        .btn-face {
-            position: relative; display: block; padding: 15px 20px; border-radius: 10px;
-            background: linear-gradient(145deg, var(--button-main) 30%, var(--button-main) 100%);
-            color: var(--bg); font-weight: bold; font-size: 16px;
-            transform: translateY(-3px); transition: transform 0.1s ease; z-index: 2;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
-        }
-        .btn-3d:active .btn-face { transform: translateY(0); }
-        .btn-disabled { opacity: 0.6; pointer-events: none; }
-        .btn-primary { --button-main: var(--neon-blue); --button-edge: #00aaff; }
-        .btn-secondary { --button-main: #34c759; --button-edge: #2db84c; } 
-        .btn-refer { --button-main: var(--neon-purple); --button-edge: #a410db; }
-        .btn-contact { --button-main: #00ff80; --button-edge: #00cc66; }
-        .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } 
-        .btn-adsterra { --button-main: #ff5722; --button-edge: #e64a19; } 
+        .btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
+        .btn i { font-size: 20px; color: var(--neon); }
+        .btn-full { grid-column: span 2; background: linear-gradient(90deg, #00f0ff, #0072ff); color: #000; }
 
-        /* --- MODAL CSS FIX (Critical Fix for Modal functionality) --- */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            /* Scroll lock for Modal (Prevents body scroll when modal is open) */
-            overflow-y: auto; 
-            padding: 20px;
-        }
-
-        .modal {
-            background: #0f1424;
-            width: 90%;
-            max-width: 360px;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 0 25px rgba(0,240,255,0.3);
-            animation: zoomIn 0.25s ease;
-            color: var(--text-main);
-            /* Internal input styling for modal */
-            font-family: 'Rajdhani', sans-serif;
-        }
-        .modal input, .modal select {
-            width: 100%; padding: 10px; margin-bottom: 10px;
-            border-radius: 8px; border: 1px solid #333;
-            background: #1a1a1a; color: var(--text-main);
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-        .copy-box {
-            display: flex; gap: 5px; margin-top: 10px;
-        }
-        .copy-box input { margin-bottom: 0; }
-        .btn-copy {
-            background: var(--neon-blue); color: var(--bg);
-            border: none; border-radius: 8px; padding: 0 15px;
-            font-weight: bold; cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-copy:active { background: #00aaff; }
-
-
-        @keyframes zoomIn {
-            from { transform: scale(0.85); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        
-        /* --- TOAST & HAPTIC --- */
-        .toast {
-            position: fixed; bottom: 20px; left: 50%;
-            transform: translate(-50%, 100px);
-            background: rgba(0, 0, 0, 0.85); color: #fff;
-            padding: 10px 20px; border-radius: 5px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-            z-index: 10000; opacity: 0;
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-            font-size: 14px;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translate(-50%, 0);
-        }
-        .toast.error {
-            background: var(--danger-red);
-            color: var(--text-main);
-        }
-        
+        /* TOAST NOTIFICATION */
+        #toast { position: fixed; bottom: 20px; background: #00f0ff; color: black; padding: 10px 20px; border-radius: 20px; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="top-header-bar">
-        <div class="social-buttons">
-            <a href="https://www.youtube.com/@alex-42-41?si=swPmmTf8er-fRruK" target="_blank" class="social-btn yt" title="YouTube">
-                <i class="fab fa-youtube"></i>
-            </a>
-            <a href="https://www.facebook.com/share/1UQCaxE29T/" target="_blank" class="social-btn fb" title="Facebook">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://t.me/ratulhossain56" target="_blank" class="social-btn tg" title="Telegram">
-                <i class="fab fa-telegram-plane"></i>
-            </a>
-            <a href="#" onclick="openModal('monetagLinkModal')" class="social-btn monetag" title="Monetag Link">
-                <i class="fas fa-link"></i>
-            </a>
-        </div>
-
-        <div class="user-info">
-            HELLO, <span id="username" style="color:var(--neon-blue)">USER</span>
-            <span id="connectionStatus" class="status">● Connecting...</span>
-        </div>
-    </div>
-    
-    <div class="marquee-container">
-        <div class="marquee-content">
-            <span style="color:yellow; margin-right: 15px;">🔔 জরুরি নোটিশ:</span> এটি একটি সুরক্ষিত আর্কিটেকচার। **শুধুমাত্র Monetag Postback নিশ্চিত হলেই আপনার ব্যালেন্স বাড়বে।** Adsterra বাটনে ক্লিক করলে প্ল্যাটফর্মের আয় হবে, কিন্তু আপনার ব্যালেন্স বাড়বে না। ১০ জনকে রেফার করা জরুরি। ৬০০ পয়েন্ট হলেই উইথড্র করতে পারবেন। &nbsp; &nbsp; &nbsp; &nbsp; 
-        </div>
+    <div class="social-row">
+        <a href="YOUR_FB_LINK" target="_blank" class="social-icon"><i class="fab fa-facebook"></i></a>
+        <a href="YOUR_TG_LINK" target="_blank" class="social-icon"><i class="fab fa-telegram"></i></a>
+        <a href="YOUR_YT_LINK" target="_blank" class="social-icon"><i class="fab fa-youtube"></i></a>
     </div>
 
-    <div class="orb-stage">
-        <div class="orb-ring"></div>
-        <div class="orb" id="orbBtn">
-            <span class="points-val" id="balanceDisplay">0</span>
-            <span class="points-label">SECURE BALANCE (POSTBACK)</span>
-        </div>
-    </div>
-    
-    <div class="balance-info">
-        TOTAL SECURE POINTS: 
-        <strong id="validPointsDisplay">0</strong>
-    </div>
-
-    <div class="stats-panel">
-        <div class="stat-item">Total Tasks: <strong id="totalAdsDisplay">0</strong></div>
-        <div class="stat-item">Refs: <strong id="refsDisplay">0</strong></div>
+    <div class="orb-container">
+        <p class="label-text">Verified Balance</p>
+        <h1 class="balance-text" id="balance">0</h1>
+        <p class="label-text">Server Confirmed</p>
     </div>
 
     <div class="grid-menu">
-        <button class="btn-3d btn-primary" id="monetagAdBtn" onclick="watchMonetag()">
-            <span class="btn-edge"></span><span class="btn-face" id="monetagAdFace">💰 WATCH MONETAG (60s)</span>
-        </button>
-        
-        <button class="btn-3d btn-adsterra" id="adsterraAdBtn" onclick="watchAdsterra()">
-            <span class="btn-edge"></span><span class="btn-face" id="adsterraAdFace">🔥 QUICK ADSTERRA (5m)</span>
-        </button>
-        
-        <button class="btn-3d btn-secondary" onclick="openModal('withdrawModal')">
-            <span class="btn-edge"></span><span class="btn-face">💸 WITHDRAW (600/10)</span>
-        </button>
-
-        <button class="btn-3d btn-refer" onclick="openReferralModal()">
-            <span class="btn-edge"></span><span class="btn-face">🤝 REFER & EARN (+1 PT)</span>
-        </button>
-    </div>
-    
-    <button class="btn-3d btn-contact" onclick="openContact()" style="margin-top: 15px; width: 100%; max-width: 400px;">
-        <span class="btn-edge"></span><span class="btn-face">📞 CONTACT ADMIN</span>
-    </button>
-    <button class="btn-3d btn-danger" onclick="closeApp()" style="margin-top: 15px; width: 100%; max-width: 400px;">
-        <span class="btn-edge"></span><span class="btn-face">EXIT APP</span>
-    </button>
-
-
-    <div class="modal-overlay" id="withdrawModal">
-        <div class="modal">
-            <h2>CASH OUT</h2>
-            <p style="font-size: 12px; color: #ccc; margin-bottom: 10px;">
-                Required: 600+ Points & 10+ Referrals
-            </p>
-            <p style="font-size: 14px; color: var(--neon-blue); margin-bottom: 15px;">
-                Available Withdrawal Balance: <strong id="modalWithdrawPoints">0</strong>
-            </p>
-            
-            <input type="number" id="wInputPoints" placeholder="Enter Points (e.g., 600)">
-            
-            <select id="wMethod">
-                <option value="Bkash">Bkash</option>
-                <option value="Nagad">Nagad</option>
-                <option value="Rocket">Rocket</option>
-            </select>
-            
-            <input type="number" id="wNumber" placeholder="Wallet Number (01xxx...)">
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-                <button class="btn-3d btn-primary" onclick="submitWithdraw()">
-                    <span class="btn-edge"></span><span class="btn-face">SUBMIT</span>
-                </button>
-                <button class="btn-3d btn-danger" onclick="closeModal('withdrawModal')">
-                    <span class="btn-edge"></span><span class="btn-face">CANCEL</span>
-                </button>
-            </div>
-        </div>
+        <div class="btn" onclick="watchMonetag()"><i class="fas fa-play-circle"></i>MONETAG AD</div>
+        <div class="btn" onclick="watchAdsterra()"><i class="fas fa-tasks"></i>DAILY TASK</div>
+        <div class="btn" onclick="openRefer()"><i class="fas fa-users"></i>REFER FRIENDS</div>
+        <div class="btn" onclick="openWithdraw()"><i class="fas fa-wallet"></i>CASHOUT</div>
+        <div class="btn btn-full" onclick="copyDirectLink()"><i class="fas fa-link"></i>MONETAG DIRECT LINK</div>
     </div>
 
-    <div class="modal-overlay" id="referralModal">
-        <div class="modal">
-            <h2>🤝 INVITE FRIENDS</h2>
-            <p>Earn <span style="color:var(--neon-blue)">1 SECURE Point</span> for every friend!</p>
-            
-            <div class="copy-box">
-                <input type="text" id="refLink" readonly value="Loading...">
-                <button class="btn-copy" onclick="copyReferralLink()">COPY</button>
-            </div>
-            
-            <p style="margin-top: 20px;">Total Referred:</p>
-            <h1 id="refCountDisplay" style="color:var(--neon-purple); margin:0;">0</h1>
-
-            <button class="btn-3d btn-secondary" onclick="closeModal('referralModal')" style="margin-top:15px; width:100%">
-                <span class="btn-edge"></span><span class="btn-face">CLOSE</span>
-            </button>
-        </div>
-    </div>
-    
-    <div class="modal-overlay" id="monetagLinkModal">
-        <div class="modal">
-            <h2>🌐 Monetag Direct Link</h2>
-            <p style="color: #ff6600; font-weight: bold;">
-                এই লিংকটি শেয়ার করে প্ল্যাটফর্মকে আয় করতে সাহায্য করুন।
-            </p>
-            
-            <div class="copy-box">
-                <input type="text" id="directLink" readonly value="https://otieu.com/4/10315373">
-                <button class="btn-copy" onclick="copyDirectLink()">COPY</button>
-            </div>
-            
-            <button class="btn-3d btn-danger" onclick="closeModal('monetagLinkModal')" style="margin-top:15px; width:100%">
-                <span class="btn-edge"></span><span class="btn-face">CLOSE</span>
-            </button>
-        </div>
-    </div>
-
-    <div class="toast" id="toast">Notification</div>
+    <div id="toast">Copied!</div>
 
     <script>
-        // --- CONFIGURATION ---
-        const BACKEND_URL = "https://monetagads4241r.onrender.com"; 
-        const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; 
-        
-        // Monetag Config
-        const MONETAG_FUNC = "show_10318378"; 
-        const DIRECT_LINK = "https://otieu.com/4/10315373"; 
-
-        // ADSTERRA CONFIG 
-        const ADSTERRA_POP_LINK = "https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57"; 
-        
-        const firebaseConfig = {
-          apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
-          authDomain: "monetas-ads-4241.firebaseapp.com",
-          projectId: "monetas-ads-4241",
-          storageBucket: "monetas-ads-4241.firebasestorage.app",
-          messagingSenderId: "482009819786",
-          appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
-        };
-        
-        // --- SEPARATE COOLDOWN CONSTANTS ---
-        const MONETAG_COOLDOWN_SECONDS = 60; 
-        const ADSTERRA_COOLDOWN_SECONDS = 300; 
-        
-        // --- INIT ---
         const tg = window.Telegram.WebApp;
         tg.expand();
-        
-        // ❌ সমস্যা–2 এর FIX (Mini App Safe Mode)
-        tg.disableClosingConfirmation();
-        tg.enableClosingConfirmation = false;
-        
-        firebase.initializeApp(firebaseConfig);
+        const userId = String(tg.initDataUnsafe.user?.id || "test_user");
+
+        // Firebase Config
+        firebase.initializeApp({ /* PASTE YOUR CONFIG HERE */ });
         const db = firebase.firestore();
 
-        let state = { balance: 0, referrals: 0, ads: 0, userId: null, username: '' }; 
-        let lastMonetagTime = 0;
-        let lastAdsterraTime = 0;
-        let monetagCooldownInterval = null;
-        let adsterraCooldownInterval = null;
-        
-        function initApp() {
-            const user = tg.initDataUnsafe?.user;
-            const startParam = tg.initDataUnsafe?.start_param || null;
+        // 🟢 REAL-TIME DATA (Sync with Orb)
+        db.collection('users').doc(userId).onSnapshot(doc => {
+            if(doc.exists) document.getElementById('balance').innerText = doc.data().balance;
+        });
 
-            if(user) {
-                state.userId = String(user.id);
-                state.username = user.username || "User";
-                document.getElementById('username').innerText = (user.first_name || "User").toUpperCase();
-            } else {
-                state.userId = "test_user_1";
-                document.getElementById('username').innerText = "TESTER";
-            }
-
-            // Sync User & Handle Referrals
-            fetch(`${BACKEND_URL}/api/sync`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-telegram-init-data': tg.initData 
-                },
-                body: JSON.stringify({ startParam: startParam })
-            })
-            .then(res => {
-                if(res.status === 403) showToast("Security Check Failed! (Update Bot Token)", true);
-            })
-            .catch(e => {
-                console.error("Sync fail", e);
-                document.getElementById('connectionStatus').style.color = 'red';
-            });
-            
-            // Realtime Listener (UI TRUTH SOURCE)
-            db.collection('users').doc(state.userId).onSnapshot(doc => {
-                if(doc.exists) {
-                    const data = doc.data();
-                    
-                    if (data.balance > state.balance && state.balance !== 0) {
-                         showToast("✅ Postback Confirmed! +1 Secure Point Added.", false, 6000); 
-                         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                    }
-                    
-                    // --- DATA SYNCHRONIZATION (Single Balance) ---
-                    state.balance = data.balance || 0;             
-                    state.referrals = data.referrals || 0;     
-                    state.ads = data.totalAdsWatched || 0;     
-                    
-                    if(data.lastAdTime) {
-                        const serverTime = data.lastAdTime.toDate().getTime();
-                        lastMonetagTime = serverTime; 
-                        if(Date.now() - serverTime < 5000) { 
-                             lastAdsterraTime = Date.now();
-                        }
-                    }
-
-                    updateUI();
-                }
-            });
-        }
-
-        function updateUI() {
-            document.getElementById('balanceDisplay').innerText = state.balance; 
-            document.getElementById('modalWithdrawPoints').innerText = state.balance; 
-            document.getElementById('validPointsDisplay').innerText = state.balance; 
-            
-            document.getElementById('refsDisplay').innerText = state.referrals; 
-            document.getElementById('refCountDisplay').innerText = state.referrals; 
-            document.getElementById('totalAdsDisplay').innerText = state.ads; 
-            
-            document.getElementById('connectionStatus').style.color = '#00ff00';
-            document.getElementById('connectionStatus').innerText = '● Connected';
-            
-            checkMonetagStatus();
-            checkAdsterraStatus();
-        }
-        
-        // --- SEPARATE COOLDOWN LOGIC ---
-        function checkMonetagStatus() {
-            // (Cooldown logic remains the same)
-            const monetagBtn = document.getElementById('monetagAdBtn');
-            const now = Date.now();
-            const timeElapsed = (now - lastMonetagTime) / 1000;
-            const remainingTime = MONETAG_COOLDOWN_SECONDS - timeElapsed;
-
-            if (remainingTime > 0) {
-                const minutes = Math.floor(remainingTime / 60);
-                const seconds = Math.ceil(remainingTime % 60).toString().padStart(2, '0');
-                
-                monetagBtn.classList.add('btn-disabled');
-                document.getElementById('monetagAdFace').innerText = `WAIT ${minutes}:${seconds} (MONETAG)`;
-
-                if (!monetagCooldownInterval) {
-                    monetagCooldownInterval = setInterval(checkMonetagStatus, 1000); 
-                }
-            } else {
-                if(monetagCooldownInterval) clearInterval(monetagCooldownInterval);
-                monetagCooldownInterval = null;
-                
-                monetagBtn.classList.remove('btn-disabled');
-                document.getElementById('monetagAdFace').innerText = "💰 WATCH MONETAG (60s)";
-            }
-        }
-        
-        function checkAdsterraStatus() {
-            // (Cooldown logic remains the same)
-            const adsterraBtn = document.getElementById('adsterraAdBtn');
-            const now = Date.now();
-            const timeElapsed = (now - lastAdsterraTime) / 1000;
-            const remainingTime = ADSTERRA_COOLDOWN_SECONDS - timeElapsed;
-
-            if (remainingTime > 0) {
-                const minutes = Math.floor(remainingTime / 60);
-                const seconds = Math.ceil(remainingTime % 60).toString().padStart(2, '0');
-                
-                adsterraBtn.classList.add('btn-disabled');
-                document.getElementById('adsterraAdFace').innerText = `WAIT ${minutes}:${seconds} (ADSTERRA)`;
-
-                if (!adsterraCooldownInterval) {
-                    adsterraCooldownInterval = setInterval(checkAdsterraStatus, 1000); 
-                }
-            } else {
-                if(adsterraCooldownInterval) clearInterval(adsterraCooldownInterval);
-                adsterraCooldownInterval = null;
-                
-                adsterraBtn.classList.remove('btn-disabled');
-                document.getElementById('adsterraAdFace').innerText = "🔥 QUICK ADSTERRA (5m)";
-            }
-        }
-
-
-        // --- ADS & CLAIM ---
+        // 🟠 FUNCTIONS
         function watchMonetag() {
-            // Haptic Feedback
-            tg.HapticFeedback.impactOccurred("medium"); 
-
-            const now = Date.now();
-            const timeElapsed = (now - lastMonetagTime) / 1000;
-            
-            if (timeElapsed < MONETAG_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(MONETAG_COOLDOWN_SECONDS - timeElapsed)}s`, true);
-
-            if (typeof window[MONETAG_FUNC] === 'function') {
-                window[MONETAG_FUNC]({ ymid: state.userId }).then(() => {
-                    lastMonetagTime = Date.now();
-                    checkMonetagStatus();
-                    // Clean message for Monetag
-                    showToast("⏳ Please wait… Monetag is verifying your task"); 
-                }).catch(e => {
-                    showToast("Monetag Ad Skipped or Failed.", true);
-                    checkMonetagStatus(); 
-                });
-            } else {
-                showToast("Monetag SDK Loading...", true);
+            tg.HapticFeedback.impactOccurred("medium");
+            if(window.show_rewarded) {
+                show_rewarded({ ymid: userId }).then(() => showToast("Ad finished! Wait for verification."));
             }
         }
-        
+
         function watchAdsterra() {
-            // Haptic Feedback
-            tg.HapticFeedback.impactOccurred("medium"); 
-
-            const now = Date.now();
-            const timeElapsed = (now - lastAdsterraTime) / 1000;
-            
-            if (timeElapsed < ADSTERRA_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(ADSTERRA_COOLDOWN_SECONDS - timeElapsed)}s`, true);
-
-            if (ADSTERRA_POP_LINK) {
-                window.open(ADSTERRA_POP_LINK, '_blank');
-                
-                lastAdsterraTime = Date.now();
-                checkAdsterraStatus();
-                // Clean message for Adsterra
-                showToast("🔥 Ad opened. Come back after viewing.", false, 3000);
-            } else {
-                showToast("Adsterra Link Missing in Configuration!", true);
-            }
+            window.open("YOUR_ADSTERRA_LINK", "_blank");
+            showToast("Task Started! Visit the page.");
         }
 
-        // --- CONTACT & EXIT ---
-        function openContact() {
-             tg.HapticFeedback.impactOccurred("medium"); 
-             window.open('https://t.me/ratulhossain56', '_blank');
-        }
-        function closeApp() {
-             tg.HapticFeedback.impactOccurred("medium"); 
-             Telegram.WebApp.close();
-        }
-
-        // --- UTILS (Modal and Copy functions) ---
-        async function submitWithdraw() {
-            // Haptic Feedback
-            tg.HapticFeedback.impactOccurred("medium"); 
-            // (Withdraw logic remains the same)
-            const method = document.getElementById('wMethod').value;
-            const number = document.getElementById('wNumber').value;
-            const amountPoints = parseInt(document.getElementById('wInputPoints').value);
-
-            if(!amountPoints || amountPoints <= 0) return showToast("Enter valid points", true);
-            if(!number) return showToast("Enter wallet number", true);
-
-            if(state.balance < 600) return showToast("Need 600+ Points for Withdrawal", true);
-            if(state.referrals < 10) return showToast("Need 10+ Referrals", true);
-            if(amountPoints > state.balance) return showToast("Insufficient Withdrawal Balance", true);
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/withdraw`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'x-telegram-init-data': tg.initData 
-                    },
-                    body: JSON.stringify({ method, number, amountPoints })
-                });
-
-                const data = await res.json();
-                if(res.ok) {
-                    showToast("Withdrawal Sent! Admin will check shortly.");
-                    closeModal('withdrawModal');
-                } else {
-                    showToast(data.error || "Failed", true);
-                }
-            } catch(e) {
-                showToast("Network Error", true);
-            }
-        }
-
-        function showToast(msg, isError = false, duration = 4000) {
-            // Haptic Feedback for Toast
-            if (isError) { tg.HapticFeedback.notificationOccurred('error'); }
-            else { tg.HapticFeedback.notificationOccurred('success'); }
-
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            if(isError) t.classList.add('error');
-            else t.classList.remove('error');
-            
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), duration);
-        }
-
-        function openModal(id) { 
-             tg.HapticFeedback.impactOccurred("light"); 
-            if(id === 'withdrawModal') {
-                document.getElementById('modalWithdrawPoints').innerText = state.balance;
-            }
-            document.getElementById(id).style.display = 'flex'; 
-        }
-        function closeModal(id) { 
-            tg.HapticFeedback.impactOccurred("light"); 
-            document.getElementById(id).style.display = 'none'; 
-        }
-
-        function openReferralModal() {
-            const link = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${state.userId}`;
-            document.getElementById('refLink').value = link;
-            openModal('referralModal');
-        }
-
-        function copyReferralLink() {
-            tg.HapticFeedback.impactOccurred("medium"); 
-            const input = document.getElementById('refLink');
-            input.select();
-            input.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(input.value).then(() => {
-                showToast("Link Copied!");
-            });
-        }
-        
         function copyDirectLink() {
-            tg.HapticFeedback.impactOccurred("medium"); 
-            const input = document.getElementById('directLink');
-            input.select();
-            input.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(input.value).then(() => {
-                showToast("Monetag Direct Link Copied!");
-            });
+            navigator.clipboard.writeText("YOUR_MONETAG_DIRECT_LINK");
+            showToast("Link Copied!");
         }
 
-        initApp();
+        function openWithdraw() { showToast("Min Withdraw: 600 Points"); }
+        function openRefer() {
+            const refLink = `https://t.me/YOUR_BOT?start=${userId}`;
+            navigator.clipboard.writeText(refLink);
+            showToast("Refer Link Copied!");
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        // Sync with backend
+        fetch('https://your-app.onrender.com/api/sync', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ userId, startParam: tg.initDataUnsafe.start_param })
+        });
     </script>
 </body>
     </html>
