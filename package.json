@@ -1,8 +1,10 @@
 {
-  "name": "monetas-pro-final-v4",
-  "version": "4.1.0",
+  "name": "monetas-pro-v6",
+  "version": "6.0.0",
   "main": "server.js",
-  "scripts": { "start": "node server.js" },
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
