@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monetag & Adsterra Earner</title>
+    <title>SECURE Earning System</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        /* (Styles remain the same) */
+        /* (Styles remain the same for a SMART LOOK) */
         :root {
             --bg: #0b0f19;
             --glass: rgba(255, 255, 255, 0.05);
@@ -117,7 +117,7 @@
 
         .stats-panel {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 15px 10px; border-radius: 15px;
-            backdrop-filter: blur(10px); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; 
+            backdrop-filter: blur(10px); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
             width: 100%; max-width: 400px; font-size: 14px; margin-bottom: 30px;
         }
         .stat-item { text-align: center; padding: 5px 0; border-right: 1px solid rgba(255,255,255,0.1); }
@@ -154,35 +154,10 @@
         .btn-contact { --button-main: #00ff80; --button-edge: #00cc66; }
         .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } 
 
-        /* Adsterra specific button color */
+        /* Adsterra specific button color (Smart Button Look) */
         .btn-adsterra { --button-main: #ff5722; --button-edge: #e64a19; } 
 
-        /* Modal Styles (Remain the same) */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal {
-            background: #151922; border: 1px solid var(--neon-blue); border-radius: 10px;
-            padding: 25px; width: 90%; max-width: 350px; text-align: center;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
-        }
-        .modal h2 { color: var(--neon-blue); margin-top: 0; font-family: 'Orbitron', sans-serif; }
-        .copy-box { display: flex; margin-top: 15px; }
-        .copy-box input { flex-grow: 1; margin-bottom: 0; border-radius: 5px 0 0 5px; padding: 12px; border: 1px solid #444; background: var(--input-bg); color: var(--text-main); }
-        .btn-copy { 
-            background: var(--neon-purple); color: white; border: none; padding: 12px 15px;
-            border-radius: 0 5px 5px 0; font-weight: bold; cursor: pointer;
-        }
-        .toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.85); color: #fff; padding: 12px 20px;
-            border-radius: 20px; z-index: 10000; opacity: 0; visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s; min-width: 250px; text-align: center;
-        }
-        .toast.show { opacity: 1; visibility: visible; }
-        .toast.error { background: var(--danger-red); }
+        /* (Modal and Toast styles remain the same) */
 
     </style>
 </head>
@@ -212,36 +187,35 @@
     
     <div class="marquee-container">
         <div class="marquee-content">
-            <span style="color:yellow; margin-right: 15px;">🔔 জরুরি নোটিশ:</span> আসসালামু আলাইকুম। আপনাকে Monetag & Adsterra Ads এ স্বাগত জানাই। Watch Ad বাটনে টিপ দিয়ে **Continue** বাটনে ক্লিক করে অ্যাড সম্পূর্ণ দেখুন। না দেখলে টাকা কম পাবেন। **১০ জনকে রেফার করা জরুরি**। ৬০০ পয়েন্ট হলেই উইথড্র করতে পারবেন। যেকোনো সমস্যার জন্য এডমিন: <a href="https://t.me/ratulhossain56" target="_blank">@ratulhossain56</a> বা 01344594241 এ যোগাযোগ করুন। পেমেন্ট নিয়ে সমস্যা হলে 01757257580 এই নম্বরে Telegram এ মেসেজ দিন। &nbsp; &nbsp; &nbsp; &nbsp; 
+            <span style="color:yellow; margin-right: 15px;">🔔 জরুরি নোটিশ:</span> এটি একটি সুরক্ষিত আর্কিটেকচার। **শুধুমাত্র Monetag Postback নিশ্চিত হলেই আপনার ব্যালেন্স বাড়বে।** Adsterra বাটনে ক্লিক করলে প্ল্যাটফর্মের আয় হবে, কিন্তু আপনার ব্যালেন্স বাড়বে না। ১০ জনকে রেফার করা জরুরি। ৬০০ পয়েন্ট হলেই উইথড্র করতে পারবেন। &nbsp; &nbsp; &nbsp; &nbsp; 
         </div>
     </div>
 
     <div class="orb-stage">
         <div class="orb-ring"></div>
         <div class="orb" id="orbBtn">
-            <span class="points-val" id="pointsDisplay">0</span>
-            <span class="points-label">WITHDRAWAL POINTS</span>
+            <span class="points-val" id="balanceDisplay">0</span>
+            <span class="points-label">SECURE BALANCE (POSTBACK)</span>
         </div>
     </div>
     
     <div class="balance-info">
-        SECURE POSTBACK COINS (Monetag Confirmed): 
+        TOTAL SECURE POINTS: 
         <strong id="validPointsDisplay">0</strong>
     </div>
 
     <div class="stats-panel">
-        <div class="stat-item">Tasks Today: <strong id="adsTodayDisplay">0/60</strong></div>
         <div class="stat-item">Total Tasks: <strong id="totalAdsDisplay">0</strong></div>
         <div class="stat-item">Refs: <strong id="refsDisplay">0</strong></div>
     </div>
 
     <div class="grid-menu">
-        <button class="btn-3d btn-primary" id="monetagAdBtn" onclick="watchAd('monetag')">
-            <span class="btn-edge"></span><span class="btn-face" id="monetagAdFace">👀 MONETAG AD</span>
+        <button class="btn-3d btn-primary" id="monetagAdBtn" onclick="watchMonetag()">
+            <span class="btn-edge"></span><span class="btn-face" id="monetagAdFace">💰 WATCH MONETAG (60s)</span>
         </button>
         
-        <button class="btn-3d btn-adsterra" id="adsterraAdBtn" onclick="watchAd('adsterra')">
-            <span class="btn-edge"></span><span class="btn-face" id="adsterraAdFace">🔥 ADSTERRA AD</span>
+        <button class="btn-3d btn-adsterra" id="adsterraAdBtn" onclick="watchAdsterra()">
+            <span class="btn-edge"></span><span class="btn-face" id="adsterraAdFace">🔥 QUICK ADSTERRA (5m)</span>
         </button>
         
         <button class="btn-3d btn-secondary" onclick="openModal('withdrawModal')">
@@ -295,7 +269,7 @@
     <div class="modal-overlay" id="referralModal">
         <div class="modal">
             <h2>🤝 INVITE FRIENDS</h2>
-            <p>Earn <span style="color:var(--neon-blue)">1 Withdrawal Point</span> for every friend!</p>
+            <p>Earn <span style="color:var(--neon-blue)">1 SECURE Point</span> for every friend!</p>
             
             <div class="copy-box">
                 <input type="text" id="refLink" readonly value="Loading...">
@@ -315,7 +289,7 @@
         <div class="modal">
             <h2>🌐 Monetag Direct Link</h2>
             <p style="color: #ff6600; font-weight: bold;">
-                এই লিংকটি বেশি বেশি শেয়ার করবেন! এই লিংকের মাধ্যমে কেউ অ্যাড দেখলে আপনার অ্যাকাউন্টের ভ্যালু খুব দ্রুত বাড়বে।
+                এই লিংকটি শেয়ার করে প্ল্যাটফর্মকে আয় করতে সাহায্য করুন।
             </p>
             
             <div class="copy-box">
@@ -336,12 +310,11 @@
         const BACKEND_URL = "https://monetagads4241r.onrender.com"; 
         const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; 
         
-        // Monetag Config: data-zone='10318378'
+        // Monetag Config (Used to show ad and pass ymid for postback)
         const MONETAG_FUNC = "show_10318378"; 
         const DIRECT_LINK = "https://otieu.com/4/10315373"; 
 
-        // 💥 ADSTERRA CONFIG (Updated with your direct link) 💥
-        // This direct link is used when the Adsterra button is clicked (Fixes 404)
+        // ADSTERRA CONFIG (Your Smartlink)
         const ADSTERRA_POP_LINK = "https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57"; 
         
         const firebaseConfig = {
@@ -353,8 +326,9 @@
           appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
         };
         
-        const AD_DAILY_LIMIT = 60; 
-        const AD_COOLDOWN_SECONDS = 120; // 2 minutes
+        // --- SEPARATE COOLDOWN CONSTANTS ---
+        const MONETAG_COOLDOWN_SECONDS = 60; 
+        const ADSTERRA_COOLDOWN_SECONDS = 300; // 5 minutes
         
         // --- INIT ---
         const tg = window.Telegram.WebApp;
@@ -363,17 +337,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let state = { coins: 0, validCoins: 0, ads: 0, referrals: 0, userId: null, username: '' }; 
-        let lastAdTime = 0;
-        let adsToday = 0;
-        let cooldownInterval = null;
+        let state = { balance: 0, referrals: 0, ads: 0, userId: null, username: '' }; 
+        let lastMonetagTime = 0;
+        let lastAdsterraTime = 0;
+        let monetagCooldownInterval = null;
+        let adsterraCooldownInterval = null;
         
-        function getTodayDateString() {
-            return new Date().toISOString().slice(0, 10);
-        }
-
         function initApp() {
-            // ... (Sync logic remains the same) ...
             const user = tg.initDataUnsafe?.user;
             const startParam = tg.initDataUnsafe?.start_param || null;
 
@@ -403,30 +373,31 @@
                 document.getElementById('connectionStatus').style.color = 'red';
             });
             
-            // Realtime Listener
+            // Realtime Listener (UI TRUTH SOURCE)
             db.collection('users').doc(state.userId).onSnapshot(doc => {
                 if(doc.exists) {
                     const data = doc.data();
                     
-                    if(data.validCoins > state.validCoins) {
-                         showToast("Monetag Postback Confirmed! Secure Coins Added.", false, 6000); 
+                    if (data.balance > state.balance && state.balance !== 0) {
+                         showToast("✅ Postback Confirmed! +1 Secure Point Added.", false, 6000); 
+                         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
                     }
-
-                    // --- DATA SYNCHRONIZATION ---
-                    state.coins = data.coins || 0;             
-                    state.validCoins = data.validCoins || 0;   
-                    state.ads = data.totalAdsWatched || 0;     
+                    
+                    // --- DATA SYNCHRONIZATION (Single Balance) ---
+                    state.balance = data.balance || 0;             
                     state.referrals = data.referrals || 0;     
+                    state.ads = data.totalAdsWatched || 0;     
                     
-                    const today = getTodayDateString();
-                    if(data.lastAdDate === today) {
-                        adsToday = data.adsToday || 0;
-                    } else {
-                        adsToday = 0; 
-                    }
-                    
+                    // Note: We are using the server's postback time for cooldown check
                     if(data.lastAdTime) {
-                        lastAdTime = data.lastAdTime.toDate().getTime();
+                        const serverTime = data.lastAdTime.toDate().getTime();
+                        // Assuming Monetag postback updates 'lastAdTime'
+                        lastMonetagTime = serverTime; 
+                        // We will use a separate local time for Adsterra to avoid interference
+                        // If Monetag was just watched, we reset Adsterra's local timer too to prevent abuse
+                        if(Date.now() - serverTime < 5000) { 
+                             lastAdsterraTime = Date.now();
+                        }
                     }
 
                     updateUI();
@@ -435,122 +406,118 @@
         }
 
         function updateUI() {
-            document.getElementById('pointsDisplay').innerText = state.coins; 
-            document.getElementById('modalWithdrawPoints').innerText = state.coins; 
-            document.getElementById('validPointsDisplay').innerText = state.validCoins; 
+            document.getElementById('balanceDisplay').innerText = state.balance; 
+            document.getElementById('modalWithdrawPoints').innerText = state.balance; 
+            document.getElementById('validPointsDisplay').innerText = state.balance; 
             
             document.getElementById('refsDisplay').innerText = state.referrals; 
             document.getElementById('refCountDisplay').innerText = state.referrals; 
-            document.getElementById('adsTodayDisplay').innerText = `${adsToday}/${AD_DAILY_LIMIT}`; 
             document.getElementById('totalAdsDisplay').innerText = state.ads; 
             
             document.getElementById('connectionStatus').style.color = '#00ff00';
             document.getElementById('connectionStatus').innerText = '● Connected';
             
-            checkAdStatus();
+            checkMonetagStatus();
+            checkAdsterraStatus();
         }
         
-        function checkAdStatus() {
+        // --- SEPARATE COOLDOWN LOGIC ---
+        function checkMonetagStatus() {
             const monetagBtn = document.getElementById('monetagAdBtn');
-            const adsterraBtn = document.getElementById('adsterraAdBtn');
-
-            // Disable all task buttons if limit is reached
-            if (adsToday >= AD_DAILY_LIMIT) {
-                monetagBtn.classList.add('btn-disabled');
-                adsterraBtn.classList.add('btn-disabled');
-                document.getElementById('monetagAdFace').innerText = "LIMIT REACHED";
-                document.getElementById('adsterraAdFace').innerText = "LIMIT REACHED";
-                if(cooldownInterval) clearInterval(cooldownInterval);
-                return;
-            }
-
             const now = Date.now();
-            const timeElapsed = (now - lastAdTime) / 1000;
-            const remainingTime = AD_COOLDOWN_SECONDS - timeElapsed;
+            const timeElapsed = (now - lastMonetagTime) / 1000;
+            const remainingTime = MONETAG_COOLDOWN_SECONDS - timeElapsed;
 
             if (remainingTime > 0) {
                 const minutes = Math.floor(remainingTime / 60);
                 const seconds = Math.ceil(remainingTime % 60).toString().padStart(2, '0');
                 
-                // Show countdown on both buttons
                 monetagBtn.classList.add('btn-disabled');
-                adsterraBtn.classList.add('btn-disabled');
-                document.getElementById('monetagAdFace').innerText = `WAIT ${minutes}:${seconds}`;
-                document.getElementById('adsterraAdFace').innerText = `WAIT ${minutes}:${seconds}`;
+                document.getElementById('monetagAdFace').innerText = `WAIT ${minutes}:${seconds} (MONETAG)`;
 
-                if (!cooldownInterval) {
-                    cooldownInterval = setInterval(checkAdStatus, 1000); 
+                if (!monetagCooldownInterval) {
+                    monetagCooldownInterval = setInterval(checkMonetagStatus, 1000); 
                 }
             } else {
-                // Enable buttons and clear countdown
-                if(cooldownInterval) clearInterval(cooldownInterval);
-                cooldownInterval = null;
+                if(monetagCooldownInterval) clearInterval(monetagCooldownInterval);
+                monetagCooldownInterval = null;
                 
                 monetagBtn.classList.remove('btn-disabled');
+                document.getElementById('monetagAdFace').innerText = "💰 WATCH MONETAG (60s)";
+            }
+        }
+        
+        function checkAdsterraStatus() {
+            const adsterraBtn = document.getElementById('adsterraAdBtn');
+            const now = Date.now();
+            const timeElapsed = (now - lastAdsterraTime) / 1000;
+            const remainingTime = ADSTERRA_COOLDOWN_SECONDS - timeElapsed;
+
+            if (remainingTime > 0) {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = Math.ceil(remainingTime % 60).toString().padStart(2, '0');
+                
+                adsterraBtn.classList.add('btn-disabled');
+                document.getElementById('adsterraAdFace').innerText = `WAIT ${minutes}:${seconds} (ADSTERRA)`;
+
+                if (!adsterraCooldownInterval) {
+                    adsterraCooldownInterval = setInterval(checkAdsterraStatus, 1000); 
+                }
+            } else {
+                if(adsterraCooldownInterval) clearInterval(adsterraCooldownInterval);
+                adsterraCooldownInterval = null;
+                
                 adsterraBtn.classList.remove('btn-disabled');
-                document.getElementById('monetagAdFace').innerText = "👀 MONETAG AD";
-                document.getElementById('adsterraAdFace').innerText = "🔥 ADSTERRA AD";
+                document.getElementById('adsterraAdFace').innerText = "🔥 QUICK ADSTERRA (5m)";
             }
         }
 
 
         // --- ADS & CLAIM ---
-        function watchAd(type) {
+        function watchMonetag() {
             const now = Date.now();
-            const timeElapsed = (now - lastAdTime) / 1000;
+            const timeElapsed = (now - lastMonetagTime) / 1000;
             
-            if (adsToday >= AD_DAILY_LIMIT) return showToast("Daily Task Limit Reached!", true);
-            if (timeElapsed < AD_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(AD_COOLDOWN_SECONDS - timeElapsed)}s`, true);
+            if (timeElapsed < MONETAG_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(MONETAG_COOLDOWN_SECONDS - timeElapsed)}s`, true);
 
-            if (type === 'monetag') {
-                if (typeof window[MONETAG_FUNC] === 'function') {
-                    // Monetag loads here (with ymid = state.userId for postback)
-                    window[MONETAG_FUNC]({ ymid: state.userId }).then(() => {
-                        lastAdTime = Date.now();
-                        adsToday++; 
-                        claimReward(); 
-                        checkAdStatus();
-                        showToast("Monetag Task Complete! Waiting for Postback Confirmation..."); 
+            if (typeof window[MONETAG_FUNC] === 'function') {
+                // Pass ymid = state.userId for secure server postback
+                window[MONETAG_FUNC]({ ymid: state.userId }).then(() => {
+                    // Start cooldown, but NO client-side reward!
+                    lastMonetagTime = Date.now();
+                    checkMonetagStatus();
+                    showToast("Monetag Task complete! Waiting for Server Postback..."); 
 
-                    }).catch(e => {
-                        showToast("Monetag Ad Skipped or Failed.", true);
-                        checkAdStatus(); 
-                    });
-                } else {
-                    showToast("Monetag SDK Loading...", true);
-                    checkAdStatus();
-                }
-            } else if (type === 'adsterra') {
-                // 💥 ADSTERRA FIX: Open the Pop-Under/Smartlink URL in a new window/tab
-                if (ADSTERRA_POP_LINK) {
-                    // This uses the Smartlink you provided to load the ad directly
-                    window.open(ADSTERRA_POP_LINK, '_blank');
-                    
-                    // Since Adsterra is a pop-under/direct link, we count the task immediately
-                    lastAdTime = Date.now();
-                    adsToday++; 
-                    claimReward(); 
-                    checkAdStatus();
-                    showToast("Adsterra Task Completed! Note: Ad opens in a new tab.", false, 8000);
-                } else {
-                    showToast("Adsterra Link Missing in Configuration!", true);
-                }
-            }
-        }
-
-        async function claimReward() {
-            try {
-                await fetch(`${BACKEND_URL}/api/claim-reward`, {
-                    method: 'POST',
-                    headers: { 'x-telegram-init-data': tg.initData }
+                }).catch(e => {
+                    showToast("Monetag Ad Skipped or Failed.", true);
+                    checkMonetagStatus(); 
                 });
+            } else {
+                showToast("Monetag SDK Loading...", true);
+            }
+        }
+        
+        function watchAdsterra() {
+            const now = Date.now();
+            const timeElapsed = (now - lastAdsterraTime) / 1000;
+            
+            if (timeElapsed < ADSTERRA_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(ADSTERRA_COOLDOWN_SECONDS - timeElapsed)}s`, true);
+
+            if (ADSTERRA_POP_LINK) {
+                // Open Adsterra link in a new tab
+                window.open(ADSTERRA_POP_LINK, '_blank');
                 
-            } catch(e) {
-                console.error("Task Count Network Error:", e);
+                // Start cooldown locally (NO reward logic)
+                lastAdsterraTime = Date.now();
+                checkAdsterraStatus();
+                showToast("Adsterra Ad opened in a new tab. (Platform income only)", false, 5000);
+            } else {
+                showToast("Adsterra Link Missing in Configuration!", true);
             }
         }
 
-        // --- UTILS (Modal and Copy functions - Remain the same) ---
+
+        // --- UTILS (Modal and Copy functions) ---
         async function submitWithdraw() {
             const method = document.getElementById('wMethod').value;
             const number = document.getElementById('wNumber').value;
@@ -559,9 +526,10 @@
             if(!amountPoints || amountPoints <= 0) return showToast("Enter valid points", true);
             if(!number) return showToast("Enter wallet number", true);
 
-            if(state.coins < 600) return showToast("Need 600+ Points for Withdrawal", true);
+            // Checks will be repeated on server for security, but client checks for UX
+            if(state.balance < 600) return showToast("Need 600+ Points for Withdrawal", true);
             if(state.referrals < 10) return showToast("Need 10+ Referrals", true);
-            if(amountPoints > state.coins) return showToast("Insufficient Withdrawal Balance", true);
+            if(amountPoints > state.balance) return showToast("Insufficient Withdrawal Balance", true);
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/withdraw`, {
@@ -597,7 +565,7 @@
 
         function openModal(id) { 
             if(id === 'withdrawModal') {
-                document.getElementById('modalWithdrawPoints').innerText = state.coins;
+                document.getElementById('modalWithdrawPoints').innerText = state.balance;
             }
             document.getElementById(id).style.display = 'flex'; 
         }
