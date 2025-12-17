@@ -3,56 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monetize App</title>
+    <title>Earn Pro Max</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script src='//libtl.com/sdk.js' data-zone='10318378' data-sdk='show_10318378' async></script>
 
     <style>
-        :root { --neon: #00f0ff; --glass: rgba(255, 255, 255, 0.08); }
-        body { background: #0b0f19; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
-        
-        /* Header Social Icons */
+        :root { --neon: #00f0ff; --bg: #0b1426; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 15px; }
         .header { display: flex; justify-content: space-between; align-items: center; }
-        .social a { color: white; margin-right: 15px; font-size: 20px; }
+        .social a { color: white; margin-right: 15px; font-size: 22px; cursor: pointer; }
         
-        /* Orb Ball - Balanced Size */
-        .orb { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--neon); box-shadow: 0 0 15px var(--neon); margin: 20px auto; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, #1a2236, #000); }
-        .bal-val { font-size: 28px; font-weight: bold; color: var(--neon); }
-        .orb small { font-size: 10px; letter-spacing: 1px; }
+        .orb { width: 125px; height: 125px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); margin: 15px auto; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; }
+        .bal-val { font-size: 26px; font-weight: bold; color: var(--neon); }
 
-        /* Stats Grid */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .s-box { background: var(--glass); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .s-box b { color: var(--neon); font-size: 16px; display: block; }
-        .s-box small { font-size: 11px; opacity: 0.8; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .s-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .s-box b { color: var(--neon); font-size: 15px; display: block; }
 
-        /* Buttons Grid */
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 12px; font-weight: bold; gap: 5px; transition: 0.3s; }
-        .btn-full { grid-column: span 2; background: linear-gradient(90deg, #00f0ff, #0072ff); color: #000; border: none; }
-        .btn i { font-size: 20px; }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: bold; }
+        .btn-full { grid-column: span 2; background: linear-gradient(90deg, #00f0ff, #0072ff); color: #000; border: none; font-size: 13px; }
+        .btn:disabled { opacity: 0.4; filter: grayscale(1); }
 
-        /* Cashout Modal */
-        #wModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #161b29; border: 2px solid var(--neon); padding: 20px; border-radius: 20px; width: 85%; display: none; z-index: 1000; }
-        #wModal input, #wModal select { width: 100%; padding: 12px; margin: 8px 0; background: #000; color: #fff; border: 1px solid #333; border-radius: 8px; box-sizing: border-box; }
-        
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--neon); color: #000; padding: 10px 20px; border-radius: 30px; display: none; font-weight: bold; z-index: 2000; box-shadow: 0 0 10px var(--neon); }
+        #wModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a2236; border: 2px solid var(--neon); padding: 20px; border-radius: 20px; width: 80%; display: none; z-index: 1000; }
+        #wModal input, #wModal select { width: 100%; padding: 10px; margin: 8px 0; background: #000; color: #fff; border: 1px solid #444; border-radius: 8px; box-sizing: border-box; }
+        #toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--neon); color: #000; padding: 10px 20px; border-radius: 25px; display: none; font-weight: bold; z-index: 2000; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="social">
-            <a href="https://www.facebook.com/share/1Lxkm78smE/"><i class="fab fa-facebook"></i></a>
-            <a href="https://t.me/ratulhossain56"><i class="fab fa-telegram"></i></a>
-            <a href="https://youtube.com/@alex-42-41?si=TZsqZNj0Gey4g5rq"><i class="fab fa-youtube"></i></a>
+            <a onclick="window.open('https://www.facebook.com/share/1Lxkm78smE/', '_blank')"><i class="fab fa-facebook"></i></a>
+            <a onclick="window.open('https://t.me/ratulhossain56', '_blank')"><i class="fab fa-telegram"></i></a>
+            <a onclick="window.open('https://youtube.com/@alex-42-41?si=TZsqZNj0Gey4g5rq', '_blank')"><i class="fab fa-youtube"></i></a>
         </div>
-        <div id="uName" style="font-size: 13px; font-weight: bold;">Ratul</div>
+        <div id="uName" style="font-size: 12px;">Loading...</div>
     </div>
 
     <div class="orb">
@@ -61,28 +50,27 @@
     </div>
 
     <div class="stat-grid">
-        <div class="s-box"><small>Monetag Daily</small><b id="dMonetag">0/20</b></div>
+        <div class="s-box"><small>Monetag Ads</small><b id="dMonetag">0/20</b></div>
         <div class="s-box"><small>Total Ad Count</small><b id="tMonetag">0</b></div>
         <div class="s-box" style="grid-column: span 2;"><small>Adsterra Task</small><b id="dAdsterra">0/10</b></div>
     </div>
 
     <div class="btn-grid">
-        <button class="btn" id="mBtn" onclick="runMonetag()"><i class="fas fa-play-circle"></i> MONETAG <span id="mT"></span></button>
+        <button class="btn" id="mBtn" onclick="runMonetag()"><i class="fas fa-play"></i> MONETAG <span id="mT"></span></button>
         <button class="btn" id="aBtn" onclick="runAdsterra()"><i class="fas fa-tasks"></i> DAILY TASK <span id="aT"></span></button>
         <button class="btn" onclick="copy('refer')"><i class="fas fa-user-plus"></i> REFER (+1 PT)</button>
         <button class="btn" onclick="openCashout()"><i class="fas fa-wallet"></i> CASHOUT</button>
-        <button class="btn btn-full" onclick="copy('monetag')"><i class="fas fa-copy"></i> MONETAG DIRECT LINK</button>
-        <button class="btn btn-full" style="background:#ff4757; color:white;" onclick="copy('adsterra')"><i class="fas fa-copy"></i> ADSTERRA DIRECT LINK</button>
+        <button class="btn btn-full" onclick="copy('monetag')"><i class="fas fa-link"></i> MONETAG DIRECT LINK</button>
+        <button class="btn btn-full" style="background:#ff4757; color:white;" onclick="copy('adsterra')"><i class="fas fa-link"></i> ADSTERRA DIRECT LINK</button>
     </div>
 
     <div id="wModal">
-        <h3 style="margin-top:0; text-align:center; color:var(--neon)">Withdrawal</h3>
-        <label>Payment Method:</label>
+        <h4 style="text-align:center; color:var(--neon)">Withdraw (Min 800)</h4>
         <select id="meth"><option>Bkash</option><option>Nagad</option><option>Rocket</option></select>
-        <input type="number" id="amt" placeholder="Enter Points">
+        <input type="number" id="amt" placeholder="Amount (800+)">
         <input type="text" id="num" placeholder="Account Number">
-        <button class="btn btn-full" style="width:100%; margin-top:10px;" onclick="submitWithdraw()">SUBMIT REQUEST</button>
-        <button onclick="closeCashout()" style="background:none; border:none; color:#ff4757; width:100%; margin-top:15px; font-weight:bold;">Cancel</button>
+        <button class="btn btn-full" style="width:100%;" onclick="submitWithdraw()">SUBMIT</button>
+        <button onclick="closeCashout()" style="background:none; border:none; color:#ff4757; width:100%; margin-top:10px;">Cancel</button>
     </div>
 
     <div id="toast"></div>
@@ -103,7 +91,6 @@
         const db = firebase.firestore();
         let uData = { balance:0, dailyMonetag:0, totalMonetag:0, dailyAdsterra:0 };
 
-        // Realtime Data Sync - No Undefined
         db.collection('users').doc(userId).onSnapshot(doc => {
             if(!doc.exists) return;
             uData = doc.data();
@@ -116,48 +103,60 @@
 
         function updateTimers() {
             const now = Date.now();
-            const mRem = 300 - Math.floor((now - (uData.lastMonetagTime || 0))/1000);
-            const aRem = 1200 - Math.floor((now - (uData.lastAdsterraTime || 0))/1000);
+            const mSec = 300 - Math.floor((now - (uData.lastMonetagTime || 0))/1000);
+            const aSec = 1200 - Math.floor((now - (uData.lastAdsterraTime || 0))/1000);
             
-            const mb = document.getElementById('mBtn');
-            if(mRem > 0 && uData.dailyMonetag < 20) { mb.disabled = true; document.getElementById('mT').innerText = `(${mRem}s)`; }
-            else { mb.disabled = (uData.dailyMonetag >= 20); document.getElementById('mT').innerText = uData.dailyMonetag >= 20 ? "(Full)" : ""; }
+            document.getElementById('mBtn').disabled = (mSec > 0 && uData.dailyMonetag < 20) || uData.dailyMonetag >= 20;
+            document.getElementById('mT').innerText = mSec > 0 && uData.dailyMonetag < 20 ? `(${mSec}s)` : (uData.dailyMonetag >= 20 ? "(Full)" : "");
 
-            const ab = document.getElementById('aBtn');
-            if(aRem > 0 && uData.dailyAdsterra < 10) { ab.disabled = true; document.getElementById('aT').innerText = `(${Math.ceil(aRem/60)}m)`; }
-            else { ab.disabled = (uData.dailyAdsterra >= 10); document.getElementById('aT').innerText = uData.dailyAdsterra >= 10 ? "(Full)" : ""; }
+            document.getElementById('aBtn').disabled = (aSec > 0 && uData.dailyAdsterra < 10) || uData.dailyAdsterra >= 10;
+            document.getElementById('aT').innerText = aSec > 0 && uData.dailyAdsterra < 10 ? `(${Math.ceil(aSec/60)}m)` : (uData.dailyAdsterra >= 10 ? "(Full)" : "");
         }
         setInterval(updateTimers, 1000);
 
         function runMonetag() {
-            if(window.show_10318378) show_10318378({ ymid: userId }).then(() => toast("Monetag Ad Finished!"));
+            if(window.show_10318378) {
+                show_10318378({ ymid: userId }).then(() => {
+                    db.collection('users').doc(userId).update({
+                        balance: firebase.firestore.FieldValue.increment(1),
+                        dailyMonetag: firebase.firestore.FieldValue.increment(1),
+                        totalMonetag: firebase.firestore.FieldValue.increment(1),
+                        lastMonetagTime: Date.now()
+                    });
+                    toast("Monetag Done! +1 PT");
+                });
+            }
         }
 
         function runAdsterra() {
             window.open("https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57", "_blank");
-            db.collection('users').doc(userId).update({ dailyAdsterra: firebase.firestore.FieldValue.increment(1), lastAdsterraTime: Date.now(), balance: firebase.firestore.FieldValue.increment(2) });
-            toast("Adsterra Task +2 PT!");
+            db.collection('users').doc(userId).update({
+                balance: firebase.firestore.FieldValue.increment(1),
+                dailyAdsterra: firebase.firestore.FieldValue.increment(1),
+                lastAdsterraTime: Date.now()
+            });
+            toast("Adsterra Done! +1 PT");
         }
 
         function copy(t) {
             let l = (t==='refer') ? `https://t.me/realldoler87ok_bot?start=${userId}` : (t==='monetag' ? "https://otieu.com/4/10315373" : "https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57");
-            navigator.clipboard.writeText(l); toast("Copied Successfully!");
+            navigator.clipboard.writeText(l); toast("Copied!");
         }
 
         function openCashout() { document.getElementById('wModal').style.display='block'; }
         function closeCashout() { document.getElementById('wModal').style.display='none'; }
-        
+
         async function submitWithdraw() {
             const amount = document.getElementById('amt').value;
             const number = document.getElementById('num').value;
             const method = document.getElementById('meth').value;
-            if(!amount || !number) return toast("Empty field!");
+            if(amount < 800) return toast("Minimum 800 Points!");
             const res = await fetch(`${BACKEND}/api/withdraw`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ userId, amount, number, method })
             });
-            if(res.ok) { toast("Request Sent!"); closeCashout(); } else { toast("Error/Low Points"); }
+            if(res.ok) { toast("Sent!"); closeCashout(); } else { toast("Low Balance!"); }
         }
 
         function toast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display='block'; setTimeout(()=>t.style.display='none', 3000); }
