@@ -15,7 +15,7 @@ const db = admin.firestore();
 
 const verify = (req, res, next) => {
     const data = req.headers['x-telegram-init-data'];
-    if(!data) return res.status(403).send("Unauthorized");
+    if(!data) return res.status(403).send("No Auth");
     const params = new URLSearchParams(data);
     req.tgUser = JSON.parse(params.get('user'));
     req.startParam = params.get('start_param');
@@ -43,7 +43,8 @@ app.post('/api/claim-reward', verify, async (req, res) => {
     const today = new Date().toISOString().slice(0, 10);
     const ref = db.collection('users').doc(uid);
     await db.runTransaction(async (t) => {
-        const d = (await t.get(ref)).data();
+        const doc = await t.get(ref);
+        const d = doc.data();
         const count = d.lastAdDate === today ? (d.adsToday || 0) : 0;
         if(count < 20) {
             t.update(ref, { 
@@ -61,11 +62,13 @@ app.post('/api/claim-adstar', verify, async (req, res) => {
     const today = new Date().toISOString().slice(0, 10);
     const ref = db.collection('users').doc(uid);
     await db.runTransaction(async (t) => {
-        const d = (await t.get(ref)).data();
+        const doc = await t.get(ref);
+        const d = doc.data();
         const count = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
         if(count < 10) {
             t.update(ref, { 
-                adstarToday: count + 1, lastAdstarDate: today, 
+                adstarToday: count + 1, 
+                lastAdstarDate: today, 
                 lastAdstarTime: admin.firestore.FieldValue.serverTimestamp() 
             });
         }
