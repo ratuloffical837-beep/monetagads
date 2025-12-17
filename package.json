@@ -1,7 +1,6 @@
 {
-  "name": "monetag-adstar-final-pro",
-  "version": "7.0.0",
-  "description": "Perfect Logic with Persistent Timers",
+  "name": "monetag-adstar-smart-logic",
+  "version": "9.0.0",
   "main": "server.js",
   "scripts": { "start": "node server.js" },
   "dependencies": {
