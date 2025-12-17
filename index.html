@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Earning Pro</title>
+    <title>Neon Earning Master</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -19,11 +19,12 @@
         .s-btn { width: 35px; height: 35px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; }
         .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 12px; padding: 5px 0; margin: 10px 0; border-bottom: 1px solid var(--neon); }
         .orb { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 15px 0; }
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 20px; }
-        .s-box { background: var(--glass); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; }
+        .s-box { background: var(--glass); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .s-box small { font-size: 10px; opacity: 0.7; }
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
         .btn { padding: 15px 5px; border-radius: 12px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 12px; }
-        .btn-disabled { opacity: 0.5; pointer-events: none !important; filter: grayscale(1); }
+        .btn-disabled { opacity: 0.4; pointer-events: none !important; filter: grayscale(1); }
         #toast { position: fixed; bottom: 20px; background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; border: 1px solid var(--neon); z-index: 999; }
     </style>
 </head>
@@ -37,18 +38,20 @@
             <div class="s-btn" onclick="copyL('https://otieu.com/4/10315373', 'Monetag')"><i class="fas fa-link"></i></div>
             <div class="s-btn" onclick="copyL('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57', 'Adstar')"><i class="fas fa-copy"></i></div>
         </div>
-        <div style="font-size: 11px; text-align: right;">Hello, <span id="uName" style="color:var(--neon)">USER</span></div>
+        <div style="font-size: 11px; text-align: right;">Hello, <br><span id="uName" style="color:var(--neon); font-weight:bold;">USER</span></div>
     </div>
 
     <div class="notice">
-        <marquee>🔔 অ্যাড দেখা শেষ হলে তবেই টাইমার শুরু হবে। ২০ মিনিট পর আবার অ্যাড দেখতে পারবেন। রিলোড দিলে টাইমার রিসেট হবে না।</marquee>
+        <marquee>🔔 ৩ জন রেফার করলে পেমেন্ট পাবেন। টোটাল অ্যাড এবং রেফার কাউন্ট ঠিকভাবে কাজ করছে।</marquee>
     </div>
 
     <div class="orb"><span style="font-size:35px; font-weight:bold" id="pDisp">0</span><small>POINTS</small></div>
 
     <div class="stats">
-        <div class="s-box"><small>Monetag Ads</small><br><strong id="mCount">0/20</strong></div>
+        <div class="s-box"><small>Monetag Today</small><br><strong id="mCount">0/20</strong></div>
         <div class="s-box"><small>Adstar Today</small><br><strong id="aCount">0/10</strong></div>
+        <div class="s-box"><small>Total Ads</small><br><strong id="tCount">0</strong></div>
+        <div class="s-box"><small>Total Refer</small><br><strong id="rCount">0</strong></div>
     </div>
 
     <div class="btn-grid">
@@ -57,6 +60,10 @@
         <button class="btn" onclick="doWithdraw()"><i class="fas fa-wallet"></i>WITHDRAW</button>
         <button class="btn" onclick="doRefer()"><i class="fas fa-users"></i>REFER EARN</button>
     </div>
+
+    <button class="btn" style="width:100%; margin-top:15px; background:rgba(255, 59, 48, 0.2); border-color:#ff3b30;" onclick="tg.close()">
+        <i class="fas fa-power-off"></i> EXIT APP
+    </button>
 
     <div id="toast">Notice</div>
 
@@ -85,40 +92,42 @@
             if(doc.exists) {
                 const d = doc.data();
                 document.getElementById('pDisp').innerText = d.coins || 0;
-                const today = new Date().toISOString().slice(0, 10);
-                const mC = d.lastAdDate === today ? (d.adsToday || 0) : 0;
-                const aC = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
-                document.getElementById('mCount').innerText = `${mC}/20`;
-                document.getElementById('aCount').innerText = `${aC}/10`;
+                document.getElementById('rCount').innerText = d.referrals || 0;
                 
-                checkCooldowns(d.lastAdTime, d.lastAdstarTime, mC, aC);
+                const today = new Date().toISOString().slice(0, 10);
+                const mToday = d.lastAdDate === today ? (d.adsToday || 0) : 0;
+                const aToday = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
+                
+                document.getElementById('mCount').innerText = `${mToday}/20`;
+                document.getElementById('aCount').innerText = `${aToday}/10`;
+                document.getElementById('tCount').innerText = (d.totalAdsWatched || 0);
+                
+                checkTimers(d.lastAdTime, d.lastAdstarTime, mToday, aToday);
             }
         });
 
-        function checkCooldowns(mLast, aLast, mC, aC) {
+        function checkTimers(mLast, aLast, mC, aC) {
             const now = Date.now();
             clearInterval(timers.m); clearInterval(timers.a);
             
-            // Monetag Timer Logic
             const mb = document.getElementById('mBtn'), mt = document.getElementById('mText');
             if(mC >= 20) { mb.classList.add('btn-disabled'); mt.innerText = "LIMIT REACHED"; }
             else {
                 const diff = mLast ? (now - mLast.toDate().getTime()) / 1000 : 99999;
-                if(diff < 300) timers.m = startTimer(mb, mt, 300 - diff, "MONETAG AD");
+                if(diff < 300) timers.m = startT(mb, mt, 300 - diff, "MONETAG AD");
                 else { mb.classList.remove('btn-disabled'); mt.innerText = "MONETAG AD"; }
             }
 
-            // Adstar Timer Logic
             const ab = document.getElementById('aBtn'), at = document.getElementById('aText');
             if(aC >= 10) { ab.classList.add('btn-disabled'); at.innerText = "LIMIT REACHED"; }
             else {
                 const diff = aLast ? (now - aLast.toDate().getTime()) / 1000 : 99999;
-                if(diff < 1200) timers.a = startTimer(ab, at, 1200 - diff, "ADSTAR AD");
+                if(diff < 1200) timers.a = startT(ab, at, 1200 - diff, "ADSTAR AD");
                 else { ab.classList.remove('btn-disabled'); at.innerText = "ADSTAR AD"; }
             }
         }
 
-        function startTimer(btn, txt, sec, orig) {
+        function startT(btn, txt, sec, orig) {
             btn.classList.add('btn-disabled');
             let s = Math.floor(sec);
             return setInterval(() => {
@@ -132,23 +141,21 @@
             if(typeof show_10318378 === 'function') {
                 show_10318378({ymid: uid}).then(() => {
                     fetch(`${BACKEND}/api/claim-reward`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
-                    showToast("Ad Counted! 5m wait started.");
+                    showToast("Ad Success! +1 Point");
                 });
             }
         }
 
-        async function watchA() {
-            // ১. আগে অ্যাড লিঙ্ক ওপেন হবে
+        function watchA() {
             window.open(ADSTAR_URL, '_blank');
-            // ২. সার্ভারে রিকোয়েস্ট যাবে যে অ্যাড ওপেন হয়েছে, এখন কাউন্ট করো এবং টাইমার শুরু করো
-            const res = await fetch(`${BACKEND}/api/claim-adstar`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
-            if(res.ok) showToast("Ad Opened! Cooldown started.");
+            fetch(`${BACKEND}/api/claim-adstar`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
+            showToast("Ad Counted! Cooldown started.");
         }
 
         function copyL(l, n) { navigator.clipboard.writeText(l); showToast(n + " Copied!"); }
         function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.visibility = 'visible'; setTimeout(()=>t.style.visibility='hidden',3000); }
         function doRefer() { navigator.clipboard.writeText(`https://t.me/realldoler87ok_bot?start=${uid}`); showToast("Referral Link Copied!"); }
-        function doWithdraw() { showToast("Need 600 Pts & 3 Ref."); }
+        function doWithdraw() { showToast("Need 600 Pts & 3 Referrals."); }
 
         fetch(`${BACKEND}/api/sync`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
     </script>
