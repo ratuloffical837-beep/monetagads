@@ -1,7 +1,7 @@
 {
-  "name": "monetag-ads-earner",
-  "version": "2.0.0",
-  "description": "Secure Telegram Mini App Backend",
+  "name": "monetag-adstar-neon-v3",
+  "version": "3.1.0",
+  "description": "Futuristic Neon App with Adstar & Monetag",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
