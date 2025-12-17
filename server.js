@@ -1,7 +1,7 @@
-// server.js (FINAL CORRECTED v8 - Firebase Admin SDK Fix)
+// server.js (SECURE ARCHITECTURE - Postback ONLY)
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors'); // Fixed typo: const cors = require = require('cors'); to const cors = require('cors');
+const cors = require('cors');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 const path = require('path');
@@ -13,45 +13,36 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// --- FIREBASE CONFIGURATION (CRITICAL FIX APPLIED) ---
+// --- FIREBASE CONFIGURATION ---
 let serviceAccount;
-let db; // Declare db here
+let db; 
 try {
     if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-        // 1. Decode Base64 string to JSON object
         const jsonString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8');
         serviceAccount = JSON.parse(jsonString);
     } 
     
     if (serviceAccount && serviceAccount.project_id) {
-        // 2. Initialize Firebase Admin SDK (Using .cert to fix the error)
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
             databaseURL: `https://${serviceAccount.project_id}.firebaseio.com` 
         });
-        
-        // 3. Get Firestore instance (Using the correct method)
         db = admin.firestore();
-        
         console.log("✅ Firebase Admin Initialized and Firestore Connected successfully.");
     } else {
         console.error("❌ FATAL: Firebase Admin SDK failed initialization. Check FIREBASE_SERVICE_ACCOUNT_BASE64 env var.");
-        // If it fails, db will be undefined, which might cause errors later.
     }
 
 } catch (e) {
-    console.error("❌ Firebase Config Error (Check JSON format in Base64):", e.message);
-    // console.error(e); // Uncomment this line if the error persists
+    console.error("❌ Firebase Config Error:", e.message);
 }
 
-
-// --- SECURITY CONSTANTS ---
+// --- CONSTANTS ---
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID; 
 
-// --- TELEGRAM AUTH MIDDLEWARE (Integrity Check) ---
+// --- TELEGRAM AUTH MIDDLEWARE ---
 const verifyTelegram = (req, res, next) => {
-    // Before proceeding, check if DB is initialized
     if (!db) return res.status(500).json({ error: "Server Initialization Error (Database Down)" });
 
     const initData = req.headers['x-telegram-init-data'];
@@ -80,8 +71,6 @@ const verifyTelegram = (req, res, next) => {
     }
 };
 
-// ... (Rest of the server.js remains the same)
-
 // --- TELEGRAM MESSAGE HELPER ---
 async function sendTelegramMessage(chatId, text) {
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -101,15 +90,14 @@ async function sendTelegramMessage(chatId, text) {
 }
 
 
-// --- CORE POSTBACK HANDLER (Monetag Secure Point) ---
+// --- CORE MONETAG POSTBACK HANDLER (The ONLY balance increaser) ---
 app.get('/api/monetag-callback', async (req, res) => {
-    // Check if db is available
     if (!db) return res.status(500).send('Server Database Not Ready');
 
     const { 
         telegram_id, 
         reward_event_type, 
-        ymid, 
+        ymid: transactionId, 
         value: reward_type_alt
     } = req.query;
 
@@ -117,19 +105,19 @@ app.get('/api/monetag-callback', async (req, res) => {
     const finalRewardType = reward_event_type || reward_type_alt; 
     
     const uid = String(finalTgid); 
-    const transactionId = String(ymid);
     
-    // Check if the event is valued
     if (!uid || !transactionId || (finalRewardType !== 'yes' && finalRewardType !== 'valued')) {
-        return res.status(200).send('Ignored: Not a valued event.');
+        return res.status(200).send('ignored: Not a valued event.');
     }
     
+    // Check for duplicate transaction
     const transactionRef = db.collection('monetag_rewards').doc(transactionId);
     try {
         await db.runTransaction(async (t) => {
             const doc = await t.get(transactionRef);
 
             if (doc.exists) {
+                console.log(`❌ Monetag Postback Duplicate TXID: ${transactionId} for user ${uid}`);
                 return; // Duplicate transaction ignored
             }
 
@@ -144,13 +132,15 @@ app.get('/api/monetag-callback', async (req, res) => {
             // REWARD USER WITH 1 VALID COIN (SECURE POSTBACK POINT)
             const userRef = db.collection('users').doc(uid);
             t.update(userRef, {
-                validCoins: admin.firestore.FieldValue.increment(1), 
+                balance: admin.firestore.FieldValue.increment(1), 
+                totalAdsWatched: admin.firestore.FieldValue.increment(1), // Total count
+                lastAdTime: admin.firestore.FieldValue.serverTimestamp()
             });
 
-            console.log(`✅ Monetag Postback Success: Secure Coin given to user ${uid}.`);
+            console.log(`✅ Monetag Postback Success: +1 Point added to ${uid} (TXID: ${transactionId}).`);
         });
 
-        res.status(200).send('OK'); 
+        res.status(200).send('ok'); 
 
     } catch (e) {
         console.error("Monetag Postback DB Error:", e);
@@ -159,7 +149,7 @@ app.get('/api/monetag-callback', async (req, res) => {
 });
 
 
-// 1. Sync User & Handle Referrals (POWERFUL REFERRAL COUNT)
+// 1. Sync User & Handle Referrals (Backend ONLY Referral Logic)
 app.post('/api/sync', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
     const startParam = req.startParam; 
@@ -175,24 +165,27 @@ app.post('/api/sync', verifyTelegram, async (req, res) => {
                     userId: uid,
                     firstName: req.tgUser.first_name,
                     username: req.tgUser.username || '',
-                    coins: 0, 
-                    validCoins: 0, 
-                    totalAdsWatched: 0,
+                    balance: 0, 
                     referrals: 0,
+                    totalAdsWatched: 0,
+                    referred: false, // New field to prevent multiple referral rewards
                     joinedAt: admin.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Check for referral and reward referrer immediately
+                // Check for referral and reward referrer (if not self-referred and not already referred)
                 if (startParam && String(startParam) !== uid) {
                     const referrerId = String(startParam);
                     const referrerRef = db.collection('users').doc(referrerId);
                     const referrerDoc = await t.get(referrerRef);
                     
-                    if (referrerDoc.exists) {
+                    if (referrerDoc.exists && !doc.exists) { 
+                        // Reward referrer for the first time
                         t.update(referrerRef, {
-                            coins: admin.firestore.FieldValue.increment(1), 
-                            referrals: admin.firestore.FieldValue.increment(1) 
+                            balance: admin.firestore.FieldValue.increment(1), // +1 Point for referrer
+                            referrals: admin.firestore.FieldValue.increment(1) // Ref count
                         });
+                        // Mark new user as referred (though this user doc is set above, good practice)
+                        t.update(userRef, { referred: true }); 
                         console.log(`✅ Referral Success: User ${uid} referred by ${referrerId}. +1 Point added.`);
                     } 
                 }
@@ -204,34 +197,7 @@ app.post('/api/sync', verifyTelegram, async (req, res) => {
     }
 });
 
-// 2. Front-end Claim (IMMEDIATE UNSECURE POINT ADDITION & AD COUNT)
-app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
-    const uid = String(req.tgUser.id);
-    const userRef = db.collection('users').doc(uid);
-    const today = new Date().toISOString().slice(0, 10);
-
-    try {
-        await db.runTransaction(async (t) => {
-            const doc = await t.get(userRef);
-            if (!doc.exists) throw "User not found";
-            
-            // Increment Unsecure Coin and Ad Counts
-            t.update(userRef, {
-                coins: admin.firestore.FieldValue.increment(1), 
-                totalAdsWatched: admin.firestore.FieldValue.increment(1),
-                lastAdTime: admin.firestore.FieldValue.serverTimestamp(),
-                lastAdDate: today,
-                adsToday: admin.firestore.FieldValue.increment(1) 
-            });
-        });
-        res.json({ success: true, reward: 1 }); 
-    } catch (e) {
-        res.status(500).json({ error: 'Transaction Failed' });
-    }
-});
-
-
-// 3. Withdraw Request
+// 2. Withdraw Request (Uses the single 'balance' field)
 app.post('/api/withdraw', verifyTelegram, async (req, res) => {
     const uid = String(req.tgUser.id);
     const username = req.tgUser.username || 'N/A';
@@ -251,7 +217,7 @@ app.post('/api/withdraw', verifyTelegram, async (req, res) => {
             if (!doc.exists) throw "User not found";
             
             const data = doc.data();
-            const balance = data.coins || 0; 
+            const balance = data.balance || 0; 
             const refCount = data.referrals || 0;
 
             if (balance < MIN_POINTS) throw `Minimum ${MIN_POINTS} Points required`;
@@ -259,9 +225,9 @@ app.post('/api/withdraw', verifyTelegram, async (req, res) => {
             if (amountPoints > balance) throw "Insufficient Balance";
             if (amountPoints <= 0) throw "Invalid Amount";
 
-            // Deduct Points from UNSECURE COINS
+            // Deduct Points from single BALANCE
             t.update(userRef, {
-                coins: admin.firestore.FieldValue.increment(-amountPoints)
+                balance: admin.firestore.FieldValue.increment(-amountPoints)
             });
 
             // Create Withdrawal Record
@@ -304,7 +270,7 @@ _Please check the Admin Panel to approve._`;
 });
 
 
-// 4. Admin and Default Routes
+// 3. Admin and Default Routes
 app.get('/admin', (req, res) => res.send('Admin Panel Not Configured.'));
 app.post('/admin/login', (req, res) => res.status(404).send('Not Found'));
 app.get('/admin/withdrawals', (req, res) => res.status(404).send('Not Found'));
