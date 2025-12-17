@@ -1,16 +1,11 @@
 {
-  "name": "monetag-adstar-fixed-v4",
-  "version": "4.0.0",
-  "description": "Fixed Cooldown and Limit Logic",
+  "name": "monetag-adstar-final-pro",
+  "version": "7.0.0",
+  "description": "Perfect Logic with Persistent Timers",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
+  "scripts": { "start": "node server.js" },
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "firebase-admin": "^12.0.0",
-    "node-fetch": "^3.3.2"
+    "cors": "^2.8.5", "dotenv": "^16.4.5", "express": "^4.19.2",
+    "firebase-admin": "^12.0.0", "node-fetch": "^3.3.2"
   }
 }
