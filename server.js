@@ -1,323 +1,82 @@
-// server.js (FINAL v6 - Telegram Notification for Withdrawals)
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
-const crypto = require('crypto');
-const path = require('path');
-const fetch = require('node-fetch'); // Required for sending Telegram messages
 
 const app = express();
-app.use(cors({ origin: '*' })); 
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// --- CONFIGURATION ---
-let serviceAccount;
-try {
-    if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-        const jsonString = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf-8');
-        serviceAccount = JSON.parse(jsonString);
-    } 
-    
-    if (serviceAccount) {
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-            databaseURL: `https://${serviceAccount.project_id}.firebaseio.com` 
-        });
-        console.log("Firebase Admin Initialized.");
-    } else {
-        console.error("FATAL: Firebase Admin SDK could not initialize. Check FIREBASE_SERVICE_ACCOUNT_BASE64.");
-    }
-
-} catch (e) {
-    console.error("Firebase Config Error:", e.message);
+if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+    const sa = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString());
+    admin.initializeApp({ credential: admin.credential.cert(sa) });
 }
-
 const db = admin.firestore();
 
-// --- SECURITY CONSTANTS (Set these in your Render Environment Variables) ---
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Ratulhossain123@$&'; 
-const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID; // Your ID: 8144732556
-
-// --- TELEGRAM AUTH MIDDLEWARE (Integrity Check) ---
-const verifyTelegram = (req, res, next) => {
-    const initData = req.headers['x-telegram-init-data'];
-    if (!initData || !BOT_TOKEN) return res.status(403).json({ error: "Integrity Failed: Missing Token or Data" });
-    try {
-        const urlParams = new URLSearchParams(initData);
-        const hash = urlParams.get('hash');
-        urlParams.delete('hash');
-        const dataToCheck = [...urlParams.entries()].map(([key, val]) => `${key}=${val}`).sort().join('\n');
-        
-        const secretKey = crypto.createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest();
-        const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataToCheck).digest('hex');
-
-        if (calculatedHash !== hash) return res.status(403).json({ error: "Integrity Failed: Invalid Auth Token or Data" });
-        
-        const userJson = urlParams.get('user');
-        if (!userJson) return res.status(403).json({ error: "Integrity Failed: Missing user data" });
-        req.tgUser = JSON.parse(userJson);
-        
-        req.startParam = urlParams.get('start_param') || null;
-
-        next();
-    } catch (e) {
-        console.error("Auth Error:", e);
-        return res.status(403).json({ error: "Integrity Failed: Malformed Data" });
-    }
+const verify = (req, res, next) => {
+    const data = req.headers['x-telegram-init-data'];
+    if(!data) return res.status(403).send("No Auth");
+    const params = new URLSearchParams(data);
+    req.tgUser = JSON.parse(params.get('user'));
+    req.startParam = params.get('start_param');
+    next();
 };
 
-// --- NEW FUNCTION TO SEND TELEGRAM MESSAGE ---
-async function sendTelegramMessage(chatId, text) {
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: text,
-                parse_mode: 'Markdown' 
-            })
-        });
-
-        const data = await response.json();
-        if (!data.ok) {
-            console.error("Telegram API Error:", data.description);
-        }
-    } catch (error) {
-        console.error("Failed to send Telegram message:", error);
-    }
-}
-
-
-// --- CORE POSTBACK HANDLER FUNCTION (SECURE POINT COUNTING) ---
-async function handleMonetagPostback(req, res) {
-    // Collect all macros from the URL
-    const { 
-        telegram_id, 
-        reward_event_type, 
-        ymid, 
-        value: reward_type_alt // Alternate field for reward status
-    } = req.query;
-
-    const finalTgid = telegram_id;
-    const finalRewardType = reward_event_type || reward_type_alt; 
-    
-    // 1. Validate essential parameters and reward status
-    const uid = String(finalTgid); 
-    const transactionId = String(ymid);
-    
-    // Only reward if Monetag confirms it was a paid event ('yes' or 'valued')
-    if (!uid || !transactionId || (finalRewardType !== 'yes' && finalRewardType !== 'valued')) {
-        return res.status(200).send('Ignored: Not a valued event.');
-    }
-    
-    // 2. Prevent duplicate transactions (ymid acts as transaction ID)
-    const transactionRef = db.collection('monetag_rewards').doc(transactionId);
-    try {
-        await db.runTransaction(async (t) => {
-            const doc = await t.get(transactionRef);
-
-            if (doc.exists) {
-                console.log(`Duplicate transaction ignored: ${transactionId}`);
-                return; 
-            }
-
-            // Record transaction
-            t.set(transactionRef, {
-                timestamp: admin.firestore.FieldValue.serverTimestamp(),
-                userId: uid,
-                source: req.originalUrl,
-                rewardType: finalRewardType 
-            });
-
-            // *** REWARD USER WITH 1 VALID COIN (SECURE POSTBACK POINT) ***
-            const userRef = db.collection('users').doc(uid);
-            t.update(userRef, {
-                validCoins: admin.firestore.FieldValue.increment(1), 
-            });
-
-            console.log(`✅ Postback Success: Secure Coin given to user ${uid}.`);
-        });
-
-        res.status(200).send('OK'); 
-
-    } catch (e) {
-        console.error("Monetag Postback DB Error:", e);
-        res.status(500).send('Server Error');
-    }
-}
-
-
-// --- API ROUTES ---
-
-app.get('/api/monetag-callback', handleMonetagPostback); 
-
-
-// 1. Sync User & Handle Referrals 
-app.post('/api/sync', verifyTelegram, async (req, res) => {
+app.post('/api/sync', verify, async (req, res) => {
     const uid = String(req.tgUser.id);
-    const startParam = req.startParam; 
     const userRef = db.collection('users').doc(uid);
-    
-    try {
-        await db.runTransaction(async (t) => {
-            const doc = await t.get(userRef);
-            
-            if (!doc.exists) {
-                // User is new: Create user profile
-                t.set(userRef, {
-                    userId: uid,
-                    firstName: req.tgUser.first_name,
-                    username: req.tgUser.username || '',
-                    coins: 0, 
-                    validCoins: 0, 
-                    totalAdsWatched: 0,
-                    referrals: 0,
-                    joinedAt: admin.firestore.FieldValue.serverTimestamp()
-                });
-
-                // Check for referral
-                if (startParam && String(startParam) !== uid) {
-                    const referrerId = String(startParam);
-                    const referrerRef = db.collection('users').doc(referrerId);
-                    const referrerDoc = await t.get(referrerRef);
-                    
-                    if (referrerDoc.exists) {
-                        t.update(referrerRef, {
-                            coins: admin.firestore.FieldValue.increment(1), // Referrer gets +1 Withdrawal Point
-                            referrals: admin.firestore.FieldValue.increment(1) // Referrer gets +1 Count
-                        });
-                    }
-                }
-            }
+    const doc = await userRef.get();
+    if(!doc.exists){
+        await userRef.set({
+            userId: uid, coins: 0, referrals: 0, totalAdsWatched: 0,
+            adsToday: 0, adstarToday: 0, joinedAt: admin.firestore.FieldValue.serverTimestamp()
         });
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ error: 'Database Sync Error' });
+        if(req.startParam && req.startParam !== uid){
+            await db.collection('users').doc(String(req.startParam)).update({
+                referrals: admin.firestore.FieldValue.increment(1),
+                coins: admin.firestore.FieldValue.increment(1)
+            });
+        }
     }
+    res.send({ok: true});
 });
 
-// 2. Front-end Claim (IMMEDIATE UNSECURE POINT ADDITION & AD COUNT)
-app.post('/api/claim-reward', verifyTelegram, async (req, res) => {
+app.post('/api/claim-reward', verify, async (req, res) => {
     const uid = String(req.tgUser.id);
-    const userRef = db.collection('users').doc(uid);
-    const today = new Date().toISOString().slice(0, 10);
-
-    try {
-        await db.runTransaction(async (t) => {
-            const doc = await t.get(userRef);
-            if (!doc.exists) throw "User not found";
-            
-            t.update(userRef, {
-                coins: admin.firestore.FieldValue.increment(1), // Unsecure point
+    const today = new Date().toISOString().slice(0,10);
+    const ref = db.collection('users').doc(uid);
+    await db.runTransaction(async (t) => {
+        const d = (await t.get(ref)).data();
+        const count = d.lastAdDate === today ? (d.adsToday || 0) : 0;
+        if(count < 20) {
+            t.update(ref, {
+                coins: admin.firestore.FieldValue.increment(1),
                 totalAdsWatched: admin.firestore.FieldValue.increment(1),
-                lastAdTime: admin.firestore.FieldValue.serverTimestamp(),
+                adsToday: count + 1,
                 lastAdDate: today,
-                adsToday: admin.firestore.FieldValue.increment(1) 
+                lastAdTime: admin.firestore.FieldValue.serverTimestamp()
             });
-        });
-        res.json({ success: true, reward: 1 }); 
-    } catch (e) {
-        res.status(500).json({ error: 'Transaction Failed' });
-    }
-});
-
-// 3. Withdraw Request (UPDATED: Sends Notification to Telegram Admin)
-app.post('/api/withdraw', verifyTelegram, async (req, res) => {
-    const uid = String(req.tgUser.id);
-    const username = req.tgUser.username || 'N/A';
-    const firstName = req.tgUser.first_name || 'User';
-
-    const { method, number, amountPoints } = req.body;
-    const userRef = db.collection('users').doc(uid);
-
-    const MIN_POINTS = 600; 
-    const MIN_REFERRALS = 10; 
-
-    
-    try {
-        let isWithdrawSuccessful = false;
-        
-        await db.runTransaction(async (t) => {
-            const doc = await t.get(userRef);
-            if (!doc.exists) throw "User not found";
-            
-            const data = doc.data();
-            const balance = data.coins || 0; 
-            const refCount = data.referrals || 0;
-
-            if (balance < MIN_POINTS) throw `Minimum ${MIN_POINTS} Points required`;
-            if (refCount < MIN_REFERRALS) throw `Minimum ${MIN_REFERRALS} Referrals required`;
-            if (amountPoints > balance) throw "Insufficient Balance";
-            if (amountPoints <= 0) throw "Invalid Amount";
-
-            // Deduct Points from UNSECURE COINS
-            t.update(userRef, {
-                coins: admin.firestore.FieldValue.increment(-amountPoints)
-            });
-
-            // Create Withdrawal Record
-            const withdrawRef = db.collection('withdrawals').doc();
-            t.set(withdrawRef, {
-                userId: uid,
-                username: username,
-                firstName: firstName,
-                amountPoints: parseInt(amountPoints),
-                method: method,
-                number: number,
-                status: 'pending',
-                timestamp: admin.firestore.FieldValue.serverTimestamp()
-            });
-            
-            isWithdrawSuccessful = true;
-        });
-
-        // --- SEND TELEGRAM NOTIFICATION (OUTSIDE TRANSACTION) ---
-        if (isWithdrawSuccessful && ADMIN_CHAT_ID && BOT_TOKEN) {
-            const message = 
-`🔔 **NEW WITHDRAWAL REQUEST** 🔔
-----------------------------------
-👤 **Name:** ${firstName}
-🆔 **ID/Username:** \`${uid}\` (@${username})
-💰 **Amount:** ${amountPoints} Points
-💳 **Method:** ${method}
-📞 **Number:** \`${number}\`
-----------------------------------
-_You can check the Admin Panel to approve._`;
-
-            await sendTelegramMessage(ADMIN_CHAT_ID, message);
         }
-
-        res.json({ success: true });
-    } catch (e) {
-        const isLogicError = typeof e === 'string';
-        res.status(isLogicError ? 400 : 500).json({ error: isLogicError ? e : 'Withdrawal Processing Error' });
-    }
+    });
+    res.send({ok: true});
 });
 
-
-// --- ADMIN ROUTES (Keep this section, it is required for /admin to work) ---
-app.get('/admin', (req, res) => {
-    // ... (Admin Login HTML)
+app.post('/api/claim-adstar', verify, async (req, res) => {
+    const uid = String(req.tgUser.id);
+    const today = new Date().toISOString().slice(0,10);
+    const ref = db.collection('users').doc(uid);
+    await db.runTransaction(async (t) => {
+        const d = (await t.get(ref)).data();
+        const count = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
+        if(count < 10) {
+            t.update(ref, {
+                adstarToday: count + 1,
+                lastAdstarDate: today,
+                lastAdstarTime: admin.firestore.FieldValue.serverTimestamp()
+            });
+        }
+    });
+    res.send({ok: true});
 });
 
-app.post('/admin/login', (req, res) => {
-    // ... (Admin Login Logic)
-});
-
-app.get('/admin/withdrawals', async (req, res) => {
-    // ... (Admin Withdrawal View Logic)
-});
-
-app.post('/admin/action', async (req, res) => {
-    // ... (Admin Action Logic)
-});
-
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(process.env.PORT || 3000);
