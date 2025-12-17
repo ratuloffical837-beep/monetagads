@@ -27,7 +27,7 @@ app.post('/api/sync', verify, async (req, res) => {
     const userRef = db.collection('users').doc(uid);
     const doc = await userRef.get();
     if(!doc.exists) {
-        await userRef.set({ userId: uid, coins: 0, referrals: 0, adsToday: 0, adstarToday: 0 });
+        await userRef.set({ userId: uid, coins: 0, referrals: 0, totalAdsWatched: 0, adsToday: 0, adstarToday: 0 });
         if(req.startParam && req.startParam !== uid) {
             await db.collection('users').doc(String(req.startParam)).update({ 
                 referrals: admin.firestore.FieldValue.increment(1), 
@@ -49,6 +49,7 @@ app.post('/api/claim-reward', verify, async (req, res) => {
         if(count < 20) {
             t.update(ref, { 
                 coins: admin.firestore.FieldValue.increment(1), 
+                totalAdsWatched: admin.firestore.FieldValue.increment(1),
                 adsToday: count + 1, lastAdDate: today, 
                 lastAdTime: admin.firestore.FieldValue.serverTimestamp() 
             });
@@ -67,6 +68,7 @@ app.post('/api/claim-adstar', verify, async (req, res) => {
         const count = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
         if(count < 10) {
             t.update(ref, { 
+                totalAdsWatched: admin.firestore.FieldValue.increment(1),
                 adstarToday: count + 1, 
                 lastAdstarDate: today, 
                 lastAdstarTime: admin.firestore.FieldValue.serverTimestamp() 
