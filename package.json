@@ -1,6 +1,6 @@
 {
-  "name": "monetag-adstar-smart-logic",
-  "version": "9.0.0",
+  "name": "monetag-adstar-complete-v10",
+  "version": "10.0.0",
   "main": "server.js",
   "scripts": { "start": "node server.js" },
   "dependencies": {
