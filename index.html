@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monetas Pro</title>
+    <title>Earn Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -15,15 +15,15 @@
         body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 15px; }
         .header { display: flex; justify-content: space-between; align-items: center; }
         .social a { color: white; margin-right: 15px; font-size: 22px; cursor: pointer; }
-        .orb { width: 125px; height: 125px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); margin: 15px auto; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; }
+        .orb { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); margin: 15px auto; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; }
         .bal-val { font-size: 26px; font-weight: bold; color: var(--neon); }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .s-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .s-box b { color: var(--neon); font-size: 15px; display: block; }
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; color: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: bold; }
-        .btn-full { grid-column: span 2; background: linear-gradient(90deg, #00f0ff, #0072ff); color: #000; border: none; font-size: 13px; }
-        .btn:disabled { opacity: 0.4; filter: grayscale(1); }
+        .btn-full { grid-column: span 2; background: linear-gradient(90deg, #00f0ff, #0072ff); color: #000; border: none; }
+        .btn:disabled { opacity: 0.3; filter: grayscale(1); cursor: not-allowed; }
         #wModal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a2236; border: 2px solid var(--neon); padding: 20px; border-radius: 20px; width: 80%; display: none; z-index: 1000; }
         #wModal input, #wModal select { width: 100%; padding: 10px; margin: 8px 0; background: #000; color: #fff; border: 1px solid #444; border-radius: 8px; box-sizing: border-box; }
         #toast { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: var(--neon); color: #000; padding: 10px 20px; border-radius: 25px; display: none; font-weight: bold; z-index: 2000; }
@@ -56,15 +56,15 @@
         <button class="btn" id="aBtn" onclick="runAdsterra()"><i class="fas fa-tasks"></i> DAILY TASK <span id="aT"></span></button>
         <button class="btn" onclick="copy('refer')"><i class="fas fa-user-plus"></i> REFER (+1 PT)</button>
         <button class="btn" onclick="openCashout()"><i class="fas fa-wallet"></i> CASHOUT</button>
-        <button class="btn btn-full" onclick="copy('monetag')"><i class="fas fa-link"></i> MONETAG DIRECT LINK</button>
-        <button class="btn btn-full" style="background:#ff4757; color:white;" onclick="copy('adsterra')"><i class="fas fa-link"></i> ADSTERRA DIRECT LINK</button>
+        <button class="btn btn-full" onclick="copy('monetag')"><i class="fas fa-link"></i> DIRECT LINK 1</button>
+        <button class="btn btn-full" style="background:#ff4757; color:white;" onclick="copy('adsterra')"><i class="fas fa-link"></i> DIRECT LINK 2</button>
     </div>
 
     <div id="wModal">
-        <h4 style="text-align:center; color:var(--neon)">Withdraw (Min 800)</h4>
+        <h4 style="text-align:center; margin:0 0 10px 0;">Withdraw (Min 800)</h4>
         <select id="meth"><option>Bkash</option><option>Nagad</option><option>Rocket</option></select>
-        <input type="number" id="amt" placeholder="Amount (800+)">
-        <input type="text" id="num" placeholder="Account Number">
+        <input type="number" id="amt" placeholder="Points (800+)">
+        <input type="text" id="num" placeholder="Number">
         <button class="btn btn-full" style="width:100%;" onclick="submitWithdraw()">SUBMIT</button>
         <button onclick="closeCashout()" style="background:none; border:none; color:#ff4757; width:100%; margin-top:10px;">Cancel</button>
     </div>
@@ -85,56 +85,82 @@
             appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
         });
         const db = firebase.firestore();
-        let uData = { balance:0, dailyMonetag:0, totalMonetag:0, dailyAdsterra:0, lastMonetagTime:0, lastAdsterraTime:0 };
+        let uData = null; // Step 3: Guard condition base
 
         db.collection('users').doc(userId).onSnapshot(doc => {
-            if(!doc.exists) return;
-            uData = doc.data();
-            document.getElementById('balance').innerText = uData.balance || 0;
-            document.getElementById('dMonetag').innerText = `${uData.dailyMonetag || 0}/20`;
-            document.getElementById('tMonetag').innerText = uData.totalMonetag || 0;
-            document.getElementById('dAdsterra').innerText = `${uData.dailyAdsterra || 0}/10`;
-            updateTimers();
+            if(doc.exists) {
+                uData = doc.data();
+                document.getElementById('balance').innerText = uData.balance || 0;
+                document.getElementById('dMonetag').innerText = `${uData.dailyMonetag || 0}/20`;
+                document.getElementById('tMonetag').innerText = uData.totalMonetag || 0;
+                document.getElementById('dAdsterra').innerText = `${uData.dailyAdsterra || 0}/10`;
+                updateTimers();
+            }
         });
 
         function updateTimers() {
+            if(!uData) return; // Guard
             const now = Date.now();
-            const mSec = 300 - Math.floor((now - (uData.lastMonetagTime || 0))/1000);
-            const aSec = 1200 - Math.floor((now - (uData.lastAdsterraTime || 0))/1000);
             
-            document.getElementById('mBtn').disabled = (mSec > 0 && uData.dailyMonetag < 20) || uData.dailyMonetag >= 20;
-            document.getElementById('mT').innerText = mSec > 0 && uData.dailyMonetag < 20 ? `(${mSec}s)` : (uData.dailyMonetag >= 20 ? "(Full)" : "");
+            // Monetag 600s
+            const mSec = 600 - Math.floor((now - (uData.lastMonetagTime || 0))/1000);
+            const mBtn = document.getElementById('mBtn');
+            if(mSec > 0 && uData.dailyMonetag < 20) {
+                mBtn.disabled = true;
+                document.getElementById('mT').innerText = `(${mSec}s)`;
+            } else {
+                mBtn.disabled = (uData.dailyMonetag >= 20);
+                document.getElementById('mT').innerText = uData.dailyMonetag >= 20 ? "(Full)" : "";
+            }
 
-            document.getElementById('aBtn').disabled = (aSec > 0 && uData.dailyAdsterra < 10) || uData.dailyAdsterra >= 10;
-            document.getElementById('aT').innerText = aSec > 0 && uData.dailyAdsterra < 10 ? `(${Math.ceil(aSec/60)}m)` : (uData.dailyAdsterra >= 10 ? "(Full)" : "");
+            // Adsterra 1200s
+            const aSec = 1200 - Math.floor((now - (uData.lastAdsterraTime || 0))/1000);
+            const aBtn = document.getElementById('aBtn');
+            if(aSec > 0 && uData.dailyAdsterra < 10) {
+                aBtn.disabled = true;
+                document.getElementById('aT').innerText = `(${Math.ceil(aSec/60)}m)`;
+            } else {
+                aBtn.disabled = (uData.dailyAdsterra >= 10);
+                document.getElementById('aT').innerText = uData.dailyAdsterra >= 10 ? "(Full)" : "";
+            }
         }
         setInterval(updateTimers, 1000);
 
         async function runMonetag() {
-            if(window.show_10318378) {
-                show_10318378({ ymid: userId }).then(async () => {
-                    const res = await fetch(`${BACKEND}/api/reward`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ userId, type: 'monetag' })
-                    });
-                    if(res.ok) toast("Monetag Reward +1 PT");
-                });
+            // Step 1: Permission First
+            const res = await fetch(`${BACKEND}/api/verify-reward`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ userId, type: 'monetag' })
+            });
+            const data = await res.json();
+            
+            if(data.allowed && window.show_10318378) {
+                show_10318378({ ymid: userId }).then(() => toast("Reward Added!"));
+            } else {
+                toast("Not Allowed Yet!");
             }
         }
 
         async function runAdsterra() {
-            window.open("https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57", "_blank");
-            const res = await fetch(`${BACKEND}/api/reward`, {
+            // Step 4: Permission First
+            const res = await fetch(`${BACKEND}/api/verify-reward`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ userId, type: 'adsterra' })
             });
-            if(res.ok) toast("Adsterra Reward +1 PT");
+            const data = await res.json();
+            
+            if(data.allowed) {
+                window.open("https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57", "_blank");
+                toast("Task Done!");
+            } else {
+                toast("Cooldown Active!");
+            }
         }
 
         function copy(t) {
-            let l = (t==='refer') ? `https://t.me/realldoler87ok_bot?start=${userId}` : (t==='monetag' ? "https://otieu.com/4/10315373" : "https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57");
+            let l = (t==='refer') ? `https://t.me/realldoler87ok_bot?start=${userId}` : "https://otieu.com/4/10315373";
             navigator.clipboard.writeText(l); toast("Copied!");
         }
 
@@ -150,13 +176,13 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ userId, amount, number, method })
             });
-            if(res.ok) { toast("Sent!"); closeCashout(); } else { toast("Error/Low PT"); }
+            if(res.ok) { toast("Success!"); closeCashout(); } else { toast("Error!"); }
         }
 
         function toast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display='block'; setTimeout(()=>t.style.display='none', 3000); }
         
         document.getElementById('uName').innerText = tg.initDataUnsafe?.user?.first_name || "User";
-        fetch(`${BACKEND}/api/sync`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userId, name: tg.initDataUnsafe?.user?.first_name, startParam: tg.initDataUnsafe?.start_param }) });
+        fetch(`${BACKEND}/api/sync`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userId, name: tg.initDataUnsafe?.user?.first_name }) });
     </script>
 </body>
     </html>
