@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Earning Fixed</title>
+    <title>Neon Earning Ultra</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -14,42 +14,72 @@
 
     <style>
         :root { --bg: #0b1426; --neon: #00f0ff; --glass: rgba(255, 255, 255, 0.08); }
-        body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .orb { width: 140px; height: 140px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 20px 0; }
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 20px; }
-        .s-box { background: var(--glass); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
-        .btn { padding: 15px; border-radius: 10px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-disabled { filter: grayscale(1); opacity: 0.6; pointer-events: none !important; cursor: not-allowed; }
-        #toast { position: fixed; bottom: 20px; background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; }
+        body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        .header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .social-btns { display: flex; gap: 8px; }
+        .s-btn { width: 38px; height: 38px; border: 1px solid var(--neon); border-radius: 10px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; transition: 0.3s; }
+        .s-btn:active { transform: scale(0.9); box-shadow: 0 0 10px var(--neon); }
+
+        .orb { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 25px var(--neon), inset 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 25px 0; background: radial-gradient(circle, rgba(0,240,255,0.1) 0%, transparent 70%); }
+        .balance-val { font-size: 40px; font-weight: bold; text-shadow: 0 0 10px var(--neon); }
+        
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 25px; }
+        .s-box { background: var(--glass); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .s-box small { opacity: 0.6; font-size: 11px; text-transform: uppercase; }
+        .s-box strong { font-size: 18px; color: var(--neon); display: block; margin-top: 4px; }
+        
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .btn { padding: 18px 10px; border-radius: 15px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.3s; font-size: 13px; }
+        .btn i { font-size: 18px; }
+        .btn:active { transform: scale(0.95); background: rgba(0, 240, 255, 0.1); }
+        .btn-disabled { filter: grayscale(1); opacity: 0.4; pointer-events: none !important; border-color: #555; }
+        
+        #toast { position: fixed; bottom: 30px; background: rgba(0,0,0,0.9); color: var(--neon); padding: 12px 25px; border-radius: 30px; visibility: hidden; z-index: 2000; border: 1px solid var(--neon); font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
 
+    <div class="header">
+        <div class="social-btns">
+            <div class="s-btn" onclick="window.open('https://youtube.com/@alex-42-41')"><i class="fab fa-youtube"></i></div>
+            <div class="s-btn" onclick="window.open('https://facebook.com/share/1UQCaxE29T/')"><i class="fab fa-facebook"></i></div>
+            <div class="s-btn" onclick="window.open('https://t.me/ratulhossain56')"><i class="fab fa-telegram"></i></div>
+            <div class="s-btn" onclick="copyL('https://otieu.com/4/10315373', 'Monetag')"><i class="fas fa-link"></i></div>
+            <div class="s-btn" onclick="copyL('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57', 'Adstar')"><i class="fas fa-copy"></i></div>
+        </div>
+        <div style="text-align: right;"><small style="opacity:0.5">Welcome,</small><div id="uName" style="color:var(--neon); font-weight:bold; font-size:12px;">USER</div></div>
+    </div>
+
     <div class="orb">
-        <span style="font-size: 30px; font-weight: bold;" id="ptsDisplay">0</span>
-        <small>POINTS</small>
+        <span class="balance-val" id="pDisp">0</span>
+        <small style="letter-spacing: 2px;">POINTS</small>
     </div>
 
     <div class="stats">
-        <div class="s-box"><small>Monetag Ads</small><br><strong id="mLabel">0/20</strong></div>
-        <div class="s-box"><small>Adstar Today</small><br><strong id="aLabel">0/10</strong></div>
+        <div class="s-box"><small>Monetag Ads</small><strong id="mCount">0/20</strong></div>
+        <div class="s-box"><small>Adstar Today</small><strong id="aCount">0/10</strong></div>
+        <div class="s-box"><small>Total Ads</small><strong id="totalAds">0</strong></div>
+        <div class="s-box"><small>Referrals</small><strong id="refCount">0</strong></div>
     </div>
 
     <div class="btn-grid">
-        <button class="btn" id="mBtn" onclick="watchM()"><i class="fas fa-play"></i> <span id="mText">MONETAG AD</span></button>
-        <button class="btn" id="aBtn" onclick="watchA()"><i class="fas fa-star"></i> <span id="aText">ADSTAR TASK</span></button>
-        <button class="btn" onclick="doWithdraw()"><i class="fas fa-wallet"></i> WITHDRAW</button>
-        <button class="btn" onclick="doRefer()"><i class="fas fa-users"></i> REFER</button>
+        <button class="btn" id="mBtn" onclick="watchM()"><i class="fas fa-play-circle"></i><span id="mText">MONETAG AD</span></button>
+        <button class="btn" id="aBtn" onclick="watchA()"><i class="fas fa-bolt"></i><span id="aText">ADSTAR AD</span></button>
+        <button class="btn" onclick="doWithdraw()"><i class="fas fa-wallet"></i>WITHDRAW</button>
+        <button class="btn" onclick="doRefer()"><i class="fas fa-gift"></i>REFER EARN</button>
     </div>
 
-    <div id="toast">Notification</div>
+    <button class="btn" style="width:100%; margin-top:20px; background:#ff3b30; border:none; color:white;" onclick="tg.close()">EXIT APPLICATION</button>
+
+    <div id="toast">Notice</div>
 
     <script>
         const BACKEND = "https://monetagads4241r.onrender.com";
-        const ADSTAR_LINK = "https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57";
+        const ADSTAR_URL = "https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57";
         const tg = window.Telegram.WebApp;
-        
+        tg.expand();
+
         const firebaseConfig = {
           apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
           authDomain: "monetas-ads-4241.firebaseapp.com",
@@ -61,52 +91,57 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         let uid = String(tg.initDataUnsafe?.user?.id || "test_user");
+        document.getElementById('uName').innerText = (tg.initDataUnsafe?.user?.first_name || "GUEST").toUpperCase();
+
+        let mTimer, aTimer;
 
         db.collection('users').doc(uid).onSnapshot(doc => {
             if(doc.exists) {
                 const d = doc.data();
-                document.getElementById('ptsDisplay').innerText = d.coins || 0;
-                const today = new Date().toISOString().slice(0,10);
+                document.getElementById('pDisp').innerText = d.coins || 0;
+                document.getElementById('refCount').innerText = d.referrals || 0;
+                document.getElementById('totalAds').innerText = (d.adsToday || 0) + (d.adstarToday || 0);
+                
+                const today = new Date().toISOString().slice(0, 10);
                 const mC = d.lastAdDate === today ? (d.adsToday || 0) : 0;
                 const aC = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
                 
-                document.getElementById('mLabel').innerText = `${mC}/20`;
-                document.getElementById('aLabel').innerText = `${aC}/10`;
+                document.getElementById('mCount').innerText = `${mC}/20`;
+                document.getElementById('aCount').innerText = `${aC}/10`;
                 
-                updateTimers(d.lastAdTime, d.lastAdstarTime, mC, aC);
+                handleCooldowns(d.lastAdTime, d.lastAdstarTime, mC, aC);
             }
         });
 
-        function updateTimers(mLast, aLast, mC, aC) {
+        function handleCooldowns(mLast, aLast, mC, aC) {
             const now = Date.now();
+            clearInterval(mTimer); clearInterval(aTimer);
             
-            // Monetag Logic
-            const mb = document.getElementById('mBtn');
-            const mt = document.getElementById('mText');
+            // Monetag Cooldown (300s)
+            const mb = document.getElementById('mBtn'), mt = document.getElementById('mText');
             if(mC >= 20) { mb.classList.add('btn-disabled'); mt.innerText = "LIMIT REACHED"; }
             else {
                 const diff = mLast ? (now - mLast.toDate().getTime()) / 1000 : 999;
-                if(diff < 300) startTimer(mb, mt, 300 - diff, "MONETAG AD");
+                if(diff < 300) mTimer = startUIClock(mb, mt, 300 - diff, "MONETAG AD");
                 else { mb.classList.remove('btn-disabled'); mt.innerText = "MONETAG AD"; }
             }
 
-            // Adstar Logic
-            const ab = document.getElementById('aBtn');
-            const at = document.getElementById('aText');
+            // Adstar Cooldown (1200s)
+            const ab = document.getElementById('aBtn'), at = document.getElementById('aText');
             if(aC >= 10) { ab.classList.add('btn-disabled'); at.innerText = "LIMIT REACHED"; }
             else {
                 const diff = aLast ? (now - aLast.toDate().getTime()) / 1000 : 999;
-                if(diff < 1200) startTimer(ab, at, 1200 - diff, "ADSTAR TASK");
-                else { ab.classList.remove('btn-disabled'); at.innerText = "ADSTAR TASK"; }
+                if(diff < 1200) aTimer = startUIClock(ab, at, 1200 - diff, "ADSTAR AD");
+                else { ab.classList.remove('btn-disabled'); at.innerText = "ADSTAR AD"; }
             }
         }
 
-        function startTimer(btn, txtObj, sec, original) {
+        function startUIClock(btn, txtObj, sec, original) {
             btn.classList.add('btn-disabled');
             let s = Math.floor(sec);
-            const inter = setInterval(() => {
-                txtObj.innerText = `WAIT ${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
-                if(s-- <= 0) { clearInterval(inter); btn.classList.remove('btn-disabled'); txtObj.innerText = original; }
+            return setInterval(() => {
+                txtObj.innerText = `Wait ${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+                if(s-- <= 0) { location.reload(); } // রিলোড দিয়ে ডাটাবেস থেকে ফ্রেশ স্টেট নেওয়া ভালো
             }, 1000);
         }
 
@@ -114,20 +149,21 @@
             if(typeof show_10318378 === 'function') {
                 show_10318378({ymid: uid}).then(() => {
                     fetch(`${BACKEND}/api/claim-reward`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
-                    showToast("Ad Viewed! 5 min wait.");
+                    showToast("Success! +1 Point");
                 });
             }
         }
 
         function watchA() {
-            window.open(ADSTAR_LINK, '_blank');
+            window.open(ADSTAR_URL, '_blank');
+            // ব্যাক করার পর টাইমার ট্রিগার হবে
             fetch(`${BACKEND}/api/claim-adstar`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
-            showToast("Task Started! 20 min wait.");
         }
 
+        function copyL(link, name) { navigator.clipboard.writeText(link); showToast(name + " Copied!"); }
+        function doRefer() { navigator.clipboard.writeText(`https://t.me/realldoler87ok_bot?start=${uid}`); showToast("Referral Link Copied!"); }
+        function doWithdraw() { showToast("Need 600 Pts & 3 Referrals."); }
         function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.visibility = 'visible'; setTimeout(()=>t.style.visibility='hidden', 3000); }
-        function doRefer() { navigator.clipboard.writeText(`https://t.me/realldoler87ok_bot?start=${uid}`); showToast("Refer Link Copied!"); }
-        function doWithdraw() { showToast("Min 600 Points & 3 Referrals Required."); }
 
         fetch(`${BACKEND}/api/sync`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
     </script>
