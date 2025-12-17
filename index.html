@@ -3,39 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Earning Ultra</title>
+    <title>Neon Earning Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <script src='//libtl.com/sdk.js' data-zone='10318378' data-sdk='show_10318378'></script>
-    <script type='text/javascript' src='https://pl28272285.effectivegatecpm.com/79/ca/d6/79cad6252204e9c90dd50644a69e75f9.js'></script>
 
     <style>
         :root { --bg: #0b1426; --neon: #00f0ff; --glass: rgba(255, 255, 255, 0.08); }
-        body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        
-        .header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
         .social-btns { display: flex; gap: 8px; }
-        .s-btn { width: 38px; height: 38px; border: 1px solid var(--neon); border-radius: 10px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; transition: 0.3s; }
-        .s-btn:active { transform: scale(0.9); box-shadow: 0 0 10px var(--neon); }
-
-        .orb { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 25px var(--neon), inset 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 25px 0; background: radial-gradient(circle, rgba(0,240,255,0.1) 0%, transparent 70%); }
-        .balance-val { font-size: 40px; font-weight: bold; text-shadow: 0 0 10px var(--neon); }
-        
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-bottom: 25px; }
-        .s-box { background: var(--glass); padding: 12px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .s-box small { opacity: 0.6; font-size: 11px; text-transform: uppercase; }
-        .s-box strong { font-size: 18px; color: var(--neon); display: block; margin-top: 4px; }
-        
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
-        .btn { padding: 18px 10px; border-radius: 15px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.3s; font-size: 13px; }
-        .btn i { font-size: 18px; }
-        .btn:active { transform: scale(0.95); background: rgba(0, 240, 255, 0.1); }
-        .btn-disabled { filter: grayscale(1); opacity: 0.4; pointer-events: none !important; border-color: #555; }
-        
-        #toast { position: fixed; bottom: 30px; background: rgba(0,0,0,0.9); color: var(--neon); padding: 12px 25px; border-radius: 30px; visibility: hidden; z-index: 2000; border: 1px solid var(--neon); font-weight: bold; font-size: 14px; }
+        .s-btn { width: 35px; height: 35px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; }
+        .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 12px; padding: 5px 0; margin: 10px 0; border-bottom: 1px solid var(--neon); }
+        .orb { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 15px 0; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 20px; }
+        .s-box { background: var(--glass); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+        .btn { padding: 15px 5px; border-radius: 12px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 12px; }
+        .btn-disabled { opacity: 0.5; pointer-events: none !important; filter: grayscale(1); }
+        #toast { position: fixed; bottom: 20px; background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; border: 1px solid var(--neon); z-index: 999; }
     </style>
 </head>
 <body>
@@ -48,29 +37,26 @@
             <div class="s-btn" onclick="copyL('https://otieu.com/4/10315373', 'Monetag')"><i class="fas fa-link"></i></div>
             <div class="s-btn" onclick="copyL('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57', 'Adstar')"><i class="fas fa-copy"></i></div>
         </div>
-        <div style="text-align: right;"><small style="opacity:0.5">Welcome,</small><div id="uName" style="color:var(--neon); font-weight:bold; font-size:12px;">USER</div></div>
+        <div style="font-size: 11px; text-align: right;">Hello, <span id="uName" style="color:var(--neon)">USER</span></div>
     </div>
 
-    <div class="orb">
-        <span class="balance-val" id="pDisp">0</span>
-        <small style="letter-spacing: 2px;">POINTS</small>
+    <div class="notice">
+        <marquee>🔔 অ্যাড দেখা শেষ হলে তবেই টাইমার শুরু হবে। ২০ মিনিট পর আবার অ্যাড দেখতে পারবেন। রিলোড দিলে টাইমার রিসেট হবে না।</marquee>
     </div>
+
+    <div class="orb"><span style="font-size:35px; font-weight:bold" id="pDisp">0</span><small>POINTS</small></div>
 
     <div class="stats">
-        <div class="s-box"><small>Monetag Ads</small><strong id="mCount">0/20</strong></div>
-        <div class="s-box"><small>Adstar Today</small><strong id="aCount">0/10</strong></div>
-        <div class="s-box"><small>Total Ads</small><strong id="totalAds">0</strong></div>
-        <div class="s-box"><small>Referrals</small><strong id="refCount">0</strong></div>
+        <div class="s-box"><small>Monetag Ads</small><br><strong id="mCount">0/20</strong></div>
+        <div class="s-box"><small>Adstar Today</small><br><strong id="aCount">0/10</strong></div>
     </div>
 
     <div class="btn-grid">
-        <button class="btn" id="mBtn" onclick="watchM()"><i class="fas fa-play-circle"></i><span id="mText">MONETAG AD</span></button>
-        <button class="btn" id="aBtn" onclick="watchA()"><i class="fas fa-bolt"></i><span id="aText">ADSTAR AD</span></button>
+        <button class="btn" id="mBtn" onclick="watchM()"><i class="fas fa-play"></i><span id="mText">MONETAG AD</span></button>
+        <button class="btn" id="aBtn" onclick="watchA()"><i class="fas fa-star"></i><span id="aText">ADSTAR AD</span></button>
         <button class="btn" onclick="doWithdraw()"><i class="fas fa-wallet"></i>WITHDRAW</button>
-        <button class="btn" onclick="doRefer()"><i class="fas fa-gift"></i>REFER EARN</button>
+        <button class="btn" onclick="doRefer()"><i class="fas fa-users"></i>REFER EARN</button>
     </div>
-
-    <button class="btn" style="width:100%; margin-top:20px; background:#ff3b30; border:none; color:white;" onclick="tg.close()">EXIT APPLICATION</button>
 
     <div id="toast">Notice</div>
 
@@ -91,57 +77,54 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         let uid = String(tg.initDataUnsafe?.user?.id || "test_user");
-        document.getElementById('uName').innerText = (tg.initDataUnsafe?.user?.first_name || "GUEST").toUpperCase();
+        document.getElementById('uName').innerText = (tg.initDataUnsafe?.user?.first_name || "Guest").toUpperCase();
 
-        let mTimer, aTimer;
+        let timers = { m: null, a: null };
 
         db.collection('users').doc(uid).onSnapshot(doc => {
             if(doc.exists) {
                 const d = doc.data();
                 document.getElementById('pDisp').innerText = d.coins || 0;
-                document.getElementById('refCount').innerText = d.referrals || 0;
-                document.getElementById('totalAds').innerText = (d.adsToday || 0) + (d.adstarToday || 0);
-                
                 const today = new Date().toISOString().slice(0, 10);
                 const mC = d.lastAdDate === today ? (d.adsToday || 0) : 0;
                 const aC = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
-                
                 document.getElementById('mCount').innerText = `${mC}/20`;
                 document.getElementById('aCount').innerText = `${aC}/10`;
                 
-                handleCooldowns(d.lastAdTime, d.lastAdstarTime, mC, aC);
+                checkCooldowns(d.lastAdTime, d.lastAdstarTime, mC, aC);
             }
         });
 
-        function handleCooldowns(mLast, aLast, mC, aC) {
+        function checkCooldowns(mLast, aLast, mC, aC) {
             const now = Date.now();
-            clearInterval(mTimer); clearInterval(aTimer);
+            clearInterval(timers.m); clearInterval(timers.a);
             
-            // Monetag Cooldown (300s)
+            // Monetag Timer Logic
             const mb = document.getElementById('mBtn'), mt = document.getElementById('mText');
             if(mC >= 20) { mb.classList.add('btn-disabled'); mt.innerText = "LIMIT REACHED"; }
             else {
-                const diff = mLast ? (now - mLast.toDate().getTime()) / 1000 : 999;
-                if(diff < 300) mTimer = startUIClock(mb, mt, 300 - diff, "MONETAG AD");
+                const diff = mLast ? (now - mLast.toDate().getTime()) / 1000 : 99999;
+                if(diff < 300) timers.m = startTimer(mb, mt, 300 - diff, "MONETAG AD");
                 else { mb.classList.remove('btn-disabled'); mt.innerText = "MONETAG AD"; }
             }
 
-            // Adstar Cooldown (1200s)
+            // Adstar Timer Logic
             const ab = document.getElementById('aBtn'), at = document.getElementById('aText');
             if(aC >= 10) { ab.classList.add('btn-disabled'); at.innerText = "LIMIT REACHED"; }
             else {
-                const diff = aLast ? (now - aLast.toDate().getTime()) / 1000 : 999;
-                if(diff < 1200) aTimer = startUIClock(ab, at, 1200 - diff, "ADSTAR AD");
+                const diff = aLast ? (now - aLast.toDate().getTime()) / 1000 : 99999;
+                if(diff < 1200) timers.a = startTimer(ab, at, 1200 - diff, "ADSTAR AD");
                 else { ab.classList.remove('btn-disabled'); at.innerText = "ADSTAR AD"; }
             }
         }
 
-        function startUIClock(btn, txtObj, sec, original) {
+        function startTimer(btn, txt, sec, orig) {
             btn.classList.add('btn-disabled');
             let s = Math.floor(sec);
             return setInterval(() => {
-                txtObj.innerText = `Wait ${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
-                if(s-- <= 0) { location.reload(); } // রিলোড দিয়ে ডাটাবেস থেকে ফ্রেশ স্টেট নেওয়া ভালো
+                if(s <= 0) { clearInterval(this); btn.classList.remove('btn-disabled'); txt.innerText = orig; return; }
+                txt.innerText = `Wait ${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+                s--;
             }, 1000);
         }
 
@@ -149,21 +132,23 @@
             if(typeof show_10318378 === 'function') {
                 show_10318378({ymid: uid}).then(() => {
                     fetch(`${BACKEND}/api/claim-reward`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
-                    showToast("Success! +1 Point");
+                    showToast("Ad Counted! 5m wait started.");
                 });
             }
         }
 
-        function watchA() {
+        async function watchA() {
+            // ১. আগে অ্যাড লিঙ্ক ওপেন হবে
             window.open(ADSTAR_URL, '_blank');
-            // ব্যাক করার পর টাইমার ট্রিগার হবে
-            fetch(`${BACKEND}/api/claim-adstar`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
+            // ২. সার্ভারে রিকোয়েস্ট যাবে যে অ্যাড ওপেন হয়েছে, এখন কাউন্ট করো এবং টাইমার শুরু করো
+            const res = await fetch(`${BACKEND}/api/claim-adstar`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
+            if(res.ok) showToast("Ad Opened! Cooldown started.");
         }
 
-        function copyL(link, name) { navigator.clipboard.writeText(link); showToast(name + " Copied!"); }
+        function copyL(l, n) { navigator.clipboard.writeText(l); showToast(n + " Copied!"); }
+        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.visibility = 'visible'; setTimeout(()=>t.style.visibility='hidden',3000); }
         function doRefer() { navigator.clipboard.writeText(`https://t.me/realldoler87ok_bot?start=${uid}`); showToast("Referral Link Copied!"); }
-        function doWithdraw() { showToast("Need 600 Pts & 3 Referrals."); }
-        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.visibility = 'visible'; setTimeout(()=>t.style.visibility='hidden', 3000); }
+        function doWithdraw() { showToast("Need 600 Pts & 3 Ref."); }
 
         fetch(`${BACKEND}/api/sync`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
     </script>
