@@ -1,6 +1,6 @@
 {
-  "name": "monetas-pro-v6",
-  "version": "6.0.0",
+  "name": "monetas-pro-final-fixed",
+  "version": "7.0.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
