@@ -26,15 +26,12 @@ app.post('/api/sync', verify, async (req, res) => {
     const uid = String(req.tgUser.id);
     const userRef = db.collection('users').doc(uid);
     const doc = await userRef.get();
-    if(!doc.exists){
-        await userRef.set({
-            userId: uid, coins: 0, referrals: 0, totalAdsWatched: 0,
-            adsToday: 0, adstarToday: 0, joinedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-        if(req.startParam && req.startParam !== uid){
-            await db.collection('users').doc(String(req.startParam)).update({
-                referrals: admin.firestore.FieldValue.increment(1),
-                coins: admin.firestore.FieldValue.increment(1)
+    if(!doc.exists) {
+        await userRef.set({ userId: uid, coins: 0, referrals: 0, totalAdsWatched: 0, adsToday: 0, adstarToday: 0 });
+        if(req.startParam && req.startParam !== uid) {
+            await db.collection('users').doc(String(req.startParam)).update({ 
+                referrals: admin.firestore.FieldValue.increment(1), 
+                coins: admin.firestore.FieldValue.increment(1) 
             });
         }
     }
@@ -49,12 +46,11 @@ app.post('/api/claim-reward', verify, async (req, res) => {
         const d = (await t.get(ref)).data();
         const count = d.lastAdDate === today ? (d.adsToday || 0) : 0;
         if(count < 20) {
-            t.update(ref, {
-                coins: admin.firestore.FieldValue.increment(1),
+            t.update(ref, { 
+                coins: admin.firestore.FieldValue.increment(1), 
                 totalAdsWatched: admin.firestore.FieldValue.increment(1),
-                adsToday: count + 1,
-                lastAdDate: today,
-                lastAdTime: admin.firestore.FieldValue.serverTimestamp()
+                adsToday: count + 1, lastAdDate: today, 
+                lastAdTime: admin.firestore.FieldValue.serverTimestamp() 
             });
         }
     });
@@ -69,10 +65,9 @@ app.post('/api/claim-adstar', verify, async (req, res) => {
         const d = (await t.get(ref)).data();
         const count = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
         if(count < 10) {
-            t.update(ref, {
-                adstarToday: count + 1,
-                lastAdstarDate: today,
-                lastAdstarTime: admin.firestore.FieldValue.serverTimestamp()
+            t.update(ref, { 
+                adstarToday: count + 1, lastAdstarDate: today, 
+                lastAdstarTime: admin.firestore.FieldValue.serverTimestamp() 
             });
         }
     });
