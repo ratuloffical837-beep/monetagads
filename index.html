@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        /* (Styles remain the same for a SMART LOOK) */
+        /* --- MAIN STYLES --- */
         :root {
             --bg: #0b0f19;
             --glass: rgba(255, 255, 255, 0.05);
@@ -29,7 +29,6 @@
             --neon-purple: #bc13fe;
             --neon-orange: #ff8b00;
             --text-main: #ffffff;
-            --input-bg: #1a1a1a;
             --button-main: #00f0ff;
             --button-edge: #00aaff;
             --danger-red: #ff3b30; 
@@ -42,8 +41,14 @@
             font-family: 'Rajdhani', sans-serif;
             min-height: 100vh;
             display: flex; flex-direction: column; align-items: center;
+            /* ❌ সমস্যা–1 ও 2 এর FIX (Page Jump & Scroll Lock) */
             overflow-x: hidden;
+            overflow-y: hidden; 
+            touch-action: manipulation; 
+            overscroll-behavior: none;
         }
+        
+        /* (Existing styles for header, marquee, orb, stats, etc., remain here) */
         
         .top-header-bar {
             width: 100%; max-width: 400px; 
@@ -51,9 +56,7 @@
             padding-top: 20px; 
             margin-bottom: 20px;
         }
-        .social-buttons { 
-            display: flex; gap: 8px; 
-        }
+        .social-buttons { display: flex; gap: 8px; }
         .social-btn {
             background: var(--glass); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; 
             width: 35px; height: 35px; display: flex; justify-content: center; align-items: center;
@@ -65,12 +68,8 @@
         .social-btn.tg { background: #2aabee; }
         .social-btn.monetag { background: #ff6600; }
         
-        .user-info {
-            font-weight: bold; font-size: 14px; text-align: right;
-        }
-        .user-info .status {
-            font-size: 10px; color: #555; display: block;
-        }
+        .user-info { font-weight: bold; font-size: 14px; text-align: right; }
+        .user-info .status { font-size: 10px; color: #555; display: block; }
 
         .marquee-container {
             width: 100%; max-width: 400px;
@@ -89,8 +88,6 @@
             100% { transform: translate(-100%, 0); }
         }
         
-        .marquee-content a { color: var(--neon-blue); text-decoration: none; font-weight: 700; }
-
         .orb-stage {
             position: relative; width: 200px; height: 200px; margin: 10px 0 10px 0;
             display: flex; justify-content: center; align-items: center;
@@ -131,6 +128,7 @@
             transition: transform 0.1s ease;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4); 
         }
+        /* Page jump fix is handled in body CSS */
         .btn-3d:active { transform: translateY(3px); }
         .btn-edge {
             position: absolute; top: 0; left: 0; right: 0; height: 100%;
@@ -153,12 +151,79 @@
         .btn-refer { --button-main: var(--neon-purple); --button-edge: #a410db; }
         .btn-contact { --button-main: #00ff80; --button-edge: #00cc66; }
         .btn-danger { --button-main: #ff3b30; --button-edge: #cc2e26; } 
-
-        /* Adsterra specific button color (Smart Button Look) */
         .btn-adsterra { --button-main: #ff5722; --button-edge: #e64a19; } 
 
-        /* (Modal and Toast styles remain the same) */
+        /* --- MODAL CSS FIX (Critical Fix for Modal functionality) --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            /* Scroll lock for Modal (Prevents body scroll when modal is open) */
+            overflow-y: auto; 
+            padding: 20px;
+        }
 
+        .modal {
+            background: #0f1424;
+            width: 90%;
+            max-width: 360px;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 25px rgba(0,240,255,0.3);
+            animation: zoomIn 0.25s ease;
+            color: var(--text-main);
+            /* Internal input styling for modal */
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .modal input, .modal select {
+            width: 100%; padding: 10px; margin-bottom: 10px;
+            border-radius: 8px; border: 1px solid #333;
+            background: #1a1a1a; color: var(--text-main);
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .copy-box {
+            display: flex; gap: 5px; margin-top: 10px;
+        }
+        .copy-box input { margin-bottom: 0; }
+        .btn-copy {
+            background: var(--neon-blue); color: var(--bg);
+            border: none; border-radius: 8px; padding: 0 15px;
+            font-weight: bold; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-copy:active { background: #00aaff; }
+
+
+        @keyframes zoomIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        /* --- TOAST & HAPTIC --- */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translate(-50%, 100px);
+            background: rgba(0, 0, 0, 0.85); color: #fff;
+            padding: 10px 20px; border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10000; opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            font-size: 14px;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+        .toast.error {
+            background: var(--danger-red);
+            color: var(--text-main);
+        }
+        
     </style>
 </head>
 <body>
@@ -227,10 +292,10 @@
         </button>
     </div>
     
-    <button class="btn-3d btn-contact" onclick="window.open('https://t.me/ratulhossain56', '_blank')" style="margin-top: 15px; width: 100%; max-width: 400px;">
+    <button class="btn-3d btn-contact" onclick="openContact()" style="margin-top: 15px; width: 100%; max-width: 400px;">
         <span class="btn-edge"></span><span class="btn-face">📞 CONTACT ADMIN</span>
     </button>
-    <button class="btn-3d btn-danger" onclick="Telegram.WebApp.close()" style="margin-top: 15px; width: 100%; max-width: 400px;">
+    <button class="btn-3d btn-danger" onclick="closeApp()" style="margin-top: 15px; width: 100%; max-width: 400px;">
         <span class="btn-edge"></span><span class="btn-face">EXIT APP</span>
     </button>
 
@@ -310,11 +375,11 @@
         const BACKEND_URL = "https://monetagads4241r.onrender.com"; 
         const TELEGRAM_BOT_USERNAME = "realldoler87ok_bot"; 
         
-        // Monetag Config (Used to show ad and pass ymid for postback)
+        // Monetag Config
         const MONETAG_FUNC = "show_10318378"; 
         const DIRECT_LINK = "https://otieu.com/4/10315373"; 
 
-        // ADSTERRA CONFIG (Your Smartlink)
+        // ADSTERRA CONFIG 
         const ADSTERRA_POP_LINK = "https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57"; 
         
         const firebaseConfig = {
@@ -328,11 +393,15 @@
         
         // --- SEPARATE COOLDOWN CONSTANTS ---
         const MONETAG_COOLDOWN_SECONDS = 60; 
-        const ADSTERRA_COOLDOWN_SECONDS = 300; // 5 minutes
+        const ADSTERRA_COOLDOWN_SECONDS = 300; 
         
         // --- INIT ---
         const tg = window.Telegram.WebApp;
         tg.expand();
+        
+        // ❌ সমস্যা–2 এর FIX (Mini App Safe Mode)
+        tg.disableClosingConfirmation();
+        tg.enableClosingConfirmation = false;
         
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -388,13 +457,9 @@
                     state.referrals = data.referrals || 0;     
                     state.ads = data.totalAdsWatched || 0;     
                     
-                    // Note: We are using the server's postback time for cooldown check
                     if(data.lastAdTime) {
                         const serverTime = data.lastAdTime.toDate().getTime();
-                        // Assuming Monetag postback updates 'lastAdTime'
                         lastMonetagTime = serverTime; 
-                        // We will use a separate local time for Adsterra to avoid interference
-                        // If Monetag was just watched, we reset Adsterra's local timer too to prevent abuse
                         if(Date.now() - serverTime < 5000) { 
                              lastAdsterraTime = Date.now();
                         }
@@ -423,6 +488,7 @@
         
         // --- SEPARATE COOLDOWN LOGIC ---
         function checkMonetagStatus() {
+            // (Cooldown logic remains the same)
             const monetagBtn = document.getElementById('monetagAdBtn');
             const now = Date.now();
             const timeElapsed = (now - lastMonetagTime) / 1000;
@@ -448,6 +514,7 @@
         }
         
         function checkAdsterraStatus() {
+            // (Cooldown logic remains the same)
             const adsterraBtn = document.getElementById('adsterraAdBtn');
             const now = Date.now();
             const timeElapsed = (now - lastAdsterraTime) / 1000;
@@ -475,19 +542,20 @@
 
         // --- ADS & CLAIM ---
         function watchMonetag() {
+            // Haptic Feedback
+            tg.HapticFeedback.impactOccurred("medium"); 
+
             const now = Date.now();
             const timeElapsed = (now - lastMonetagTime) / 1000;
             
             if (timeElapsed < MONETAG_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(MONETAG_COOLDOWN_SECONDS - timeElapsed)}s`, true);
 
             if (typeof window[MONETAG_FUNC] === 'function') {
-                // Pass ymid = state.userId for secure server postback
                 window[MONETAG_FUNC]({ ymid: state.userId }).then(() => {
-                    // Start cooldown, but NO client-side reward!
                     lastMonetagTime = Date.now();
                     checkMonetagStatus();
-                    showToast("Monetag Task complete! Waiting for Server Postback..."); 
-
+                    // Clean message for Monetag
+                    showToast("⏳ Please wait… Monetag is verifying your task"); 
                 }).catch(e => {
                     showToast("Monetag Ad Skipped or Failed.", true);
                     checkMonetagStatus(); 
@@ -498,27 +566,41 @@
         }
         
         function watchAdsterra() {
+            // Haptic Feedback
+            tg.HapticFeedback.impactOccurred("medium"); 
+
             const now = Date.now();
             const timeElapsed = (now - lastAdsterraTime) / 1000;
             
             if (timeElapsed < ADSTERRA_COOLDOWN_SECONDS) return showToast(`Wait ${Math.ceil(ADSTERRA_COOLDOWN_SECONDS - timeElapsed)}s`, true);
 
             if (ADSTERRA_POP_LINK) {
-                // Open Adsterra link in a new tab
                 window.open(ADSTERRA_POP_LINK, '_blank');
                 
-                // Start cooldown locally (NO reward logic)
                 lastAdsterraTime = Date.now();
                 checkAdsterraStatus();
-                showToast("Adsterra Ad opened in a new tab. (Platform income only)", false, 5000);
+                // Clean message for Adsterra
+                showToast("🔥 Ad opened. Come back after viewing.", false, 3000);
             } else {
                 showToast("Adsterra Link Missing in Configuration!", true);
             }
         }
 
+        // --- CONTACT & EXIT ---
+        function openContact() {
+             tg.HapticFeedback.impactOccurred("medium"); 
+             window.open('https://t.me/ratulhossain56', '_blank');
+        }
+        function closeApp() {
+             tg.HapticFeedback.impactOccurred("medium"); 
+             Telegram.WebApp.close();
+        }
 
         // --- UTILS (Modal and Copy functions) ---
         async function submitWithdraw() {
+            // Haptic Feedback
+            tg.HapticFeedback.impactOccurred("medium"); 
+            // (Withdraw logic remains the same)
             const method = document.getElementById('wMethod').value;
             const number = document.getElementById('wNumber').value;
             const amountPoints = parseInt(document.getElementById('wInputPoints').value);
@@ -526,7 +608,6 @@
             if(!amountPoints || amountPoints <= 0) return showToast("Enter valid points", true);
             if(!number) return showToast("Enter wallet number", true);
 
-            // Checks will be repeated on server for security, but client checks for UX
             if(state.balance < 600) return showToast("Need 600+ Points for Withdrawal", true);
             if(state.referrals < 10) return showToast("Need 10+ Referrals", true);
             if(amountPoints > state.balance) return showToast("Insufficient Withdrawal Balance", true);
@@ -554,6 +635,10 @@
         }
 
         function showToast(msg, isError = false, duration = 4000) {
+            // Haptic Feedback for Toast
+            if (isError) { tg.HapticFeedback.notificationOccurred('error'); }
+            else { tg.HapticFeedback.notificationOccurred('success'); }
+
             const t = document.getElementById('toast');
             t.innerText = msg;
             if(isError) t.classList.add('error');
@@ -564,12 +649,16 @@
         }
 
         function openModal(id) { 
+             tg.HapticFeedback.impactOccurred("light"); 
             if(id === 'withdrawModal') {
                 document.getElementById('modalWithdrawPoints').innerText = state.balance;
             }
             document.getElementById(id).style.display = 'flex'; 
         }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function closeModal(id) { 
+            tg.HapticFeedback.impactOccurred("light"); 
+            document.getElementById(id).style.display = 'none'; 
+        }
 
         function openReferralModal() {
             const link = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${state.userId}`;
@@ -578,6 +667,7 @@
         }
 
         function copyReferralLink() {
+            tg.HapticFeedback.impactOccurred("medium"); 
             const input = document.getElementById('refLink');
             input.select();
             input.setSelectionRange(0, 99999);
@@ -587,6 +677,7 @@
         }
         
         function copyDirectLink() {
+            tg.HapticFeedback.impactOccurred("medium"); 
             const input = document.getElementById('directLink');
             input.select();
             input.setSelectionRange(0, 99999);
