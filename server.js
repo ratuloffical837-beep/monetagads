@@ -15,7 +15,7 @@ const db = admin.firestore();
 
 const verify = (req, res, next) => {
     const data = req.headers['x-telegram-init-data'];
-    if(!data) return res.status(403).send("No Auth");
+    if(!data) return res.status(403).send("Unauthorized");
     const params = new URLSearchParams(data);
     req.tgUser = JSON.parse(params.get('user'));
     req.startParam = params.get('start_param');
@@ -27,11 +27,11 @@ app.post('/api/sync', verify, async (req, res) => {
     const userRef = db.collection('users').doc(uid);
     const doc = await userRef.get();
     if(!doc.exists) {
-        await userRef.set({ userId: uid, coins: 0, referrals: 0, totalAdsWatched: 0, adsToday: 0, adstarToday: 0 });
+        await userRef.set({ userId: uid, coins: 0, referrals: 0, adsToday: 0, adstarToday: 0 });
         if(req.startParam && req.startParam !== uid) {
             await db.collection('users').doc(String(req.startParam)).update({ 
                 referrals: admin.firestore.FieldValue.increment(1), 
-                coins: admin.firestore.FieldValue.increment(1) 
+                coins: admin.firestore.FieldValue.increment(2) 
             });
         }
     }
@@ -40,7 +40,7 @@ app.post('/api/sync', verify, async (req, res) => {
 
 app.post('/api/claim-reward', verify, async (req, res) => {
     const uid = String(req.tgUser.id);
-    const today = new Date().toISOString().slice(0,10);
+    const today = new Date().toISOString().slice(0, 10);
     const ref = db.collection('users').doc(uid);
     await db.runTransaction(async (t) => {
         const d = (await t.get(ref)).data();
@@ -48,7 +48,6 @@ app.post('/api/claim-reward', verify, async (req, res) => {
         if(count < 20) {
             t.update(ref, { 
                 coins: admin.firestore.FieldValue.increment(1), 
-                totalAdsWatched: admin.firestore.FieldValue.increment(1),
                 adsToday: count + 1, lastAdDate: today, 
                 lastAdTime: admin.firestore.FieldValue.serverTimestamp() 
             });
@@ -59,7 +58,7 @@ app.post('/api/claim-reward', verify, async (req, res) => {
 
 app.post('/api/claim-adstar', verify, async (req, res) => {
     const uid = String(req.tgUser.id);
-    const today = new Date().toISOString().slice(0,10);
+    const today = new Date().toISOString().slice(0, 10);
     const ref = db.collection('users').doc(uid);
     await db.runTransaction(async (t) => {
         const d = (await t.get(ref)).data();
