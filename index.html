@@ -15,9 +15,9 @@
         :root { --bg: #0b1426; --neon: #00f0ff; --glass: rgba(255, 255, 255, 0.08); }
         body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
         .header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-        .social-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-start; }
-        .s-btn { min-width: 35px; height: 35px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; font-size: 16px; }
-        .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 12px; padding: 5px 0; margin: 10px 0; border-bottom: 1px solid var(--neon); overflow: hidden; white-space: nowrap; }
+        .social-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+        .s-btn { width: 35px; height: 35px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; }
+        .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 12px; padding: 5px 0; margin: 10px 0; border-bottom: 1px solid var(--neon); overflow: hidden; }
         .orb { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 15px auto; }
         .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; }
         .s-box { background: var(--glass); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
@@ -26,7 +26,7 @@
         .btn { padding: 15px 5px; border-radius: 12px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 12px; }
         .btn-disabled { opacity: 0.4; pointer-events: none !important; filter: grayscale(1); }
         .new-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 15px; }
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; border: 1px solid var(--neon); z-index: 999; }
+        #toast { position: fixed; bottom: 20px; background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; border: 1px solid var(--neon); z-index: 999; }
         .section { display: none; width: 100%; }
         #mainSection { display: block; }
         .back-btn { width: 100%; margin-bottom: 15px; }
@@ -38,18 +38,18 @@
     <div id="mainSection" class="section">
         <div class="header">
             <div class="social-btns">
-                <div class="s-btn" onclick="window.open('https://youtube.com/@alex-42-41')"><i class="fab fa-youtube"></i></div>
-                <div class="s-btn" onclick="window.open('https://facebook.com/share/1UQCaxE29T/')"><i class="fab fa-facebook"></i></div>
-                <div class="s-btn" onclick="window.open('https://t.me/ratulhossain56')"><i class="fab fa-telegram"></i></div>
-                <div class="s-btn" onclick="copyL('https://otieu.com/4/10315373', 'Monetag')"><i class="fas fa-link"></i></div>
-                <div class="s-btn" onclick="copyL('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57', 'Adstar')"><i class="fas fa-copy"></i></div>
+                <div class="s-btn" onclick="window.open('https://youtube.com/@alex-42-41', '_blank')"><i class="fab fa-youtube"></i></div>
+                <div class="s-btn" onclick="window.open('https://facebook.com/share/1UQCaxE29T/', '_blank')"><i class="fab fa-facebook"></i></div>
+                <div class="s-btn" onclick="window.open('https://t.me/ratulhossain56', '_blank')"><i class="fab fa-telegram"></i></div>
+                <div class="s-btn" onclick="copyText('https://otieu.com/4/10315373', 'Monetag Link')"><i class="fas fa-link"></i></div>
+                <div class="s-btn" onclick="copyText('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57', 'Adstar Link')"><i class="fas fa-copy"></i></div>
                 <div class="s-btn" onclick="copyAdGemLink()"><i class="fas fa-gem"></i></div>
             </div>
-            <div style="font-size: 11px; text-align: right;">Welcome, <br><span id="uName">USER</span></div>
+            <div style="font-size: 11px; text-align: right;">Welcome, <br><span id="uName" style="color:var(--neon); font-weight:bold;">USER</span></div>
         </div>
 
         <div class="notice">
-            <marquee behavior="scroll" direction="left" scrollamount="5">🔔 ৩ জন রেফার করলে পেমেন্ট পাবেন। Adstar টাস্ক ডেইলি করুন (পয়েন্ট বাড়বে না কিন্তু রেফারেল ও উইথড্র কন্ডিশন পূরণে সাহায্য করবে)।</marquee>
+            <marquee behavior="scroll" direction="left" scrollamount="6">🔔 ৩ জন রেফার করলে পেমেন্ট পাবেন। Monetag: ৫ মিনিট কুলডাউন | Adstar: ১০ মিনিট কুলডাউন | Adstar টাস্ক ডেইলি করুন (রেফারেল কন্ডিশন পূরণে সাহায্য করবে)।</marquee>
         </div>
 
         <div class="orb"><span style="font-size:35px; font-weight:bold" id="pDisp">0</span><small>POINTS</small></div>
@@ -62,8 +62,8 @@
         </div>
 
         <div class="btn-grid">
-            <button class="btn" id="mBtn" onclick="watchM()"><i class="fas fa-play"></i><span id="mText">MONETAG AD</span></button>
-            <button class="btn" id="aBtn" onclick="watchA()"><i class="fas fa-star"></i><span id="aText">ADSTAR AD</span></button>
+            <button class="btn" id="mBtn"><i class="fas fa-play"></i><span id="mText">MONETAG AD</span></button>
+            <button class="btn" id="aBtn"><i class="fas fa-star"></i><span id="aText">ADSTAR AD</span></button>
             <button class="btn" onclick="doWithdraw()"><i class="fas fa-wallet"></i>WITHDRAW</button>
             <button class="btn" onclick="doRefer()"><i class="fas fa-users"></i>REFER EARN</button>
         </div>
@@ -81,9 +81,9 @@
     <!-- CPX সেকশন -->
     <div id="cpxSection" class="section">
         <button class="btn back-btn" onclick="showSection('mainSection')"><i class="fas fa-arrow-left"></i> Back to Main</button>
-        <div style="font-size: 11px; text-align: center; margin-bottom: 10px;">Welcome, <span id="cpxUName">USER</span></div>
+        <div style="font-size: 11px; text-align: center; margin-bottom: 10px;">Welcome, <span id="cpxUName" style="color:var(--neon); font-weight:bold;">USER</span></div>
         <div class="orb"><span style="font-size:35px; font-weight:bold" id="cpxDisp">0</span><small>CPX POINTS</small></div>
-        <button class="btn" style="width:100%; margin-top:15px;" onclick="loadCPX()"><i class="fas fa-poll"></i> Load CPX Surveys</button>
+        <button class="btn" style="width:100%;" onclick="loadCPX()"><i class="fas fa-poll"></i> Load CPX Surveys</button>
         <div id="cpx-container" style="display:none; width:100%; height:600px; margin-top:15px;">
             <iframe id="cpx-iframe" width="100%" height="100%" frameborder="0"></iframe>
         </div>
@@ -92,9 +92,9 @@
     <!-- AdGem সেকশন -->
     <div id="adgemSection" class="section">
         <button class="btn back-btn" onclick="showSection('mainSection')"><i class="fas fa-arrow-left"></i> Back to Main</button>
-        <div style="font-size: 11px; text-align: center; margin-bottom: 10px;">Welcome, <span id="adgemUName">USER</span></div>
+        <div style="font-size: 11px; text-align: center; margin-bottom: 10px;">Welcome, <span id="adgemUName" style="color:var(--neon); font-weight:bold;">USER</span></div>
         <div class="orb"><span style="font-size:35px; font-weight:bold" id="adgemDisp">0</span><small>ADGEM POINTS</small></div>
-        <button class="btn" style="width:100%; margin-top:15px;" onclick="loadAdGem()"><i class="fas fa-gem"></i> Load AdGem Offers</button>
+        <button class="btn" style="width:100%;" onclick="loadAdGem()"><i class="fas fa-gem"></i> Load AdGem Offers</button>
         <div id="adgem-container" style="display:none; width:100%; height:600px; margin-top:15px;">
             <iframe id="adgem-iframe" width="100%" height="100%" frameborder="0"></iframe>
         </div>
@@ -112,12 +112,12 @@
         tg.expand();
 
         const firebaseConfig = {
-          apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
-          authDomain: "monetas-ads-4241.firebaseapp.com",
-          projectId: "monetas-ads-4241",
-          storageBucket: "monetas-ads-4241.firebasestorage.app",
-          messagingSenderId: "482009819786",
-          appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
+            apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
+            authDomain: "monetas-ads-4241.firebaseapp.com",
+            projectId: "monetas-ads-4241",
+            storageBucket: "monetas-ads-4241.firebasestorage.app",
+            messagingSenderId: "482009819786",
+            appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -132,21 +132,21 @@
         let timers = { m: null, a: null };
 
         db.collection('users').doc(uid).onSnapshot(doc => {
-            if(doc.exists) {
+            if (doc.exists) {
                 const d = doc.data();
                 document.getElementById('pDisp').innerText = d.coins || 0;
                 document.getElementById('rCount').innerText = d.referrals || 0;
                 document.getElementById('cpxDisp').innerText = d.cpxPoints || 0;
                 document.getElementById('adgemDisp').innerText = d.adgemPoints || 0;
-                
+
                 const today = new Date().toISOString().slice(0, 10);
                 const mToday = d.lastAdDate === today ? (d.adsToday || 0) : 0;
                 const aToday = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
-                
+
                 document.getElementById('mCount').innerText = `${mToday}/20`;
                 document.getElementById('aCount').innerText = `${aToday}/10`;
-                document.getElementById('tCount').innerText = (d.totalAdsWatched || 0);
-                
+                document.getElementById('tCount').innerText = d.totalAdsWatched || 0;
+
                 checkTimers(d.lastAdTime, d.lastAdstarTime, mToday, aToday);
             }
         });
@@ -158,55 +158,111 @@
 
         function checkTimers(mLast, aLast, mC, aC) {
             const now = Date.now();
-            clearInterval(timers.m); clearInterval(timers.a);
-            
+            if (timers.m) clearInterval(timers.m);
+            if (timers.a) clearInterval(timers.a);
+
             const mb = document.getElementById('mBtn'), mt = document.getElementById('mText');
-            if(mC >= 20) { mb.classList.add('btn-disabled'); mt.innerText = "LIMIT REACHED"; }
-            else {
+            if (mC >= 20) {
+                mb.classList.add('btn-disabled');
+                mt.innerText = "DAILY LIMIT REACHED";
+            } else {
                 const diff = mLast ? (now - mLast.toDate().getTime()) / 1000 : 99999;
-                if(diff < 300) timers.m = startT(mb, mt, 300 - diff, "MONETAG AD");
-                else { mb.classList.remove('btn-disabled'); mt.innerText = "MONETAG AD"; }
+                if (diff < 300) { // 5 মিনিট
+                    timers.m = startTimer(mb, mt, 300 - diff, "MONETAG AD");
+                } else {
+                    mb.classList.remove('btn-disabled');
+                    mt.innerText = "MONETAG AD";
+                }
             }
 
             const ab = document.getElementById('aBtn'), at = document.getElementById('aText');
-            if(aC >= 10) { ab.classList.add('btn-disabled'); at.innerText = "LIMIT REACHED"; }
-            else {
+            if (aC >= 10) {
+                ab.classList.add('btn-disabled');
+                at.innerText = "DAILY LIMIT REACHED";
+            } else {
                 const diff = aLast ? (now - aLast.toDate().getTime()) / 1000 : 99999;
-                if(diff < 1200) timers.a = startT(ab, at, 1200 - diff, "ADSTAR AD");
-                else { ab.classList.remove('btn-disabled'); at.innerText = "ADSTAR AD"; }
+                if (diff < 600) { // 10 মিনিট
+                    timers.a = startTimer(ab, at, 600 - diff, "ADSTAR AD");
+                } else {
+                    ab.classList.remove('btn-disabled');
+                    at.innerText = "ADSTAR AD";
+                }
             }
         }
 
-        function startT(btn, txt, sec, orig) {
+        function startTimer(btn, txt, sec, orig) {
             btn.classList.add('btn-disabled');
-            let s = Math.floor(sec);
+            let s = Math.ceil(sec);
             const interval = setInterval(() => {
-                if(s <= 0) { clearInterval(interval); btn.classList.remove('btn-disabled'); txt.innerText = orig; return; }
-                txt.innerText = `Wait \( {Math.floor(s/60)}: \){(s%60).toString().padStart(2,'0')}`;
+                if (s <= 0) {
+                    clearInterval(interval);
+                    btn.classList.remove('btn-disabled');
+                    txt.innerText = orig;
+                    return;
+                }
+                txt.innerText = `Wait \( {Math.floor(s / 60)}: \){(s % 60).toString().padStart(2, '0')}`;
                 s--;
             }, 1000);
+            return interval;
         }
 
         function watchM() {
-            if(typeof show_10318378 === 'function') {
-                show_10318378({ymid: uid}).then(() => {
-                    fetch(`${BACKEND}/api/claim-reward`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
-                    showToast("Ad Success! +1 Point");
-                });
+            const mb = document.getElementById('mBtn');
+            if (mb.classList.contains('btn-disabled')) {
+                showToast("Cooldown active!");
+                return;
+            }
+            if (typeof show_10318378 === 'function') {
+                show_10318378({ ymid: uid }).then(() => {
+                    fetch(`${BACKEND}/api/claim-reward`, {
+                        method: 'POST',
+                        headers: { 'x-telegram-init-data': tg.initData }
+                    }).then(() => showToast("+1 Point & 5 min cooldown started!"));
+                }).catch(() => showToast("Ad failed."));
+            } else {
+                showToast("Monetag loading... Try again.");
             }
         }
 
         function watchA() {
+            const ab = document.getElementById('aBtn');
+            if (ab.classList.contains('btn-disabled')) {
+                showToast("Cooldown active!");
+                return;
+            }
             window.open(ADSTAR_URL, '_blank');
-            fetch(`${BACKEND}/api/claim-adstar`, {method:'POST', headers:{'x-telegram-init-data': tg.initData}});
-            showToast("Ad Counted! Cooldown started.");
+            fetch(`${BACKEND}/api/claim-adstar`, {
+                method: 'POST',
+                headers: { 'x-telegram-init-data': tg.initData }
+            }).then(() => showToast("Adstar counted! 10 min cooldown started."));
         }
 
-        function copyL(l, n) { navigator.clipboard.writeText(l); showToast(n + " Copied!"); }
-        function copyAdGemLink() { navigator.clipboard.writeText(ADGEM_DIRECT_LINK + uid); showToast("AdGem Link Copied!"); }
-        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.visibility = 'visible'; setTimeout(() => t.style.visibility = 'hidden', 3000); }
-        function doRefer() { navigator.clipboard.writeText(`https://t.me/realldoler87ok_bot?start=${uid}`); showToast("Referral Link Copied!"); }
-        function doWithdraw() { showToast("Need 600 Pts & 3 Referrals."); }  // পরে backend থেকে কল করো
+        function copyText(text, name) {
+            navigator.clipboard.writeText(text).then(() => showToast(name + " Copied!")).catch(() => showToast("Copy failed!"));
+        }
+
+        function copyAdGemLink() {
+            navigator.clipboard.writeText(ADGEM_DIRECT_LINK + uid).then(() => showToast("AdGem Link Copied!")).catch(() => showToast("Copy failed!"));
+        }
+
+        function showToast(m) {
+            const t = document.getElementById('toast');
+            t.innerText = m;
+            t.style.visibility = 'visible';
+            setTimeout(() => t.style.visibility = 'hidden', 4000);
+        }
+
+        function doRefer() {
+            const link = `https://t.me/realldoler87ok_bot?start=${uid}`;
+            navigator.clipboard.writeText(link).then(() => showToast("Referral Link Copied! +2 Points per refer"));
+        }
+
+        function doWithdraw() {
+            fetch(`${BACKEND}/api/withdraw`, {
+                method: 'POST',
+                headers: { 'x-telegram-init-data': tg.initData }
+            }).then(res => res.json()).then(data => showToast(data.message));
+        }
 
         function loadCPX() {
             const iframe = document.getElementById('cpx-iframe');
@@ -214,7 +270,7 @@
             const secure_hash = md5(uid + '-' + CPX_SECURE_KEY);
             iframe.src = `https://offers.cpx-research.com/index.php?app_id=\( {CPX_APP_ID}&ext_user_id= \){uid}&secure_hash=${secure_hash}`;
             container.style.display = 'block';
-            showToast("CPX Surveys Loaded!");
+            showToast("CPX Surveys Loading...");
         }
 
         function loadAdGem() {
@@ -222,10 +278,13 @@
             const container = document.getElementById('adgem-container');
             iframe.src = ADGEM_DIRECT_LINK + uid;
             container.style.display = 'block';
-            showToast("AdGem Offers Loaded!");
+            showToast("AdGem Offers Loading...");
         }
 
-        fetch(`${BACKEND}/api/sync`, {method:'POST', headers:{'x-telegram-init-data': tg.initData, 'x-start-param': startParam}});
+        fetch(`${BACKEND}/api/sync`, {
+            method: 'POST',
+            headers: { 'x-telegram-init-data': tg.initData, 'x-start-param': startParam }
+        });
     </script>
 </body>
     </html>
