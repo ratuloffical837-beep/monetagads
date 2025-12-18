@@ -14,7 +14,7 @@
         :root { --bg: #0b1426; --neon: #00f0ff; --glass: rgba(255, 255, 255, 0.08); }
         body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
         .header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .social-btns { display: flex; gap: 5px; flex-wrap: wrap; max-width: 70%; }
+        .social-btns { display: flex; gap: 5px; flex-wrap: wrap; max-width: 75%; }
         .s-btn { width: 32px; height: 32px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; font-size: 14px; }
         .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 11px; padding: 5px 0; margin-bottom: 10px; border-bottom: 1px solid var(--neon); overflow: hidden; }
         .orb-container { width: 100%; display: flex; justify-content: center; margin: 10px 0; }
@@ -24,14 +24,14 @@
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
         .btn { padding: 12px 5px; border-radius: 10px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; }
         .btn-disabled { opacity: 0.4; pointer-events: none !important; filter: grayscale(1); }
-        #toast { position: fixed; bottom: 20px; background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; border: 1px solid var(--neon); z-index: 2000; }
+        #toast { position: fixed; bottom: 20px; background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; border: 1px solid var(--neon); z-index: 4000; }
         
         /* Withdrawal Modal */
-        #wModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; background: #16213e; border: 2px solid var(--neon); border-radius: 15px; padding: 20px; z-index: 3000; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-        #wModal h3 { margin-top: 0; color: var(--neon); font-size: 18px; text-align: center; }
-        #wModal input, #wModal select { width: 100%; padding: 10px; margin: 10px 0; background: #0b1426; border: 1px solid var(--neon); color: #fff; border-radius: 5px; box-sizing: border-box; }
+        #wModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; background: #16213e; border: 2px solid var(--neon); border-radius: 15px; padding: 20px; z-index: 3000; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        #wModal h3 { margin: 0 0 15px 0; color: var(--neon); text-align: center; font-size: 18px; }
+        #wModal input, #wModal select { width: 100%; padding: 10px; margin-bottom: 15px; background: #0b1426; border: 1px solid var(--neon); color: #fff; border-radius: 8px; box-sizing: border-box; outline: none; }
         .modal-btns { display: flex; gap: 10px; }
-        .m-btn { flex: 1; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .m-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
         .section { display: none; width: 100%; height: 100vh; position: fixed; top: 0; left: 0; background: var(--bg); z-index: 1500; padding: 10px; box-sizing: border-box; }
         iframe { width: 100%; height: calc(100% - 60px); border-radius: 12px; border: 1px solid var(--neon); margin-top: 10px; background: #fff; }
@@ -52,7 +52,7 @@
             <div style="font-size: 10px; text-align: right;">User:<br><span id="uNameDisp" style="color:var(--neon); font-weight:bold;">...</span></div>
         </div>
 
-        <div class="notice"><marquee>🔔 📢 আসসালামু আলাইকুম আশা করি সবাই ভালো আছেন 🥰🥳সবাই মনযোগ দিয়ে শুনবেন সবাই দোইনিক Adstar আর Monetag এড দেখবেন কারন এই সাইটটিতে এখন ইনকামের উপায় হলো Monetag আর Adstar এই ২ টি😍😍 তো সবাই বেশি বেশি এড দেখবেন অন্য কে এড দেখাবেন লিংক শেয়ার করে এর পর আর বাকি সিস্টেম গুলোও চালু হয়ে যাবে কিছু দিনের ভিতরে ইনশাআল্লাহ  দোইনিক টাস্ক সম্পূর্ণ করেন এবং পেমিন্ট পান সবাই দোইনিক ৩০ টি এড দেখেন উপরে এড লিংক সাধারণ মানুষের কাছে শেয়ার করেন এতে আপনাদের ইনকাম বারবে আর রেফার করেন🥳🥳 বেশি বেশি তাহলে আপনারা একটি ভালো পরিমান টাকা ইনকাম করতে পারবেন😍😍 ইনশাআল্লাহ 💯💯💯👩‍💻👨‍💻!</marquee></div>
+        <div class="notice"><marquee>🔔 ৫ জন রেফার ও ২০০০ পয়েন্টে উইথড্র। প্রতি এডে ১ পয়েন্ট। রেফার বোনাস ১০ পয়েন্ট!</marquee></div>
 
         <div class="orb-container">
             <div class="orb">
@@ -78,11 +78,12 @@
             <button class="btn" onclick="openWModal()"><i class="fas fa-wallet"></i>WITHDRAW</button>
             <button class="btn" onclick="doRefer()"><i class="fas fa-link"></i>REFER LINK</button>
         </div>
+        <button class="btn" style="width:100%; margin-top:15px; background:rgba(255, 59, 48, 0.2); border-color:#ff3b30;" onclick="tg.close()">EXIT APP</button>
     </div>
 
     <div id="wModal">
-        <h3>Cash Out</h3>
-        <input type="number" id="wAmount" placeholder="Enter Points (Min 2000)" value="2000">
+        <h3>Withdraw Points</h3>
+        <input type="number" id="wAmount" placeholder="Points (Min 2000)" value="2000">
         <select id="wMethod">
             <option value="Bikash">Bikash</option>
             <option value="Nagad">Nagad</option>
@@ -90,11 +91,15 @@
         </select>
         <input type="number" id="wPhone" placeholder="11 Digit Phone Number">
         <div class="modal-btns">
-            <button class="m-btn" style="background:#ff3b30; color:#fff;" onclick="closeWModal()">Cancel</button>
+            <button class="m-btn" style="background:#444; color:#fff;" onclick="closeWModal()">Cancel</button>
             <button class="m-btn" style="background:var(--neon); color:#000;" onclick="submitWithdraw()">Submit</button>
         </div>
     </div>
 
+    <div id="wallSection" class="section">
+        <button class="btn" style="width:100%;" onclick="closeWall()">BACK TO HOME</button>
+        <iframe id="wall-iframe" frameborder="0"></iframe>
+    </div>
     <div id="toast">Notice</div>
 
     <script>
@@ -135,12 +140,12 @@
         function closeWModal() { document.getElementById('wModal').style.display = 'none'; }
 
         async function submitWithdraw() {
-            const amount = document.getElementById('wAmount').value;
+            const amount = parseInt(document.getElementById('wAmount').value);
             const method = document.getElementById('wMethod').value;
             const phone = document.getElementById('wPhone').value;
 
-            if(amount < 2000) return showToast("Min 2000 Points!");
-            if(phone.length !== 11) return showToast("Enter 11 Digit Number!");
+            if(amount < 2000) return showToast("Minimum 2000 Points!");
+            if(phone.length !== 11) return showToast("Phone must be 11 digits!");
 
             const res = await fetch(`${BACKEND}/api/withdraw`, {
                 method: 'POST',
@@ -174,6 +179,16 @@
             const r = await fetch(`${BACKEND}/api/${ep}`, { method: 'POST', headers: {'x-telegram-init-data': tg.initData} });
             const d = await r.json(); showToast(d.message);
         }
+        function openWall(type) {
+            document.getElementById('wallSection').style.display = 'block';
+            let url = "";
+            if(type === 'ayet') url = `https://support.ayet.io/offers?externalIdentifier=${uid}&placementId=21472`;
+            else if(type === 'cpx') url = `https://offers.cpx-research.com/index.php?app_id=30520&ext_user_id=${uid}&secure_hash=${md5(uid + "-0UO1OjWFA1DzWsmbSlsNL6zgRJ0ovYed")}`;
+            else if(type === 'bitlabs') url = `https://web.bitlabs.ai/?token=246506f4-d3bf-4b41-8cfc-9aa09ee7b8c9&uid=${uid}`;
+            else if(type === 'adgem') url = `https://api.adgem.com/v1/wall?appid=31665&playerid=${uid}`;
+            document.getElementById('wall-iframe').src = url;
+        }
+        function closeWall() { document.getElementById('wallSection').style.display = 'none'; document.getElementById('wall-iframe').src = ""; }
         function doRefer() { navigator.clipboard.writeText(`https://t.me/realldoler87ok_bot?start=${uid}`); showToast("Referral Link Copied!"); }
         function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.visibility = 'visible'; setTimeout(() => t.style.visibility = 'hidden', 3000); }
         function copyText(txt) { navigator.clipboard.writeText(txt); showToast("Link Copied!"); }
