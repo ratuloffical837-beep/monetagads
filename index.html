@@ -3,288 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Neon Earning Master</title>
+    <title>Neon Pro V2</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
     <script src='//libtl.com/sdk.js' data-zone='10318378' data-sdk='show_10318378'></script>
-
     <style>
-        :root { --bg: #0b1426; --neon: #00f0ff; --glass: rgba(255, 255, 255, 0.08); }
-        body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-        .social-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-        .s-btn { width: 35px; height: 35px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; }
-        .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 12px; padding: 5px 0; margin: 10px 0; border-bottom: 1px solid var(--neon); overflow: hidden; }
-        .orb { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 15px auto; }
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; }
-        .s-box { background: var(--glass); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .s-box small { font-size: 10px; opacity: 0.7; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
-        .btn { padding: 15px 5px; border-radius: 12px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 12px; }
-        .btn-disabled { opacity: 0.4; pointer-events: none !important; filter: grayscale(1); }
-        .new-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 15px; }
-        #toast { position: fixed; bottom: 20px; background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; border: 1px solid var(--neon); z-index: 999; }
-        .section { display: none; width: 100%; }
-        #mainSection { display: block; }
-        .back-btn { width: 100%; margin-bottom: 15px; }
+        :root { --bg: #050a14; --neon: #00f0ff; --glass: rgba(255,255,255,0.06); }
+        body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        #loader { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 45px; height: 45px; border: 4px solid var(--glass); border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 1s linear infinite; }
+        .orb { width: 150px; height: 150px; border-radius: 50%; border: 2px solid var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 20px auto; box-shadow: 0 0 15px var(--neon); }
+        #pDisp { font-size: 40px; font-weight: 900; color: var(--neon); }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .s-box { background: var(--glass); padding: 12px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { padding: 15px 5px; border-radius: 12px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #000; padding: 10px 20px; border-radius: 20px; border: 1px solid var(--neon); visibility: hidden; z-index: 10000; font-size: 12px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-
-    <!-- মেইন সেকশন -->
-    <div id="mainSection" class="section">
-        <div class="header">
-            <div class="social-btns">
-                <div class="s-btn" onclick="window.open('https://youtube.com/@alex-42-41', '_blank')"><i class="fab fa-youtube"></i></div>
-                <div class="s-btn" onclick="window.open('https://facebook.com/share/1UQCaxE29T/', '_blank')"><i class="fab fa-facebook"></i></div>
-                <div class="s-btn" onclick="window.open('https://t.me/ratulhossain56', '_blank')"><i class="fab fa-telegram"></i></div>
-                <div class="s-btn" onclick="copyText('https://otieu.com/4/10315373', 'Monetag Link')"><i class="fas fa-link"></i></div>
-                <div class="s-btn" onclick="copyText('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57', 'Adstar Link')"><i class="fas fa-copy"></i></div>
-                <div class="s-btn" onclick="copyAdGemLink()"><i class="fas fa-gem"></i></div>
-            </div>
-            <div style="font-size: 11px; text-align: right;">Welcome, <br><span id="uName" style="color:var(--neon); font-weight:bold;">USER</span></div>
-        </div>
-
-        <div class="notice">
-            <marquee behavior="scroll" direction="left" scrollamount="6">🔔 ৩ জন রেফার করলে পেমেন্ট পাবেন। Monetag: ৫ মিনিট কুলডাউন | Adstar: ১০ মিনিট কুলডাউন | Adstar টাস্ক ডেইলি করুন (রেফারেল কন্ডিশন পূরণে সাহায্য করবে)।</marquee>
-        </div>
-
-        <div class="orb"><span style="font-size:35px; font-weight:bold" id="pDisp">0</span><small>POINTS</small></div>
-
+    <div id="loader"><div class="spinner"></div><p style="color:var(--neon); margin-top:15px;">INITIALIZING...</p></div>
+    <div id="app">
+        <div style="display:flex; justify-content: space-between; font-size: 12px;"><span style="color: var(--neon);">PRO SYSTEM</span><span id="uNameDisp">USER</span></div>
+        <div class="orb"><span id="pDisp">0</span><small>COINS</small></div>
         <div class="stats">
-            <div class="s-box"><small>Monetag Today</small><br><strong id="mCount">0/20</strong></div>
-            <div class="s-box"><small>Adstar Today</small><br><strong id="aCount">0/10</strong></div>
-            <div class="s-box"><small>Total Ads</small><br><strong id="tCount">0</strong></div>
-            <div class="s-box"><small>Total Refer</small><br><strong id="rCount">0</strong></div>
+            <div class="s-box"><small>MONETAG</small><br><strong id="mCount">0/20</strong></div>
+            <div class="s-box"><small>ADSTAR</small><br><strong id="aCount">0/10</strong></div>
         </div>
-
         <div class="btn-grid">
-            <button class="btn" id="mBtn"><i class="fas fa-play"></i><span id="mText">MONETAG AD</span></button>
-            <button class="btn" id="aBtn"><i class="fas fa-star"></i><span id="aText">ADSTAR AD</span></button>
-            <button class="btn" onclick="doWithdraw()"><i class="fas fa-wallet"></i>WITHDRAW</button>
-            <button class="btn" onclick="doRefer()"><i class="fas fa-users"></i>REFER EARN</button>
-        </div>
-
-        <button class="btn" style="width:100%; margin-top:15px; background:rgba(255, 59, 48, 0.2); border-color:#ff3b30;" onclick="tg.close()">
-            <i class="fas fa-power-off"></i> EXIT APP
-        </button>
-
-        <div class="new-btn-grid">
-            <button class="btn" onclick="showSection('cpxSection')"><i class="fas fa-poll"></i>CPX SURVEYS</button>
-            <button class="btn" onclick="showSection('adgemSection')"><i class="fas fa-gem"></i>ADGEM OFFERS</button>
+            <button class="btn btn-disabled" id="mBtn" onclick="watchM()"><span id="mText">...</span></button>
+            <button class="btn btn-disabled" id="aBtn" onclick="watchA()"><span id="aText">...</span></button>
+            <button class="btn" onclick="doWithdraw()">WITHDRAW</button>
+            <button class="btn" onclick="doRefer()">INVITE</button>
         </div>
     </div>
-
-    <!-- CPX সেকশন -->
-    <div id="cpxSection" class="section">
-        <button class="btn back-btn" onclick="showSection('mainSection')"><i class="fas fa-arrow-left"></i> Back to Main</button>
-        <div style="font-size: 11px; text-align: center; margin-bottom: 10px;">Welcome, <span id="cpxUName" style="color:var(--neon); font-weight:bold;">USER</span></div>
-        <div class="orb"><span style="font-size:35px; font-weight:bold" id="cpxDisp">0</span><small>CPX POINTS</small></div>
-        <button class="btn" style="width:100%;" onclick="loadCPX()"><i class="fas fa-poll"></i> Load CPX Surveys</button>
-        <div id="cpx-container" style="display:none; width:100%; height:600px; margin-top:15px;">
-            <iframe id="cpx-iframe" width="100%" height="100%" frameborder="0"></iframe>
-        </div>
-    </div>
-
-    <!-- AdGem সেকশন -->
-    <div id="adgemSection" class="section">
-        <button class="btn back-btn" onclick="showSection('mainSection')"><i class="fas fa-arrow-left"></i> Back to Main</button>
-        <div style="font-size: 11px; text-align: center; margin-bottom: 10px;">Welcome, <span id="adgemUName" style="color:var(--neon); font-weight:bold;">USER</span></div>
-        <div class="orb"><span style="font-size:35px; font-weight:bold" id="adgemDisp">0</span><small>ADGEM POINTS</small></div>
-        <button class="btn" style="width:100%;" onclick="loadAdGem()"><i class="fas fa-gem"></i> Load AdGem Offers</button>
-        <div id="adgem-container" style="display:none; width:100%; height:600px; margin-top:15px;">
-            <iframe id="adgem-iframe" width="100%" height="100%" frameborder="0"></iframe>
-        </div>
-    </div>
-
     <div id="toast">Notice</div>
-
     <script>
         const BACKEND = "https://monetagads4241r.onrender.com";
         const ADSTAR_URL = "https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57";
-        const ADGEM_DIRECT_LINK = "https://api.adgem.com/v1/wall?appid=31665&playerid=";
-        const CPX_APP_ID = 30520;
-        const CPX_SECURE_KEY = "0UO1OjWFA1DzWsmbSlsNL6zgRJ0ovYed";
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const firebaseConfig = {
-            apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
-            authDomain: "monetas-ads-4241.firebaseapp.com",
-            projectId: "monetas-ads-4241",
-            storageBucket: "monetas-ads-4241.firebasestorage.app",
-            messagingSenderId: "482009819786",
-            appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
+          apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
+          authDomain: "monetas-ads-4241.firebaseapp.com",
+          projectId: "monetas-ads-4241",
+          storageBucket: "monetas-ads-4241.firebasestorage.app",
+          messagingSenderId: "482009819786",
+          appId: "1:482009819786:web:8606ae48b666bfd9a1db73"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        let uid = String(tg.initDataUnsafe?.user?.id || "test_user");
-        let startParam = tg.initDataUnsafe.start_param || '';
+        const uid = String(tg.initDataUnsafe?.user?.id || "test_user");
 
-        const uName = (tg.initDataUnsafe?.user?.first_name || "Guest").toUpperCase();
-        document.getElementById('uName').innerText = uName;
-        document.getElementById('cpxUName').innerText = uName;
-        document.getElementById('adgemUName').innerText = uName;
-
-        let timers = { m: null, a: null };
-
-        db.collection('users').doc(uid).onSnapshot(doc => {
-            if (doc.exists) {
-                const d = doc.data();
-                document.getElementById('pDisp').innerText = d.coins || 0;
-                document.getElementById('rCount').innerText = d.referrals || 0;
-                document.getElementById('cpxDisp').innerText = d.cpxPoints || 0;
-                document.getElementById('adgemDisp').innerText = d.adgemPoints || 0;
-
-                const today = new Date().toISOString().slice(0, 10);
-                const mToday = d.lastAdDate === today ? (d.adsToday || 0) : 0;
-                const aToday = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
-
-                document.getElementById('mCount').innerText = `${mToday}/20`;
-                document.getElementById('aCount').innerText = `${aToday}/10`;
-                document.getElementById('tCount').innerText = d.totalAdsWatched || 0;
-
-                checkTimers(d.lastAdTime, d.lastAdstarTime, mToday, aToday);
-            }
-        });
-
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
-            document.getElementById(sectionId).style.display = 'block';
+        async function init() {
+            try {
+                const res = await fetch(`${BACKEND}/api/sync`, {
+                    method: 'POST',
+                    headers: {'x-telegram-init-data': tg.initData, 'x-start-param': tg.initDataUnsafe.start_param || ''}
+                });
+                if(res.ok) { document.getElementById('loader').style.display = 'none'; startApp(); }
+            } catch(e) { setTimeout(init, 3000); }
         }
 
-        function checkTimers(mLast, aLast, mC, aC) {
-            const now = Date.now();
-            if (timers.m) clearInterval(timers.m);
-            if (timers.a) clearInterval(timers.a);
-
-            const mb = document.getElementById('mBtn'), mt = document.getElementById('mText');
-            if (mC >= 20) {
-                mb.classList.add('btn-disabled');
-                mt.innerText = "DAILY LIMIT REACHED";
-            } else {
-                const diff = mLast ? (now - mLast.toDate().getTime()) / 1000 : 99999;
-                if (diff < 300) { // 5 মিনিট
-                    timers.m = startTimer(mb, mt, 300 - diff, "MONETAG AD");
-                } else {
-                    mb.classList.remove('btn-disabled');
-                    mt.innerText = "MONETAG AD";
+        function startApp() {
+            db.collection('users').doc(uid).onSnapshot(doc => {
+                if(doc.exists) {
+                    const d = doc.data();
+                    document.getElementById('pDisp').innerText = d.coins || 0;
+                    document.getElementById('uNameDisp').innerText = (d.uName || "User").toUpperCase();
+                    const today = new Date().toISOString().slice(0, 10);
+                    const mToday = d.lastAdDate === today ? (d.adsToday || 0) : 0;
+                    const aToday = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
+                    document.getElementById('mCount').innerText = `${mToday}/20`;
+                    document.getElementById('aCount').innerText = `${aToday}/10`;
+                    
+                    // Interval update to handle timers
+                    if(window.timerInt) clearInterval(window.timerInt);
+                    window.timerInt = setInterval(() => {
+                        updateBtn('mBtn', 'mText', d.lastAdTime, mToday, 20, 300, "MONETAG");
+                        updateBtn('aBtn', 'aText', d.lastAdstarTime, aToday, 10, 600, "ADSTAR");
+                    }, 1000);
                 }
-            }
-
-            const ab = document.getElementById('aBtn'), at = document.getElementById('aText');
-            if (aC >= 10) {
-                ab.classList.add('btn-disabled');
-                at.innerText = "DAILY LIMIT REACHED";
-            } else {
-                const diff = aLast ? (now - aLast.toDate().getTime()) / 1000 : 99999;
-                if (diff < 600) { // 10 মিনিট
-                    timers.a = startTimer(ab, at, 600 - diff, "ADSTAR AD");
-                } else {
-                    ab.classList.remove('btn-disabled');
-                    at.innerText = "ADSTAR AD";
-                }
-            }
+            });
         }
 
-        function startTimer(btn, txt, sec, orig) {
-            btn.classList.add('btn-disabled');
-            let s = Math.ceil(sec);
-            const interval = setInterval(() => {
-                if (s <= 0) {
-                    clearInterval(interval);
-                    btn.classList.remove('btn-disabled');
-                    txt.innerText = orig;
-                    return;
-                }
-                txt.innerText = `Wait \( {Math.floor(s / 60)}: \){(s % 60).toString().padStart(2, '0')}`;
-                s--;
-            }, 1000);
-            return interval;
+        function updateBtn(bid, tid, last, count, limit, cd, label) {
+            const btn = document.getElementById(bid), txt = document.getElementById(tid);
+            if(count >= limit) { btn.classList.add('btn-disabled'); txt.innerText = "LIMIT"; return; }
+            
+            // Fixed NaN:NaN check
+            const lastMs = (last && last.seconds) ? last.seconds * 1000 : (last ? new Date(last).getTime() : 0);
+            const diff = (Date.now() - lastMs) / 1000;
+
+            if(diff < cd) {
+                btn.classList.add('btn-disabled');
+                let rem = Math.ceil(cd - diff);
+                txt.innerText = `${Math.floor(rem/60)}:${(rem%60).toString().padStart(2,'0')}`;
+            } else {
+                btn.classList.remove('btn-disabled');
+                txt.innerText = label;
+            }
         }
 
         function watchM() {
-            const mb = document.getElementById('mBtn');
-            if (mb.classList.contains('btn-disabled')) {
-                showToast("Cooldown active!");
-                return;
-            }
-            if (typeof show_10318378 === 'function') {
-                show_10318378({ ymid: uid }).then(() => {
-                    fetch(`${BACKEND}/api/claim-reward`, {
-                        method: 'POST',
-                        headers: { 'x-telegram-init-data': tg.initData }
-                    }).then(() => showToast("+1 Point & 5 min cooldown started!"));
-                }).catch(() => showToast("Ad failed."));
-            } else {
-                showToast("Monetag loading... Try again.");
+            if(typeof show_10318378 === 'function') {
+                show_10318378({ymid: uid}).then(() => {
+                    showToast("Verifying...");
+                    setTimeout(() => claim('claim-reward'), 2000);
+                });
             }
         }
 
         function watchA() {
-            const ab = document.getElementById('aBtn');
-            if (ab.classList.contains('btn-disabled')) {
-                showToast("Cooldown active!");
-                return;
-            }
             window.open(ADSTAR_URL, '_blank');
-            fetch(`${BACKEND}/api/claim-adstar`, {
+            showToast("Stay 15s...");
+            setTimeout(() => claim('claim-adstar'), 15000);
+        }
+
+        async function claim(ep) {
+            const res = await fetch(`${BACKEND}/api/${ep}`, {
                 method: 'POST',
-                headers: { 'x-telegram-init-data': tg.initData }
-            }).then(() => showToast("Adstar counted! 10 min cooldown started."));
-        }
-
-        function copyText(text, name) {
-            navigator.clipboard.writeText(text).then(() => showToast(name + " Copied!")).catch(() => showToast("Copy failed!"));
-        }
-
-        function copyAdGemLink() {
-            navigator.clipboard.writeText(ADGEM_DIRECT_LINK + uid).then(() => showToast("AdGem Link Copied!")).catch(() => showToast("Copy failed!"));
+                headers: {'x-telegram-init-data': tg.initData}
+            });
+            const d = await res.json();
+            showToast(d.message);
         }
 
         function showToast(m) {
             const t = document.getElementById('toast');
-            t.innerText = m;
-            t.style.visibility = 'visible';
-            setTimeout(() => t.style.visibility = 'hidden', 4000);
+            t.innerText = m; t.style.visibility = 'visible';
+            setTimeout(() => t.style.visibility = 'hidden', 3000);
         }
 
         function doRefer() {
             const link = `https://t.me/realldoler87ok_bot?start=${uid}`;
-            navigator.clipboard.writeText(link).then(() => showToast("Referral Link Copied! +2 Points per refer"));
+            navigator.clipboard.writeText(link).then(() => showToast("Link Copied!"));
         }
 
         function doWithdraw() {
             fetch(`${BACKEND}/api/withdraw`, {
                 method: 'POST',
-                headers: { 'x-telegram-init-data': tg.initData }
-            }).then(res => res.json()).then(data => showToast(data.message));
+                headers: {'x-telegram-init-data': tg.initData}
+            }).then(r => r.json()).then(d => showToast(d.message));
         }
 
-        function loadCPX() {
-            const iframe = document.getElementById('cpx-iframe');
-            const container = document.getElementById('cpx-container');
-            const secure_hash = md5(uid + '-' + CPX_SECURE_KEY);
-            iframe.src = `https://offers.cpx-research.com/index.php?app_id=\( {CPX_APP_ID}&ext_user_id= \){uid}&secure_hash=${secure_hash}`;
-            container.style.display = 'block';
-            showToast("CPX Surveys Loading...");
-        }
-
-        function loadAdGem() {
-            const iframe = document.getElementById('adgem-iframe');
-            const container = document.getElementById('adgem-container');
-            iframe.src = ADGEM_DIRECT_LINK + uid;
-            container.style.display = 'block';
-            showToast("AdGem Offers Loading...");
-        }
-
-        fetch(`${BACKEND}/api/sync`, {
-            method: 'POST',
-            headers: { 'x-telegram-init-data': tg.initData, 'x-start-param': startParam }
-        });
+        window.onload = init;
     </script>
 </body>
     </html>
