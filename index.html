@@ -14,20 +14,25 @@
         :root { --bg: #0b1426; --neon: #00f0ff; --glass: rgba(255, 255, 255, 0.08); }
         body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
         .header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .social-btns { display: flex; gap: 6px; }
-        .s-btn { width: 34px; height: 34px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; }
+        .social-btns { display: flex; gap: 5px; flex-wrap: wrap; max-width: 70%; }
+        .s-btn { width: 32px; height: 32px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; font-size: 14px; }
         .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 11px; padding: 5px 0; margin-bottom: 10px; border-bottom: 1px solid var(--neon); overflow: hidden; }
-        
-        /* Orb Center Alignment */
-        .orb-container { width: 100%; display: flex; justify-content: center; margin: 15px 0; }
-        .orb { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        
+        .orb-container { width: 100%; display: flex; justify-content: center; margin: 10px 0; }
+        .orb { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-bottom: 15px; }
-        .s-box { background: var(--glass); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
+        .s-box { background: var(--glass); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 11px; }
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
         .btn { padding: 12px 5px; border-radius: 10px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; }
         .btn-disabled { opacity: 0.4; pointer-events: none !important; filter: grayscale(1); }
         #toast { position: fixed; bottom: 20px; background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; border: 1px solid var(--neon); z-index: 2000; }
+        
+        /* Withdrawal Modal */
+        #wModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; background: #16213e; border: 2px solid var(--neon); border-radius: 15px; padding: 20px; z-index: 3000; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #wModal h3 { margin-top: 0; color: var(--neon); font-size: 18px; text-align: center; }
+        #wModal input, #wModal select { width: 100%; padding: 10px; margin: 10px 0; background: #0b1426; border: 1px solid var(--neon); color: #fff; border-radius: 5px; box-sizing: border-box; }
+        .modal-btns { display: flex; gap: 10px; }
+        .m-btn { flex: 1; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
         .section { display: none; width: 100%; height: 100vh; position: fixed; top: 0; left: 0; background: var(--bg); z-index: 1500; padding: 10px; box-sizing: border-box; }
         iframe { width: 100%; height: calc(100% - 60px); border-radius: 12px; border: 1px solid var(--neon); margin-top: 10px; background: #fff; }
     </style>
@@ -39,17 +44,19 @@
                 <div class="s-btn" onclick="tg.openLink('https://youtube.com/@alex-42-41')"><i class="fab fa-youtube"></i></div>
                 <div class="s-btn" onclick="tg.openLink('https://facebook.com/share/1UQCaxE29T/')"><i class="fab fa-facebook"></i></div>
                 <div class="s-btn" onclick="tg.openLink('https://t.me/ratulhossain56')"><i class="fab fa-telegram"></i></div>
-                <div class="s-btn" style="background: #ffaa00; border-color: #fff;" onclick="tg.openLink('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57')"><i class="fas fa-bolt"></i></div>
-                <div class="s-btn" style="background: #00cc66; border-color: #fff;" onclick="copyText('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57')"><i class="fas fa-copy"></i></div>
+                <div class="s-btn" style="background: #ffaa00;" onclick="tg.openLink('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57')"><i class="fas fa-bolt"></i></div>
+                <div class="s-btn" style="background: #00cc66;" onclick="copyText('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57')"><i class="fas fa-copy"></i></div>
+                <div class="s-btn" style="background: #6a0dad;" onclick="tg.openLink('https://otieu.com/4/10315373')"><i class="fas fa-play-circle"></i></div>
+                <div class="s-btn" style="background: #e91e63;" onclick="copyText('https://otieu.com/4/10315373')"><i class="fas fa-clone"></i></div>
             </div>
-            <div style="font-size: 10px; text-align: right;">Welcome,<br><span id="uNameDisp" style="color:var(--neon); font-weight:bold;">...</span></div>
+            <div style="font-size: 10px; text-align: right;">User:<br><span id="uNameDisp" style="color:var(--neon); font-weight:bold;">...</span></div>
         </div>
 
-        <div class="notice"><marquee>🔔📢 💯 আসসালামু আলাইকুম দয়াকরে সবাই মনযোগ দিয়ে শুনবেন সবাই সবাই সব থেকে বেশি বেশি Monetag এড দেখবেন আর Adstar এড দেখবেন বেশি বেশি আর বাকি যে ইনকাম এর অপশন গুলো আছে ওগুলো আশা কোরি তারা তারি ঠিক হোইয়া জাবে এগুলো সম্পূর্ণ চালু করার পর আপনাদের জানানো হবে এখন মূল কাজ হচ্ছে Monetag এড আর Adstar এড এই ২ টি ওকে এই ২ টি খুব ভালো ভাবে কাজ করে টাকা দেয়া তাই সবাই এগুলো দেখবেন আর উপরে বাম সাইটে হলুদ একটি আইকন আছে ওখান দিয়ে এড দেখবেন যখন এড শেষ হয়ে যাবে তখন আর ওটার পাশে একটা লিংক আছে ওটা সবাইকে সেয়ার করবেন ওটা দিয়ে সবাই ডায়রেক্ট এড দেখতে পারবে আর আপনার ইনকাম হবে আর নিচে রেফার বাটোন আছে বেশি বেশি রেফার করেন ১ টি রেফারে ১০ পয়েন্ট তাই সবাই ঠিক মতো কাজ করেন পেমেন্ট নিন ১৫ দিন পর পর পেমিন্ট পাবেন সবাই ওকে সবাই ভালো থাকবেন নিয়মিত কাজ করবেন ইনশাআল্লাহ 👩‍💻👨‍💻🧑‍💻 !</marquee></div>
+        <div class="notice"><marquee>🔔 📢 আসসালামু আলাইকুম আশা করি সবাই ভালো আছেন 🥰🥳সবাই মনযোগ দিয়ে শুনবেন সবাই দোইনিক Adstar আর Monetag এড দেখবেন কারন এই সাইটটিতে এখন ইনকামের উপায় হলো Monetag আর Adstar এই ২ টি😍😍 তো সবাই বেশি বেশি এড দেখবেন অন্য কে এড দেখাবেন লিংক শেয়ার করে এর পর আর বাকি সিস্টেম গুলোও চালু হয়ে যাবে কিছু দিনের ভিতরে ইনশাআল্লাহ  দোইনিক টাস্ক সম্পূর্ণ করেন এবং পেমিন্ট পান সবাই দোইনিক ৩০ টি এড দেখেন উপরে এড লিংক সাধারণ মানুষের কাছে শেয়ার করেন এতে আপনাদের ইনকাম বারবে আর রেফার করেন🥳🥳 বেশি বেশি তাহলে আপনারা একটি ভালো পরিমান টাকা ইনকাম করতে পারবেন😍😍 ইনশাআল্লাহ 💯💯💯👩‍💻👨‍💻!</marquee></div>
 
         <div class="orb-container">
             <div class="orb">
-                <span style="font-size:26px; font-weight:bold" id="pDisp">0</span>
+                <span style="font-size:24px; font-weight:bold" id="pDisp">0</span>
                 <small>POINTS</small>
             </div>
         </div>
@@ -68,16 +75,26 @@
             <button class="btn" onclick="openWall('cpx')"><i class="fas fa-poll-h"></i>CPX SURVEY</button>
             <button class="btn" onclick="openWall('bitlabs')"><i class="fas fa-flask"></i>BITLABS</button>
             <button class="btn" onclick="openWall('adgem')"><i class="fas fa-gem"></i>ADGEM</button>
-            <button class="btn" onclick="doWithdraw()"><i class="fas fa-wallet"></i>WITHDRAW</button>
+            <button class="btn" onclick="openWModal()"><i class="fas fa-wallet"></i>WITHDRAW</button>
             <button class="btn" onclick="doRefer()"><i class="fas fa-link"></i>REFER LINK</button>
         </div>
-        <button class="btn" style="width:100%; margin-top:15px; background:rgba(255, 59, 48, 0.2); border-color:#ff3b30;" onclick="tg.close()">EXIT APP</button>
     </div>
 
-    <div id="wallSection" class="section">
-        <button class="btn" style="width:100%;" onclick="closeWall()">BACK TO HOME</button>
-        <iframe id="wall-iframe" frameborder="0"></iframe>
+    <div id="wModal">
+        <h3>Cash Out</h3>
+        <input type="number" id="wAmount" placeholder="Enter Points (Min 2000)" value="2000">
+        <select id="wMethod">
+            <option value="Bikash">Bikash</option>
+            <option value="Nagad">Nagad</option>
+            <option value="Rocket">Rocket</option>
+        </select>
+        <input type="number" id="wPhone" placeholder="11 Digit Phone Number">
+        <div class="modal-btns">
+            <button class="m-btn" style="background:#ff3b30; color:#fff;" onclick="closeWModal()">Cancel</button>
+            <button class="m-btn" style="background:var(--neon); color:#000;" onclick="submitWithdraw()">Submit</button>
+        </div>
     </div>
+
     <div id="toast">Notice</div>
 
     <script>
@@ -104,7 +121,7 @@
                 document.getElementById('pDisp').innerText = d.coins || 0;
                 document.getElementById('rCount').innerText = d.referrals || 0;
                 document.getElementById('tCount').innerText = d.totalAdsWatched || 0;
-                const today = new Date().toISOString().slice(0, 10);
+                const today = new Date(new Date().getTime() + (6 * 60 * 60 * 1000)).toISOString().slice(0, 10);
                 const mC = d.lastAdDate === today ? (d.adsToday || 0) : 0;
                 const aC = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
                 document.getElementById('mCount').innerText = `${mC}/20`;
@@ -113,6 +130,27 @@
                 updateTimerUI(d.lastAdstarTime, 600, 'aBtn', 'aText', 'ADSTAR AD', aC, 10);
             }
         });
+
+        function openWModal() { document.getElementById('wModal').style.display = 'block'; }
+        function closeWModal() { document.getElementById('wModal').style.display = 'none'; }
+
+        async function submitWithdraw() {
+            const amount = document.getElementById('wAmount').value;
+            const method = document.getElementById('wMethod').value;
+            const phone = document.getElementById('wPhone').value;
+
+            if(amount < 2000) return showToast("Min 2000 Points!");
+            if(phone.length !== 11) return showToast("Enter 11 Digit Number!");
+
+            const res = await fetch(`${BACKEND}/api/withdraw`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-telegram-init-data': tg.initData },
+                body: JSON.stringify({ amount, method, phone })
+            });
+            const d = await res.json();
+            showToast(d.message);
+            if(d.ok) closeWModal();
+        }
 
         function updateTimerUI(lastT, duration, btnId, txtId, label, count, limit) {
             const btn = document.getElementById(btnId), txt = document.getElementById(txtId);
@@ -136,18 +174,7 @@
             const r = await fetch(`${BACKEND}/api/${ep}`, { method: 'POST', headers: {'x-telegram-init-data': tg.initData} });
             const d = await r.json(); showToast(d.message);
         }
-        function openWall(type) {
-            document.getElementById('wallSection').style.display = 'block';
-            let url = "";
-            if(type === 'ayet') url = `https://support.ayet.io/offers?externalIdentifier=${uid}&placementId=21472`;
-            else if(type === 'cpx') url = `https://offers.cpx-research.com/index.php?app_id=30520&ext_user_id=${uid}&secure_hash=${md5(uid + "-0UO1OjWFA1DzWsmbSlsNL6zgRJ0ovYed")}`;
-            else if(type === 'bitlabs') url = `https://web.bitlabs.ai/?token=246506f4-d3bf-4b41-8cfc-9aa09ee7b8c9&uid=${uid}`;
-            else if(type === 'adgem') url = `https://api.adgem.com/v1/wall?appid=31665&playerid=${uid}`;
-            document.getElementById('wall-iframe').src = url;
-        }
-        function closeWall() { document.getElementById('wallSection').style.display = 'none'; document.getElementById('wall-iframe').src = ""; }
         function doRefer() { navigator.clipboard.writeText(`https://t.me/realldoler87ok_bot?start=${uid}`); showToast("Referral Link Copied!"); }
-        function doWithdraw() { claim('withdraw'); }
         function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.visibility = 'visible'; setTimeout(() => t.style.visibility = 'hidden', 3000); }
         function copyText(txt) { navigator.clipboard.writeText(txt); showToast("Link Copied!"); }
 
