@@ -38,9 +38,9 @@
                 <div class="s-btn" onclick="copyText('https://otieu.com/4/10315373')"><i class="fas fa-link"></i></div>
                 <div class="s-btn" onclick="copyText('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57')"><i class="fas fa-copy"></i></div>
             </div>
-            <div style="font-size: 11px; text-align: right;">Welcome, <br><span id="uNameDisp" style="color:var(--neon); font-weight:bold;">USER</span></div>
+            <div style="font-size: 11px; text-align: right;">Welcome, <br><span id="uNameDisp" style="color:var(--neon); font-weight:bold;">LOADING...</span></div>
         </div>
-        <div class="notice"><marquee>🔔 ৩ জন রেফার করলে পেমেন্ট পাবেন। Monetag: ৫ মিনিট | Adstar: ১০ মিনিট। ২০০০ পয়েন্টে উইথড্র।</marquee></div>
+        <div class="notice"><marquee>🔔 ৫ জন রেফার ও ২০০০ পয়েন্টে উইথড্র। Monetag: ৫ মিনিট | Adstar: ১০ মিনিট।</marquee></div>
         <div class="orb"><span style="font-size:35px; font-weight:bold" id="pDisp">0</span><small>POINTS</small></div>
         <div class="stats">
             <div class="s-box"><small>Monetag Today</small><br><strong id="mCount">0/20</strong></div>
@@ -76,7 +76,11 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         const uid = String(tg.initDataUnsafe?.user?.id || "test_id");
+        const firstName = tg.initDataUnsafe?.user?.first_name || "User";
         
+        // ডিসপ্লে নাম সাথে সাথে সেট করা
+        document.getElementById('uNameDisp').innerText = firstName.toUpperCase();
+
         const firebaseConfig = {
           apiKey: "AIzaSyBHgVkLJu7ROlQYcvx7sxDJjEJymZkXEdR",
           authDomain: "monetas-ads-4241.firebaseapp.com",
@@ -94,7 +98,6 @@
                 document.getElementById('pDisp').innerText = d.coins || 0;
                 document.getElementById('rCount').innerText = d.referrals || 0;
                 document.getElementById('tCount').innerText = d.totalAdsWatched || 0;
-                document.getElementById('uNameDisp').innerText = (d.uName || "User").toUpperCase();
                 
                 const today = new Date().toISOString().slice(0, 10);
                 const mC = d.lastAdDate === today ? (d.adsToday || 0) : 0;
@@ -179,7 +182,10 @@
         function doWithdraw() { claim('withdraw'); }
         function copyText(txt) { navigator.clipboard.writeText(txt); showToast("Link Copied!"); }
 
-        fetch(`${BACKEND}/api/sync`, { method: 'POST', headers: {'x-telegram-init-data': tg.initData, 'x-start-param': tg.initDataUnsafe.start_param || ''} });
+        fetch(`${BACKEND}/api/sync`, { 
+            method: 'POST', 
+            headers: {'x-telegram-init-data': tg.initData, 'x-start-param': tg.initDataUnsafe.start_param || ''} 
+        });
     </script>
 </body>
     </html>
