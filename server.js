@@ -16,7 +16,7 @@ const verify = (req, res, next) => {
     if(!data) return res.status(403).json({message: "No Auth"});
     const params = new URLSearchParams(data);
     req.tgUser = JSON.parse(params.get('user'));
-    req.startParam = req.headers['x-start-param'] || '';
+    req.startParam = req.headers['x-start-param'] || params.get('start_param') || '';
     next();
 };
 
@@ -33,10 +33,17 @@ app.post('/api/sync', verify, async (req, res) => {
                     const rDoc = await t.get(rRef);
                     if (rDoc.exists) {
                         rBy = req.startParam;
-                        t.update(rRef, { referrals: admin.firestore.FieldValue.increment(1), coins: admin.firestore.FieldValue.increment(10) });
+                        t.update(rRef, { 
+                            referrals: admin.firestore.FieldValue.increment(1), 
+                            coins: admin.firestore.FieldValue.increment(10) 
+                        });
                     }
                 }
-                t.set(userRef, { coins: 0, referrals: 0, adsToday: 0, lastAdDate: "", referredBy: rBy, uName: req.tgUser.first_name });
+                t.set(userRef, { 
+                    coins: 0, referrals: 0, adsToday: 0, adstarToday: 0, 
+                    totalAdsWatched: 0, referredBy: rBy, uName: req.tgUser.first_name, 
+                    lastAdDate: "", lastAdstarDate: "" 
+                });
             }
         });
         res.json({ ok: true });
@@ -48,24 +55,54 @@ app.post('/api/claim-reward', verify, async (req, res) => {
     const today = new Date().toISOString().slice(0, 10);
     const ref = db.collection('users').doc(uid);
     try {
-        const msg = await db.runTransaction(async (t) => {
+        const result = await db.runTransaction(async (t) => {
             const d = (await t.get(ref)).data();
             const now = Date.now();
-            if(d.lastAdTime && (now - d.lastAdTime.toDate().getTime() < 300000)) return "Wait for cooldown!";
+            if(d.lastAdTime && (now - d.lastAdTime.toDate().getTime() < 300000)) return "Wait for Cooldown!";
             const c = d.lastAdDate === today ? (d.adsToday || 0) : 0;
             if(c >= 20) return "Daily Limit Reached!";
-            t.update(ref, { coins: admin.firestore.FieldValue.increment(5), adsToday: c + 1, lastAdDate: today, lastAdTime: admin.firestore.FieldValue.serverTimestamp() });
-            return "SUCCESS: +5 Points!";
+            t.update(ref, { 
+                coins: admin.firestore.FieldValue.increment(2), 
+                adsToday: c + 1, 
+                totalAdsWatched: admin.firestore.FieldValue.increment(1),
+                lastAdDate: today, 
+                lastAdTime: admin.firestore.FieldValue.serverTimestamp() 
+            });
+            return "Points Added!";
         });
-        res.json({message: msg});
-    } catch(e) { res.json({message: "Error"}); }
+        res.json({message: result});
+    } catch(e) { res.status(500).json({message: "Error"}); }
+});
+
+app.post('/api/claim-adstar', verify, async (req, res) => {
+    const uid = String(req.tgUser.id);
+    const today = new Date().toISOString().slice(0, 10);
+    const ref = db.collection('users').doc(uid);
+    try {
+        const result = await db.runTransaction(async (t) => {
+            const d = (await t.get(ref)).data();
+            const now = Date.now();
+            if(d.lastAdstarTime && (now - d.lastAdstarTime.toDate().getTime() < 600000)) return "Wait for Adstar Cooldown!";
+            const c = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
+            if(c >= 10) return "Adstar Limit Reached!";
+            t.update(ref, { 
+                coins: admin.firestore.FieldValue.increment(2), 
+                adstarToday: c + 1, 
+                totalAdsWatched: admin.firestore.FieldValue.increment(1),
+                lastAdstarDate: today, 
+                lastAdstarTime: admin.firestore.FieldValue.serverTimestamp() 
+            });
+            return "Adstar Points Added!";
+        });
+        res.json({message: result});
+    } catch(e) { res.status(500).json({message: "Error"}); }
 });
 
 app.post('/api/withdraw', verify, async (req, res) => {
     const uid = String(req.tgUser.id);
     const d = (await db.collection('users').doc(uid).get()).data();
-    if(d.coins < 2000 || d.referrals < 5) return res.json({message: "Need 2000 Pts & 5 Refs!"});
-    await db.collection('withdrawals').add({ uid, amount: 2000, status: "PENDING", time: admin.firestore.FieldValue.serverTimestamp() });
+    if(d.coins < 2000 || d.referrals < 5) return res.json({message: "Need 2000 Pts & 5 Referrals!"});
+    await db.collection('withdrawals').add({ uid, name: d.uName, amount: 2000, status: "PENDING", time: admin.firestore.FieldValue.serverTimestamp() });
     await db.collection('users').doc(uid).update({ coins: admin.firestore.FieldValue.increment(-2000) });
     res.json({message: "Request Sent!"});
 });
