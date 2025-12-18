@@ -15,9 +15,13 @@
         body { margin: 0; padding: 15px; background: var(--bg); color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
         .header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .social-btns { display: flex; gap: 6px; }
-        .s-btn { width: 34px; height: 34px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; text-decoration: none; }
+        .s-btn { width: 34px; height: 34px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; }
         .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 11px; padding: 5px 0; margin-bottom: 10px; border-bottom: 1px solid var(--neon); overflow: hidden; }
-        .orb { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 15px; }
+        
+        /* Orb Center Alignment */
+        .orb-container { width: 100%; display: flex; justify-content: center; margin: 15px 0; }
+        .orb { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
         .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-bottom: 15px; }
         .s-box { background: var(--glass); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
@@ -36,13 +40,19 @@
                 <div class="s-btn" onclick="tg.openLink('https://facebook.com/share/1UQCaxE29T/')"><i class="fab fa-facebook"></i></div>
                 <div class="s-btn" onclick="tg.openLink('https://t.me/ratulhossain56')"><i class="fab fa-telegram"></i></div>
                 <div class="s-btn" style="background: #ffaa00; border-color: #fff;" onclick="tg.openLink('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57')"><i class="fas fa-bolt"></i></div>
+                <div class="s-btn" style="background: #00cc66; border-color: #fff;" onclick="copyText('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57')"><i class="fas fa-copy"></i></div>
             </div>
             <div style="font-size: 10px; text-align: right;">Welcome,<br><span id="uNameDisp" style="color:var(--neon); font-weight:bold;">...</span></div>
         </div>
 
-        <div class="notice"><marquee>🔔 ৫ জন রেফার ও ২০০০ পয়েন্টে উইথড্র। প্রতিটি এডে ২ পয়েন্ট। রেফার বোনাস ১০ পয়েন্ট!</marquee></div>
+        <div class="notice"><marquee>🔔📢 💯 আসসালামু আলাইকুম দয়াকরে সবাই মনযোগ দিয়ে শুনবেন সবাই সবাই সব থেকে বেশি বেশি Monetag এড দেখবেন আর Adstar এড দেখবেন বেশি বেশি আর বাকি যে ইনকাম এর অপশন গুলো আছে ওগুলো আশা কোরি তারা তারি ঠিক হোইয়া জাবে এগুলো সম্পূর্ণ চালু করার পর আপনাদের জানানো হবে এখন মূল কাজ হচ্ছে Monetag এড আর Adstar এড এই ২ টি ওকে এই ২ টি খুব ভালো ভাবে কাজ করে টাকা দেয়া তাই সবাই এগুলো দেখবেন আর উপরে বাম সাইটে হলুদ একটি আইকন আছে ওখান দিয়ে এড দেখবেন যখন এড শেষ হয়ে যাবে তখন আর ওটার পাশে একটা লিংক আছে ওটা সবাইকে সেয়ার করবেন ওটা দিয়ে সবাই ডায়রেক্ট এড দেখতে পারবে আর আপনার ইনকাম হবে আর নিচে রেফার বাটোন আছে বেশি বেশি রেফার করেন ১ টি রেফারে ১০ পয়েন্ট তাই সবাই ঠিক মতো কাজ করেন পেমেন্ট নিন ১৫ দিন পর পর পেমিন্ট পাবেন সবাই ওকে সবাই ভালো থাকবেন নিয়মিত কাজ করবেন ইনশাআল্লাহ 👩‍💻👨‍💻🧑‍💻 !</marquee></div>
 
-        <div class="orb"><span style="font-size:26px; font-weight:bold" id="pDisp">0</span><small>POINTS</small></div>
+        <div class="orb-container">
+            <div class="orb">
+                <span style="font-size:26px; font-weight:bold" id="pDisp">0</span>
+                <small>POINTS</small>
+            </div>
+        </div>
 
         <div class="stats">
             <div class="s-box">M-Ads: <strong id="mCount">0/20</strong></div>
@@ -139,6 +149,7 @@
         function doRefer() { navigator.clipboard.writeText(`https://t.me/realldoler87ok_bot?start=${uid}`); showToast("Referral Link Copied!"); }
         function doWithdraw() { claim('withdraw'); }
         function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.visibility = 'visible'; setTimeout(() => t.style.visibility = 'hidden', 3000); }
+        function copyText(txt) { navigator.clipboard.writeText(txt); showToast("Link Copied!"); }
 
         fetch(`${BACKEND}/api/sync`, { method: 'POST', headers: {'x-telegram-init-data': tg.initData, 'x-start-param': tg.initDataUnsafe.start_param || ''} });
     </script>
