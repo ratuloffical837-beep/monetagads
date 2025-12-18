@@ -16,57 +16,53 @@
         .header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
         .social-btns { display: flex; gap: 8px; flex-wrap: wrap; }
         .s-btn { width: 35px; height: 35px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; }
-        .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 12px; padding: 5px 0; margin: 10px 0; border-bottom: 1px solid var(--neon); overflow: hidden; }
-        .orb { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 15px auto; }
+        .notice { width: 100%; background: rgba(0,0,0,0.3); color: yellow; font-size: 11px; padding: 5px 0; margin: 10px 0; border-bottom: 1px solid var(--neon); overflow: hidden; }
+        .orb { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--neon); box-shadow: 0 0 15px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 15px auto; }
         .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 15px; }
         .s-box { background: var(--glass); padding: 8px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
-        .btn { padding: 15px 5px; border-radius: 12px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 12px; }
+        .btn { padding: 15px 5px; border-radius: 12px; border: 1px solid var(--neon); background: var(--glass); color: #fff; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; }
         .btn-disabled { opacity: 0.4; pointer-events: none !important; filter: grayscale(1); }
         #toast { position: fixed; bottom: 20px; background: #000; padding: 10px 20px; border-radius: 20px; visibility: hidden; border: 1px solid var(--neon); z-index: 999; }
-        .section { display: none; width: 100%; }
-        iframe { border-radius: 12px; border: 1px solid var(--neon); margin-top: 10px; }
+        .section { display: none; width: 100%; height: 100vh; position: fixed; top:0; left:0; background: var(--bg); z-index: 1000; padding: 10px; box-sizing: border-box;}
+        iframe { width: 100%; height: calc(100% - 60px); border-radius: 12px; border: 1px solid var(--neon); margin-top: 10px; background: #fff; }
     </style>
 </head>
 <body>
-    <div id="mainSection" class="section" style="display:block;">
+    <div id="mainSection">
         <div class="header">
             <div class="social-btns">
-                <div class="s-btn" onclick="window.open('https://youtube.com/@alex-42-41')"><i class="fab fa-youtube"></i></div>
-                <div class="s-btn" onclick="window.open('https://facebook.com/share/1UQCaxE29T/')"><i class="fab fa-facebook"></i></div>
-                <div class="s-btn" onclick="window.open('https://t.me/ratulhossain56')"><i class="fab fa-telegram"></i></div>
+                <div class="s-btn" onclick="tg.openLink('https://youtube.com/@alex-42-41')"><i class="fab fa-youtube"></i></div>
+                <div class="s-btn" onclick="tg.openLink('https://facebook.com/share/1UQCaxE29T/')"><i class="fab fa-facebook"></i></div>
+                <div class="s-btn" onclick="tg.openLink('https://t.me/ratulhossain56')"><i class="fab fa-telegram"></i></div>
                 <div class="s-btn" onclick="copyText('https://otieu.com/4/10315373')"><i class="fas fa-link"></i></div>
-                <div class="s-btn" onclick="copyText('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57')"><i class="fas fa-copy"></i></div>
             </div>
-            <div style="font-size: 11px; text-align: right;">Welcome, <br><span id="uNameDisp" style="color:var(--neon); font-weight:bold;">LOADING...</span></div>
+            <div style="font-size: 11px; text-align: right;">Welcome, <br><span id="uNameDisp" style="color:var(--neon); font-weight:bold;">USER</span></div>
         </div>
         <div class="notice"><marquee>🔔 ৫ জন রেফার ও ২০০০ পয়েন্টে উইথড্র। Monetag: ৫ মিনিট | Adstar: ১০ মিনিট।</marquee></div>
-        <div class="orb"><span style="font-size:35px; font-weight:bold" id="pDisp">0</span><small>POINTS</small></div>
+        <div class="orb"><span style="font-size:30px; font-weight:bold" id="pDisp">0</span><small>POINTS</small></div>
         <div class="stats">
-            <div class="s-box"><small>Monetag Today</small><br><strong id="mCount">0/20</strong></div>
-            <div class="s-box"><small>Adstar Today</small><br><strong id="aCount">0/10</strong></div>
-            <div class="s-box"><small>Total Refer</small><br><strong id="rCount">0</strong></div>
-            <div class="s-box"><small>Total Ads</small><br><strong id="tCount">0</strong></div>
+            <div class="s-box"><small>Monetag</small><br><strong id="mCount">0/20</strong></div>
+            <div class="s-box"><small>Adstar</small><br><strong id="aCount">0/10</strong></div>
+            <div class="s-box"><small>Refer</small><br><strong id="rCount">0</strong></div>
+            <div class="s-box"><small>Total</small><br><strong id="tCount">0</strong></div>
         </div>
         <div class="btn-grid">
             <button class="btn" id="mBtn" onclick="watchM()"><i class="fas fa-play"></i><span id="mText">MONETAG AD</span></button>
             <button class="btn" id="aBtn" onclick="watchA()"><i class="fas fa-star"></i><span id="aText">ADSTAR AD</span></button>
-            <button class="btn" onclick="showSection('cpxSection')"><i class="fas fa-poll"></i>CPX SURVEY</button>
-            <button class="btn" onclick="showSection('adgemSection')"><i class="fas fa-gem"></i>ADGEM OFFERS</button>
+            <button class="btn" onclick="openWall('cpx')"><i class="fas fa-poll"></i>CPX SURVEY</button>
+            <button class="btn" onclick="openWall('bitlabs')"><i class="fas fa-flask"></i>BITLABS</button>
+            <button class="btn" onclick="openWall('ayet')"><i class="fas fa-gamepad"></i>AYET STUDIOS</button>
+            <button class="btn" onclick="openWall('adgem')"><i class="fas fa-gem"></i>ADGEM</button>
             <button class="btn" onclick="doWithdraw()"><i class="fas fa-wallet"></i>WITHDRAW</button>
             <button class="btn" onclick="doRefer()"><i class="fas fa-users"></i>REFER LINK</button>
         </div>
         <button class="btn" style="width:100%; margin-top:15px; background:rgba(255, 59, 48, 0.2); border-color:#ff3b30;" onclick="tg.close()">EXIT APP</button>
     </div>
 
-    <div id="cpxSection" class="section">
-        <button class="btn" style="width:100%;" onclick="showSection('mainSection')">BACK</button>
-        <iframe id="cpx-iframe" width="100%" height="500px" frameborder="0"></iframe>
-    </div>
-
-    <div id="adgemSection" class="section">
-        <button class="btn" style="width:100%;" onclick="showSection('mainSection')">BACK</button>
-        <iframe id="adgem-iframe" width="100%" height="500px" frameborder="0"></iframe>
+    <div id="wallSection" class="section">
+        <button class="btn" style="width:100%;" onclick="closeWall()">BACK TO HOME</button>
+        <iframe id="wall-iframe" frameborder="0"></iframe>
     </div>
 
     <div id="toast">Notice</div>
@@ -77,8 +73,6 @@
         tg.expand();
         const uid = String(tg.initDataUnsafe?.user?.id || "test_id");
         const firstName = tg.initDataUnsafe?.user?.first_name || "User";
-        
-        // ডিসপ্লে নাম সাথে সাথে সেট করা
         document.getElementById('uNameDisp').innerText = firstName.toUpperCase();
 
         const firebaseConfig = {
@@ -98,13 +92,11 @@
                 document.getElementById('pDisp').innerText = d.coins || 0;
                 document.getElementById('rCount').innerText = d.referrals || 0;
                 document.getElementById('tCount').innerText = d.totalAdsWatched || 0;
-                
                 const today = new Date().toISOString().slice(0, 10);
                 const mC = d.lastAdDate === today ? (d.adsToday || 0) : 0;
                 const aC = d.lastAdstarDate === today ? (d.adstarToday || 0) : 0;
                 document.getElementById('mCount').innerText = `${mC}/20`;
                 document.getElementById('aCount').innerText = `${aC}/10`;
-                
                 handleTimers(d.lastAdTime, d.lastAdstarTime, mC, aC);
             }
         });
@@ -113,14 +105,12 @@
             const now = Date.now();
             const mb = document.getElementById('mBtn'), mt = document.getElementById('mText');
             const ab = document.getElementById('aBtn'), at = document.getElementById('aText');
-
             if(mC >= 20) { mb.classList.add('btn-disabled'); mt.innerText = "LIMIT REACHED"; }
             else {
                 let diff = mT ? (now - mT.toDate().getTime())/1000 : 9999;
                 if(diff < 300) setTimer(mb, mt, 300-diff, "MONETAG AD");
                 else { mb.classList.remove('btn-disabled'); mt.innerText = "MONETAG AD"; }
             }
-
             if(aC >= 10) { ab.classList.add('btn-disabled'); at.innerText = "LIMIT REACHED"; }
             else {
                 let diff = aT ? (now - aT.toDate().getTime())/1000 : 9999;
@@ -139,16 +129,26 @@
             }, 1000);
         }
 
-        function showSection(id) {
-            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-            if(id === 'cpxSection') {
+        function openWall(type) {
+            document.getElementById('wallSection').style.display = 'block';
+            const iframe = document.getElementById('wall-iframe');
+            let url = "";
+            if(type === 'cpx') {
                 const hash = md5(uid + "-0UO1OjWFA1DzWsmbSlsNL6zgRJ0ovYed");
-                document.getElementById('cpx-iframe').src = `https://offers.cpx-research.com/index.php?app_id=30520&ext_user_id=${uid}&secure_hash=${hash}`;
+                url = `https://offers.cpx-research.com/index.php?app_id=30520&ext_user_id=${uid}&secure_hash=${hash}`;
+            } else if(type === 'bitlabs') {
+                url = `https://web.bitlabs.ai/?token=246506f4-d3bf-4b41-8cfc-9aa09ee7b8c9&uid=${uid}`;
+            } else if(type === 'ayet') {
+                url = `https://www.ayetstudios.com/offers/web_view/24913?external_identifier=${uid}`;
+            } else if(type === 'adgem') {
+                url = `https://api.adgem.com/v1/wall?appid=31665&playerid=${uid}`;
             }
-            if(id === 'adgemSection') {
-                document.getElementById('adgem-iframe').src = `https://api.adgem.com/v1/wall?appid=31665&playerid=${uid}`;
-            }
+            iframe.src = url;
+        }
+
+        function closeWall() {
+            document.getElementById('wallSection').style.display = 'none';
+            document.getElementById('wall-iframe').src = "";
         }
 
         function watchM() {
@@ -158,7 +158,7 @@
         }
 
         function watchA() {
-            window.open('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57', '_blank');
+            tg.openLink('https://www.effectivegatecpm.com/e0xpfuhe?key=fb81fa455f0ff2d6a8fa09ce5d18dd57');
             setTimeout(() => claim('claim-adstar'), 15000);
         }
 
@@ -168,18 +168,13 @@
             showToast(d.message);
         }
 
-        function showToast(m) {
-            const t = document.getElementById('toast');
-            t.innerText = m; t.style.visibility = 'visible';
-            setTimeout(() => t.style.visibility = 'hidden', 3000);
-        }
-
         function doRefer() {
             copyText(`https://t.me/realldoler87ok_bot?start=${uid}`);
             showToast("Referral Link Copied!");
         }
 
         function doWithdraw() { claim('withdraw'); }
+        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.visibility = 'visible'; setTimeout(() => t.style.visibility = 'hidden', 3000); }
         function copyText(txt) { navigator.clipboard.writeText(txt); showToast("Link Copied!"); }
 
         fetch(`${BACKEND}/api/sync`, { 
