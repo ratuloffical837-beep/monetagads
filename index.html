@@ -17,7 +17,11 @@
         .social-btns { display: flex; gap: 5px; flex-wrap: wrap; max-width: 75%; }
         .s-btn { width: 32px; height: 32px; border: 1px solid var(--neon); border-radius: 8px; background: var(--glass); color: #fff; display: grid; place-items: center; cursor: pointer; font-size: 14px; }
         .notice-container { width: 100%; background: rgba(0,0,0,0.3); color: #00ffcc; font-size: 13px; padding: 8px 0; margin-bottom: 10px; border-top: 1px solid var(--neon); border-bottom: 1px solid var(--neon); overflow: hidden; }
-        .orb { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--neon); box-shadow: 0 0 20px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 15px 0; background: radial-gradient(circle, rgba(0,240,255,0.1) 0%, transparent 70%); }
+        
+        /* Orb Centered Fix */
+        .orb-wrapper { width: 100%; display: flex; justify-content: center; margin: 15px 0; }
+        .orb { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--neon); box-shadow: 0 0 20px var(--neon); display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, rgba(0,240,255,0.1) 0%, transparent 70%); }
+        
         .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-bottom: 15px; }
         .s-box { background: var(--glass); padding: 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 11px; }
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
@@ -50,9 +54,11 @@
             <marquee scrollamount="5">📢👩‍💻🏦💵 আসসালামু আলাইকুম আশা করি সবাই ভালো আছেন সবাই মনযোগ দিয়ে শুনবেন সবাই দোইনিক Adstar আর Monetag এড দেখবেন কারন এই সাইটটিতে এখন ইনকামের উপায় হলো Monetag আর Adstar এই ২ টি তো সবাই বেশি বেশি এড দেখবেন অন্য কে এড দেখাবেন লিংক শেয়ার করে এর পর আর বাকি সিস্টেম গুলোও চালু হয়ে যাবে কিছু দিনের ভিতরে ইনশাআল্লাহ দোইনিক টাস্ক সম্পূর্ণ করেন এবং পেমিন্ট পান সবাই দোইনিক ৩০ টি এড দেখেন উপরে এড লিংক সাধারণ মানুষের কাছে শেয়ার করেন এতে আপনাদের ইনকাম বারবে আর রেফার করেন বেশি বেশি তাহলে আপনারা একটি ভালো পরিমান টাকা ইনকাম করতে পারবেন 💯💯💵💵 ইনশাআল্লাহ</marquee>
         </div>
 
-        <div class="orb">
-            <span style="font-size:28px; font-weight:bold" id="pDisp">0</span>
-            <small style="letter-spacing: 2px;">POINTS</small>
+        <div class="orb-wrapper">
+            <div class="orb">
+                <span style="font-size:28px; font-weight:bold" id="pDisp">0</span>
+                <small style="letter-spacing: 2px;">POINTS</small>
+            </div>
         </div>
 
         <div class="stats">
@@ -109,7 +115,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // রিয়েল-টাইম ডাটা আপডেট চেক
         db.collection('users').doc(uid).onSnapshot(doc => {
             if(doc.exists) {
                 const d = doc.data();
@@ -124,6 +129,7 @@
                 document.getElementById('mCount').innerText = `${mC}/20`;
                 document.getElementById('aCount').innerText = `${aC}/10`;
                 
+                // Monetag 5 Min (300s), Adstar 10 Min (600s)
                 updateTimerUI(d.lastAdTime, 300, 'mBtn', 'mText', 'MONETAG AD', mC, 20);
                 updateTimerUI(d.lastAdstarTime, 600, 'aBtn', 'aText', 'ADSTAR AD', aC, 10);
             }
@@ -135,17 +141,26 @@
             if(!lastT) return;
             
             const lastTime = lastT.toDate ? lastT.toDate().getTime() : lastT;
-            const diff = (Date.now() - lastTime) / 1000;
             
-            if(diff < duration) {
-                btn.classList.add('btn-disabled');
-                let rem = Math.ceil(duration - diff);
-                const timer = setInterval(() => {
-                    rem--;
-                    if(rem <= 0) { clearInterval(timer); btn.classList.remove('btn-disabled'); txt.innerText = label; }
-                    else txt.innerText = `Wait ${rem}s`;
-                }, 1000);
-            } else { btn.classList.remove('btn-disabled'); txt.innerText = label; }
+            const timerFunc = () => {
+                const diff = (Date.now() - lastTime) / 1000;
+                if(diff < duration) {
+                    btn.classList.add('btn-disabled');
+                    let rem = Math.ceil(duration - diff);
+                    let mins = Math.floor(rem / 60);
+                    let secs = rem % 60;
+                    // Format MM:SS
+                    txt.innerText = `Wait ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                } else {
+                    btn.classList.remove('btn-disabled');
+                    txt.innerText = label;
+                    clearInterval(window[btnId + 'Interval']);
+                }
+            };
+
+            clearInterval(window[btnId + 'Interval']);
+            window[btnId + 'Interval'] = setInterval(timerFunc, 1000);
+            timerFunc();
         }
 
         function watchM() { if(typeof show_10318378 === 'function') { show_10318378({ymid: uid}).then(() => claim('claim-reward')); } }
@@ -161,8 +176,8 @@
         async function submitWithdraw() {
             const amount = parseInt(document.getElementById('wAmount').value);
             const phone = document.getElementById('wPhone').value;
-            if(amount < 2000) return showToast("Minimum 2000 Points!");
-            if(phone.length !== 11) return showToast("Invalid Phone Number!");
+            if(amount < 2000) return showToast("Min 2000 Pts!");
+            if(phone.length !== 11) return showToast("Invalid Phone!");
             const res = await fetch(`${BACKEND}/api/withdraw`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-telegram-init-data': tg.initData },
