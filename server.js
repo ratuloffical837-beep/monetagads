@@ -28,8 +28,10 @@ const verify = (req, res, next) => {
 
 app.post('/api/sync', verify, async (req, res) => {
     const uid = String(req.tgUser.id);
+    const firstName = req.tgUser.first_name || "User";
     const ref = db.collection('users').doc(uid);
     const doc = await ref.get();
+    
     if(!doc.exists) {
         let rBy = null;
         if(req.startParam && req.startParam !== uid) {
@@ -40,7 +42,13 @@ app.post('/api/sync', verify, async (req, res) => {
                 await rRef.update({ referrals: admin.firestore.FieldValue.increment(1), coins: admin.firestore.FieldValue.increment(5) });
             }
         }
-        await ref.set({ coins: 0, referrals: 0, adsToday: 0, adstarToday: 0, totalAdsWatched: 0, referredBy: rBy, uName: req.tgUser.first_name, lastAdDate: "" });
+        await ref.set({ 
+            coins: 0, referrals: 0, adsToday: 0, adstarToday: 0, 
+            totalAdsWatched: 0, referredBy: rBy, uName: firstName, lastAdDate: "" 
+        });
+    } else {
+        // নাম আপডেট করে রাখা যাতে টেলিগ্রামের নাম শনাক্ত হয়
+        await ref.update({ uName: firstName });
     }
     res.json({ok: true});
 });
@@ -57,7 +65,12 @@ app.post('/api/claim-reward', verify, async (req, res) => {
             if(Date.now() - lastT < 300000) return "Wait 5 minutes!";
             const c = d.lastAdDate === today ? (d.adsToday || 0) : 0;
             if(c >= 20) return "Daily Limit Reached!";
-            t.update(ref, { coins: admin.firestore.FieldValue.increment(2), totalAdsWatched: admin.firestore.FieldValue.increment(1), adsToday: c + 1, lastAdDate: today, lastAdTime: admin.firestore.FieldValue.serverTimestamp() });
+            t.update(ref, { 
+                coins: admin.firestore.FieldValue.increment(2), 
+                totalAdsWatched: admin.firestore.FieldValue.increment(1), 
+                adsToday: c + 1, lastAdDate: today, 
+                lastAdTime: admin.firestore.FieldValue.serverTimestamp() 
+            });
             return "SUCCESS: +2 Points!";
         });
         res.json({message: result});
@@ -79,10 +92,17 @@ app.post('/api/withdraw', verify, async (req, res) => {
     const uid = String(req.tgUser.id);
     const ref = db.collection('users').doc(uid);
     const d = (await ref.get()).data();
-    if(d.coins < 2000 || d.referrals < 5) return res.json({message: "Need 2000 Points & 5 Referrals!"});
-    await db.collection('withdrawals').add({ uid, name: d.uName, amount: 2000, status: "PENDING", time: admin.firestore.FieldValue.serverTimestamp() });
+    
+    if(d.coins < 2000 || d.referrals < 5) {
+        return res.json({message: "Need 2000 Pts & 5 Referrals!"});
+    }
+    
+    await db.collection('withdrawals').add({ 
+        uid, name: d.uName, amount: 2000, status: "PENDING", 
+        time: admin.firestore.FieldValue.serverTimestamp() 
+    });
     await ref.update({ coins: admin.firestore.FieldValue.increment(-2000) });
-    res.json({message: "Withdrawal Sent!"});
+    res.json({message: "Withdrawal Sent Successfully!"});
 });
 
 app.listen(process.env.PORT || 3000);
