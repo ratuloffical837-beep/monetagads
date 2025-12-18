@@ -60,7 +60,7 @@ app.post('/api/claim-reward', verify, async (req, res) => {
         totalAdsWatched: admin.firestore.FieldValue.increment(1),
         lastAdTime: admin.firestore.FieldValue.serverTimestamp()
     });
-    res.json({message: "Success: +1 Pt Counted!"});
+    res.json({message: "Success: +1 Pt Added!"});
 });
 
 app.post('/api/claim-adstar', verify, async (req, res) => {
@@ -87,7 +87,7 @@ app.post('/api/withdraw', verify, async (req, res) => {
     const d = doc.data();
 
     if(d.coins < amount) return res.json({ok:false, message:"পয়েন্ট কম আছে!"});
-    if(d.referrals < 5) return res.json({ok:false, message:"উইথড্র করতে ৫টি রেফার লাগবে!"});
+    if(d.referrals < 5) return res.json({ok:false, message:"৫টি রেফার লাগবে!"});
 
     await db.collection('withdrawals').add({ uid, name: d.uName, amount, method, phone, status: "PENDING", time: admin.firestore.FieldValue.serverTimestamp() });
     await ref.update({ coins: admin.firestore.FieldValue.increment(-amount) });
